@@ -53,18 +53,63 @@ $aset_tdk_lancar = isset($asettdklancar['aset_tdk_lancar']) ? (float)$asettdklan
 $asetlancar = ($penjualan - $pembelian_cash - $hutang);
 $neraca = ($penjualan - $piutang - $hutang - $pembelian_cash);
 
-$pdf = new FPDF("P", "cm", "A4");
-$pdf->SetMargins(1, 1, 1);
-$pdf->AliasNbPages();
-$pdf->AddPage();
-$pdf->SetFont("Arial", "B", 12);
-$pdf->Cell(0, 0.7, "NERACA LABA RUGI", 0, 1, "L");
-$pdf->SetFont("Arial", "", 9);
-$pdf->Cell(0, 0.5, "Tanggal Cetak : " . date("d-m-Y H:i:s"), 0, 1, "L");
-$pdf->Cell(0, 0.5, "Dicetak Oleh : " . $_SESSION['namalengkap'], 0, 1, "L");
-$pdf->Cell(0, 0.5, "Periode : " . tgl_indo($awal) . " - " . tgl_indo($akhir), 0, 1, "L");
+class PDF extends FPDF
+{
+    public $periodText = "";
+    public $printedBy = "";
+    public $logoPath = "";
 
-$pdf->Ln(0.4);
+    public function Header()
+    {
+        global $db;
+        if ($db instanceof PDO) {
+            $ah = $db->query("SELECT * FROM setheader");
+            $rh = $ah ? $ah->fetch(PDO::FETCH_ASSOC) : null;
+            if ($rh && !empty($rh['logo'])) {
+                $myImage = __DIR__ . "/../../images/" . $rh['logo'];
+                if (file_exists($myImage)) {
+                    $this->Image($myImage, 1, 1, 2, 2.3);
+                }
+            }
+        }
+        // if ($this->logoPath !== "" && file_exists($this->logoPath)) {
+        //     $this->Image($this->logoPath, 1, 0.8, 1.2);
+        // }
+        $this->SetX(3.5);
+        $this->SetFont("Arial", "B", 12);      
+        $this->Cell(2.5, 0.7, "NERACA LABA RUGI", 0, 1, "L");
+        $this->SetX(3.5);
+        $this->SetFont("Arial", "", 9);
+        $this->Cell(2.5, 0.5, "Tanggal Cetak : " . date("d-m-Y H:i:s"), 0, 1, "L");
+        if ($this->printedBy !== "") {
+            $this->SetX(3.5);
+            $this->Cell(2.5, 0.5, "Dicetak Oleh : " . $this->printedBy, 0, 1, "L");
+        }
+        if ($this->periodText !== "") {
+            $this->SetX(3.5);
+            $this->Cell(2.5, 0.5, "Periode : " . $this->periodText, 0, 1, "L");
+        }
+        $this->Ln(0.2);
+    }
+
+    public function Footer()
+    {
+        $this->SetY(-1.2);
+        $this->SetFont("Arial", "", 8);
+        $this->Cell(0, 0.5, "Halaman " . $this->PageNo() . "/{nb}", 0, 0, "R");
+    }
+}
+
+$pdf = new PDF("P", "cm", "A4");
+$pdf->SetMargins(1, 1.2, 1);
+$pdf->SetAutoPageBreak(true, 1.5);
+$pdf->AliasNbPages();
+$pdf->periodText = tgl_indo($awal) . " - " . tgl_indo($akhir);
+$pdf->printedBy = isset($_SESSION['namalengkap']) ? $_SESSION['namalengkap'] : "";
+$pdf->logoPath = __DIR__ . "/../../images/logo.jpg";
+$pdf->AddPage();
+
+$pdf->Ln(0.2);
 $pdf->SetFont("Arial", "B", 9);
 $pdf->Cell(1, 0.7, "No", 1, 0, "C");
 $pdf->Cell(10, 0.7, "Keterangan", 1, 0, "C");
