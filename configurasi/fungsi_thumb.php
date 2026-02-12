@@ -40,5 +40,13 @@ function UploadLogo_Struk($fupload_name){
   move_uploaded_file($_FILES["fupload1"]["tmp_name"], $vfile_upload);
 }
 
+// UPLOAD TANDA TANGAN STRUK
+function UploadTandaTangan_Struk($fupload_name){
+  //direktori gambar
+  $vdir_upload = "../../images/";
+  $vfile_upload = $vdir_upload . $fupload_name;
+  move_uploaded_file($_FILES["fupload2"]["tmp_name"], $vfile_upload);
+}
+
 
 ?>

@@ -199,7 +199,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 							  </div>
 							  
 							  <div class='form-group'>
-									<label class='col-sm-4 control-label'>Harga Jual Nakes</label>        		
+									<label class='col-sm-4 control-label'>Harga Jual Marketplace</label>        		
 									 <div class='col-sm-8'>
 										<input type='number' min='0' name='hrgjual_barang2' class='form-control' required='required' autocomplete='off'>
 									 </div>
@@ -361,7 +361,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 							  </div>
 							  
 							   <div class='form-group'>
-									<label class='col-sm-4 control-label'>Harga Jual Nakes</label>        		
+									<label class='col-sm-4 control-label'>Harga Jual Marketplace</label>        		
 									 <div class='col-sm-8'>
 										<input type='number' min='0' name='hrgjual_barang2' class='form-control' required='required' value='$r[hrgjual_barang2]' autocomplete='off'>
 									 </div>

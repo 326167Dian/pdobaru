@@ -2,9 +2,10 @@
 include "../../../configurasi/koneksi.php";
 
 $key = $_POST['nm_barang'];
-$nmbrg = explode("(",$key);
-$key1 = $nmbrg[0];
-$ubah = $db->prepare("SELECT * FROM barang WHERE nm_barang = ?");
+$nmbrg = explode("(", $key);
+$key1 = trim($nmbrg[0]);
+$key1 = preg_replace('/\s+/', ' ', $key1);
+$ubah = $db->prepare("SELECT * FROM barang WHERE LOWER(REPLACE(REPLACE(REPLACE(nm_barang, '  ', ' '), '  ', ' '), '  ', ' ')) = LOWER(?)");
 $ubah->execute([$key1]);
 
 

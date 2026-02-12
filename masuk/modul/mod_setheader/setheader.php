@@ -98,14 +98,30 @@ switch($_GET['act']){
 									 </div> <br>
                                     	
 							  </div>
+							  <div class='form-group'>
+									<label class='col-sm-3 control-label'>Tanda Tangan</label>        		
+									 <div class='col-sm-6'>
+										<input type='file' name='fupload2' class='form-control' value='$r[tandatangan]' autocomplete='off'>
+									 </div> <br>
+							  </div>
+
+							  
 							  ";
-                                      if (!empty($r['logo'])) {
-                                        echo "
-                                            <img src='images/$r[logo]'
-                                                 style='display:block; margin:10px auto; max-width:100px; border:1px solid #ccc;'
-                                                 alt='User Image'>
-                                        ";
-                                     }
+																			if (!empty($r['logo'])) {
+																				echo "
+																						<img src='images/$r[logo]'
+																								 style='display:block; margin:10px auto; max-width:100px; border:1px solid #ccc;'
+																								 alt='Logo Header'>
+																				";
+																		 }
+
+																			if (!empty($r['tandatangan'])) {
+																				echo "
+																						<img src='images/$r[tandatangan]'
+																								 style='display:block; margin:10px auto; max-width:100px; border:1px solid #ccc;'
+																								 alt='Tanda Tangan'>
+																				";
+																		 }
 
 
 							    echo"
