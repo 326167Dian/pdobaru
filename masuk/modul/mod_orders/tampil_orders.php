@@ -105,11 +105,10 @@ $pdf->Cell(2.5, 0.7, 'Ket', 1, 0, 'C');
 // $pdf->SetFont('Arial', '', 10);
 
 $no = 1;
-$query1 = mysqli_query($GLOBALS["___mysqli_ston"], "SELECT *
-FROM ordersdetail
-WHERE kd_trbmasuk = '$kdorders'");
+$query1 = $db->prepare("SELECT * FROM ordersdetail WHERE kd_trbmasuk = ?");
+$query1->execute([$kdorders]);
 
-while ($lihat = mysqli_fetch_array($query1)) {
+while ($lihat = $query1->fetch(PDO::FETCH_ASSOC)) {
     $qty = ($lihat['qtygrosir_dtrbmasuk'] == "") ? $lihat['qty_dtrbmasuk'] : $lihat['qtygrosir_dtrbmasuk'];
     $satuan = ($lihat['satgrosir_dtrbmasuk'] == "") ? $lihat['sat_dtrbmasuk'] : $lihat['satgrosir_dtrbmasuk'];
     
@@ -133,6 +132,14 @@ $pdf->ln(0.4);
 $pdf->SetFont('Arial', '', 10);
 $pdf->Cell(5, 0, '', 0, 0, 'R');
 $pdf->Cell(9, 0, 'Apoteker Pemesan,', 0, 0, 'C');
+
+$signaturePath = "../../images/".$rh['tandatangan'];
+$signatureFile = __DIR__."/../../images/".$rh['tandatangan'];
+if (($res['tandatangan']) == 'YA') {
+    $pdf->ln(0.3);
+    $pdf->SetX(9);
+    $pdf->Image($signaturePath, $pdf->GetX(), $pdf->GetY()-0.5, 4, 4);
+}
 
 $pdf->ln(2.5);
 $pdf->SetFont('Arial', 'BU', 10);

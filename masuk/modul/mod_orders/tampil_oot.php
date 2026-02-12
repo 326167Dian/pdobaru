@@ -36,6 +36,8 @@ $pdf->ln(0.3);
 $pdf->SetFont('Arial', 'B', 14);
 $pdf->SetTextColor(0, 0, 0);
 $pdf->Cell(3.5, 0.4,'' , 0, 0, 'C');
+
+
 $pdf->Cell(14, 0.5,'No. SIPA '.$rh['tujuh'], 0, 1, 'C');
 $pdf->SetFont('Arial', '', 12);
 $pdf->Cell(3.5, 0.4,'' , 0, 0, 'C');
@@ -297,6 +299,14 @@ $pdf->ln(0.4);
 $pdf->SetFont('Arial', '', 10);
 $pdf->Cell(10, 0, '', 0, 0, 'R');
 $pdf->Cell(9, 0, 'Apoteker Pemesan,', 0, 0, 'C');
+
+$signaturePath = "../../images/".$rh['tandatangan'];
+$signatureFile = __DIR__."/../../images/".$rh['tandatangan'];
+if (($res['tandatangan']) == 'YA') {
+    $pdf->ln(0.3);
+    $pdf->SetX(14);
+    $pdf->Image($signaturePath, $pdf->GetX(), $pdf->GetY()-0.5, 4, 4);
+}
 
 $pdf->ln(3);
 $pdf->SetFont('Arial', 'BU', 10);

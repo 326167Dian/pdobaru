@@ -260,11 +260,19 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 										
 									<label class='col-sm-4 control-label'>Jenis Pesanan</label>        		
 										<div class='col-sm-6'>
-										<select name='ket_trbmasuk' id='ket_trbmasuk' class='form-control' >
-											<option value='REGULER'>REGULER </option>
-											<option value='PREKURSOR'>PREKURSOR </option>
-											<option value='OOT'>OOT</option>
-											<option value='ALKES'>ALKES</option>
+											<select name='ket_trbmasuk' id='ket_trbmasuk' class='form-control' >
+												<option value='REGULER'>REGULER </option>
+												<option value='PREKURSOR'>PREKURSOR </option>
+												<option value='OOT'>OOT</option>
+												<option value='ALKES'>ALKES</option>
+											</select>
+										</div>
+
+									<label class='col-sm-4 control-label'>Tanda Tangan Digital</label>        		
+										<div class='col-sm-6'>
+										<select name='tandatangan' id='tandatangan' class='form-control' >
+											<option value='TIDAK'>TIDAK </option>
+											<option value='YA'>YA </option>
 										</select>
 											</p>
 											<div class='buttons'>
@@ -419,7 +427,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 									<label class='col-sm-4 control-label'>Supplier</label>        		
 										<div class='col-sm-6'>
 											<div class='input-group'>
-												<input type='text' class='form-control' name='nm_supplier' id='nm_supplier' required='required' autocomplete='off' Disabled>
+												<input type='text' class='form-control' name='nm_supplier' id='nm_supplier' required='required' value='$re[nm_supplier]' autocomplete='off' Disabled>
 													<div class='input-group-addon'>
 														<button type=button data-toggle='modal' data-target='#ModalSupplier' href='#'><span class='glyphicon glyphicon-search'></span></button>
 													</div>
@@ -428,17 +436,25 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 									
 									<label class='col-sm-4 control-label'>Telepon</label>        		
 										<div class='col-sm-6'>
-											<input type=text name='tlp_supplier' id='tlp_supplier' class='form-control' autocomplete='off'>
+											<input type=text name='tlp_supplier' id='tlp_supplier' value='$re[tlp_supplier]' class='form-control' autocomplete='off'>
 										</div>
 										
 									<label class='col-sm-4 control-label'>Alamat</label>        		
 										<div class='col-sm-6'>
-											<textarea name='alamat_supplier' id='alamat_supplier' class='form-control' rows='2'></textarea>
+											<textarea name='alamat_supplier' id='alamat_supplier' class='form-control' rows='2'>$re[alamat_trbmasuk]</textarea>
 										</div>
 										
 									<label class='col-sm-4 control-label'>Jenis Pesanan</label>        		
 										<div class='col-sm-6'>
-											<textarea name='ket_trbmasuk' id='ket_trbmasuk' class='form-control' rows='2'></textarea>
+											<textarea name='ket_trbmasuk' id='ket_trbmasuk' class='form-control' rows='2'>$re[ket_trbmasuk]</textarea>
+										</div>
+									<label class='col-sm-4 control-label'>Tanda Tangan Digital</label>        		
+										<div class='col-sm-6'>											
+												<select name='tandatangan' id='tandatangan' class='form-control' >
+													<option value=$re[tandatangan]>$re[tandatangan]</option>													
+													<option value='TIDAK'>TIDAK </option>
+													<option value='YA'>YA </option>
+												</select>
 											</p>
 											<div class='buttons'>
 											  <button type='button' class='btn btn-primary right-block' onclick='simpan_transaksi();'>(F3) SIMPAN TRANSAKSI</button>
@@ -1070,6 +1086,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 		var dp_bayar = document.getElementById('dp_bayar').value;
 		var sisa_bayar = document.getElementById('sisa_bayar').value;
 		var petugas = document.getElementById('petugas').value;
+		var tandatangan = document.getElementById('tandatangan').value;
 
 		var ttl_trkasir1 = ttl_trkasir.replace(".", "");
 		var dp_bayar1 = dp_bayar.replace(".", "");
@@ -1101,7 +1118,8 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 					'ttl_trkasir': ttl_trkasir1x,
 					'dp_bayar': dp_bayar1x,
 					'sisa_bayar': sisa_bayar1x,
-					'petugas': petugas
+					'petugas': petugas,
+					'tandatangan': tandatangan
 				},
 				success: function(data) {
 					alert('Proses berhasil !');

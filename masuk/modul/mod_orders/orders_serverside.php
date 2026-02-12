@@ -112,7 +112,21 @@ if (isset($_GET['action']) && $_GET['action'] == "table_data") {
             $nestedData['ttl_trbmasuk'] = $value['ttl_trbmasuk'];
             $nestedData['dp_bayar']     = $value['dp_bayar'];
             $nestedData['sisa_bayar']   = $value['sisa_bayar'];
-            $nestedData['aksi']         = "<a href='?module=orders&act=ubah&id=$value[id_trbmasuk]' title='EDIT' class='btn btn-warning btn-xs'>EDIT</a> <a href=javascript:confirmdelete('$aksi?module=orders&act=hapus&id=$value[id_trbmasuk]') title='HAPUS' class='btn btn-danger btn-xs'>HAPUS</a>";
+            $nestedData['aksi'] ="<div class='dropdown'>
+  <button class='btn btn-default dropdown-toggle' type='button' id='dropdownMenu1' data-toggle='dropdown' aria-haspopup='true' aria-expanded='true'>
+    action
+    <span class='caret'></span>
+  </button>
+  <ul class='dropdown-menu' aria-labelledby='dropdownMenu1'>
+    <li style='background-color:yellow;'><a href='?module=orders&act=ubah&id=$value[id_trbmasuk]'>EDIT</a></li>
+    <li style='background-color:red;'><a href=javascript:confirmdelete('$aksi?module=orders&act=hapus&id=$value[id_trbmasuk]')>HAPUS</a></li>
+    <li style='background-color:aqua;'><a href='modul/mod_orders/tampil_orders.php?id=$value[kd_trbmasuk]' target='_blank'>SP REGULER</a></li>
+    <li style='background-color:#00FF00;'><a href='modul/mod_orders/tampil_prekursor.php?id=$value[kd_trbmasuk]' target='_blank'>SP PREKURSOR</a></li>
+    <li style='background-color:#FF7F50;'><a href='modul/mod_orders/tampil_oot.php?id=$value[kd_trbmasuk]' target='_blank'>SP OOT</a></li>
+    <li style='background-color:#6495ED;'><a href='modul/mod_orders/tampil_alkes.php?id=$value[kd_trbmasuk]' target='_blank'>SP ALKES</a></li>
+  </ul> 
+</div>";
+
             $data[] = $nestedData;
             $no++;
         }

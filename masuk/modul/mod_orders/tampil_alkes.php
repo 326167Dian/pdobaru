@@ -130,6 +130,14 @@ $pdf->SetFont('Arial', '', 10);
 $pdf->Cell(5, 0, '', 0, 0, 'R');
 $pdf->Cell(9, 0, 'Apoteker Pemesan,', 0, 0, 'C');
 
+$signaturePath = "../../images/".$rh['tandatangan'];
+$signatureFile = __DIR__."/../../images/".$rh['tandatangan'];
+if (($res['tandatangan']) == 'YA') {
+    $pdf->ln(0.3);
+    $pdf->SetX(9);
+    $pdf->Image($signaturePath, $pdf->GetX(), $pdf->GetY()-0.5, 4, 4);
+}
+
 $pdf->ln(2.5);
 $pdf->SetFont('Arial', 'BU', 10);
 $pdf->Cell(5, 0, '', 0, 0, 'R');

@@ -35,7 +35,8 @@ if ($module=='orders' AND $act=='input_trbmasuk'){
 										ttl_trbmasuk,
 										dp_bayar,
 										sisa_bayar,
-										ket_trbmasuk)
+										ket_trbmasuk,
+										tandatangan)
 								 VALUES('pesan',
 										?,
 										?,
@@ -47,8 +48,9 @@ if ($module=='orders' AND $act=='input_trbmasuk'){
 										?,
 										?,
 										?,
+										?,
 										?)");
-    $stmt->execute([$_POST['petugas'], $_POST['kd_trbmasuk'], $_POST['tgl_trbmasuk'], $_POST['id_supplier'], $_POST['nm_supplier'], $_POST['tlp_supplier'], $_POST['alamat_trbmasuk'], $_POST['ttl_trkasir'], $_POST['dp_bayar'], $_POST['sisa_bayar'], $_POST['ket_trbmasuk']]);
+	$stmt->execute([$_POST['petugas'], $_POST['kd_trbmasuk'], $_POST['tgl_trbmasuk'], $_POST['id_supplier'], $_POST['nm_supplier'], $_POST['tlp_supplier'], $_POST['alamat_trbmasuk'], $_POST['ttl_trkasir'], $_POST['dp_bayar'], $_POST['sisa_bayar'], $_POST['ket_trbmasuk'], $_POST['tandatangan']]);
 										
 	$stmt = $db->prepare("UPDATE kdbm SET stt_kdbm = 'OFF' WHERE id_admin = ? AND id_resto = 'pesan' AND kd_trbmasuk = ?");
 	$stmt->execute([$_SESSION['id_admin'], $_POST['kd_trbmasuk']]);
@@ -70,9 +72,10 @@ if ($module=='orders' AND $act=='input_trbmasuk'){
 									ttl_trbmasuk = ?,
 									dp_bayar = ?,
 									sisa_bayar = ?,
-									ket_trbmasuk = ?
+									ket_trbmasuk = ?,
+									tandatangan = ?
 									WHERE id_trbmasuk = ?");
-    $stmt->execute([$_POST['tgl_trbmasuk'], $_POST['id_supplier'], $_POST['nm_supplier'], $_POST['tlp_supplier'], $_POST['alamat_trbmasuk'], $_POST['ttl_trkasir'], $_POST['dp_bayar'], $_POST['sisa_bayar'], $_POST['ket_trbmasuk'], $_POST['id_trbmasuk']]);
+	$stmt->execute([$_POST['tgl_trbmasuk'], $_POST['id_supplier'], $_POST['nm_supplier'], $_POST['tlp_supplier'], $_POST['alamat_trbmasuk'], $_POST['ttl_trkasir'], $_POST['dp_bayar'], $_POST['sisa_bayar'], $_POST['ket_trbmasuk'], $_POST['tandatangan'], $_POST['id_trbmasuk']]);
 										
 	$stmt = $db->prepare("UPDATE kdbm SET stt_kdbm = 'OFF' WHERE id_admin = ? AND id_resto = 'pesan' AND kd_trbmasuk = ?");
 	$stmt->execute([$_SESSION['id_admin'], $_POST['kd_trbmasuk']]);
