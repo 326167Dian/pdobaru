@@ -16,6 +16,12 @@ $act=$_GET['act'];
 // Input admin
 if ($module=='pelanggan' AND $act=='input_pelanggan'){
 
+$tanggal_lahir = isset($_POST['tanggal_lahir']) ? $_POST['tanggal_lahir'] : '';
+if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggal_lahir)){
+echo "<script type='text/javascript'>alert('Format tanggal lahir tidak valid.');history.go(-1);</script>";
+exit;
+}
+
 $stmt = $db->prepare("SELECT COUNT(*) FROM pelanggan WHERE nm_pelanggan = ? AND tlp_pelanggan = ?");
 $stmt->execute([$_POST['nm_pelanggan'], $_POST['tlp_pelanggan']]);
 $ada = $stmt->fetchColumn();
@@ -23,9 +29,16 @@ if ($ada > 0){
 echo "<script type='text/javascript'>alert('Nama Pelanggan dengan nomor telepon ini sudah ada!');history.go(-1);</script>";
 }else{
 
-    $stmt = $db->prepare("INSERT INTO pelanggan(nm_pelanggan, tlp_pelanggan, alamat_pelanggan, ket_pelanggan)
-								 VALUES(?, ?, ?, ?)");
-    $stmt->execute([$_POST['nm_pelanggan'], $_POST['tlp_pelanggan'], $_POST['alamat_pelanggan'], $_POST['ket_pelanggan']]);
+    $stmt = $db->prepare("INSERT INTO pelanggan(nm_pelanggan, jenis_kelamin, tanggal_lahir, tlp_pelanggan, alamat_pelanggan, ket_pelanggan)
+                                 VALUES(?, ?, ?, ?, ?, ?)");
+    $stmt->execute([
+    	$_POST['nm_pelanggan'],
+    	$_POST['jenis_kelamin'],
+    	$tanggal_lahir,
+    	$_POST['tlp_pelanggan'],
+    	$_POST['alamat_pelanggan'],
+    	$_POST['ket_pelanggan']
+    ]);
 										
 										
 	//echo "<script type='text/javascript'>alert('Data berhasil ditambahkan !');window.location='../../media_admin.php?module=".$module."'</script>";
@@ -35,13 +48,29 @@ echo "<script type='text/javascript'>alert('Nama Pelanggan dengan nomor telepon 
 }
  //updata pelanggan
  elseif ($module=='pelanggan' AND $act=='update_pelanggan'){
+
+     $tanggal_lahir = isset($_POST['tanggal_lahir']) ? $_POST['tanggal_lahir'] : '';
+     if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggal_lahir)){
+     echo "<script type='text/javascript'>alert('Format tanggal lahir tidak valid.');history.go(-1);</script>";
+     exit;
+     }
  
      $stmt = $db->prepare("UPDATE pelanggan SET nm_pelanggan = ?,
-									tlp_pelanggan = ?,
-									alamat_pelanggan = ?,
-									ket_pelanggan = ?
-									WHERE id_pelanggan = ?");
-     $stmt->execute([$_POST['nm_pelanggan'], $_POST['tlp_pelanggan'], $_POST['alamat_pelanggan'], $_POST['ket_pelanggan'], $_POST['id']]);
+                                jenis_kelamin = ?,
+                                tanggal_lahir = ?,
+                                tlp_pelanggan = ?,
+                                alamat_pelanggan = ?,
+                                ket_pelanggan = ?
+                                WHERE id_pelanggan = ?");
+    $stmt->execute([
+		$_POST['nm_pelanggan'],
+		$_POST['jenis_kelamin'],
+		$tanggal_lahir,
+		$_POST['tlp_pelanggan'],
+		$_POST['alamat_pelanggan'],
+		$_POST['ket_pelanggan'],
+		$_POST['id']
+	]);
 									
 	//echo "<script type='text/javascript'>alert('Data berhasil diubah !');window.location='../../media_admin.php?module=".$module."'</script>";
 	header('location:../../media_admin.php?module='.$module);

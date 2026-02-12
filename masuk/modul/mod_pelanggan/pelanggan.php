@@ -31,6 +31,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 				</div>
 				<div class="box-body table-responsive">
 					<a class='btn  btn-success btn-flat' href='?module=pelanggan&act=tambah'>TAMBAH</a>
+					<a class='btn btn-primary btn-flat' href='?module=konseling'>KONSELING</a>
 					<br><br>
 
 
@@ -111,6 +112,24 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 									<label class='col-sm-2 control-label'>Nama Pelanggan</label>        		
 									 <div class='col-sm-4'>
 										<input type=text name='nm_pelanggan' class='form-control' required='required' autocomplete='off'>
+									 </div>
+							  </div>
+							  
+							  <div class='form-group'>
+									<label class='col-sm-2 control-label'>Jenis Kelamin</label>        		
+									 <div class='col-sm-4'>	
+										<select name='jenis_kelamin' id='jenis_kelamin' class='form-control' required='required'>
+											<option value='' selected>- Pilih -</option>
+											<option value='PRIA'>PRIA</option>
+											<option value='WANITA'>WANITA</option>
+										</select>
+									 </div>									 
+							  </div>
+							  
+							  <div class='form-group'>
+									<label class='col-sm-2 control-label'>Tanggal lahir</label>        		
+									 <div class='col-sm-4'>
+										<input type='date' name='tanggal_lahir' class='form-control' required='required' autocomplete='off'>
 									 </div>
 							  </div>
 							  
@@ -314,6 +333,9 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 			$stmt = $db->prepare("SELECT * FROM pelanggan WHERE id_pelanggan = ?");
 			$stmt->execute([$_GET['id']]);
 			$r = $stmt->fetch(PDO::FETCH_ASSOC);
+			$selected_pria = ($r['jenis_kelamin'] == 'PRIA') ? 'selected' : '';
+			$selected_wanita = ($r['jenis_kelamin'] == 'WANITA') ? 'selected' : '';
+			$selected_kosong = ($r['jenis_kelamin'] == '' || $r['jenis_kelamin'] === null) ? 'selected' : '';
 
 			echo "
 		  <div class='box box-primary box-solid'>
@@ -331,6 +353,24 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 									<label class='col-sm-2 control-label'>Nama Pelanggan</label>        		
 									 <div class='col-sm-4'>
 										<input type=text name='nm_pelanggan' class='form-control' value='$r[nm_pelanggan]' autocomplete='off'>
+									 </div>
+							  </div>
+							  
+							  <div class='form-group'>
+									<label class='col-sm-2 control-label'>Jenis Kelamin</label>        		
+									 <div class='col-sm-4'>
+										<select name='jenis_kelamin' id='jenis_kelamin' class='form-control' required='required'>
+											<option value='' $selected_kosong>- Pilih -</option>
+											<option value='PRIA' $selected_pria>PRIA</option>
+											<option value='WANITA' $selected_wanita>WANITA</option>
+										</select>
+									 </div>
+							  </div>
+							  
+							  <div class='form-group'>
+									<label class='col-sm-2 control-label'>Tanggal lahir</label>        		
+									 <div class='col-sm-4'>
+										<input type='date' name='tanggal_lahir' class='form-control' value='$r[tanggal_lahir]' autocomplete='off'>
 									 </div>
 							  </div>
 							  
