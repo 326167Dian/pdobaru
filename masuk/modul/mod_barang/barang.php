@@ -33,6 +33,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 					if ($lupa == 'pemilik') {
                                 echo " <a class='btn  btn-primary btn-flat' href='modul/mod_laporan/cetak_barang_excel.php' target='_blank'>EXPORT TO EXCEL</a>     
                                  <a class='btn  btn-warning btn-flat' href='modul/mod_laporan/cetak_batch.php' target='_blank'>EXPORT TO EXCEL BASED ON ACTIVE BATCH</a>
+								 <a class='btn  btn-danger btn-flat' href='?module=zataktif'>Zat Aktif/Merk Obat</a>
 									        ";
                             }
                             

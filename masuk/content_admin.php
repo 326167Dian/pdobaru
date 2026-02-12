@@ -116,6 +116,11 @@ elseif ($_GET['module'] == 'barang') {
     include "modul/mod_barang/barang.php";
 }
 
+// Bagian zataktif
+elseif ($_GET['module'] == 'zataktif') {
+    include "modul/mod_zataktif/zataktif.php";
+}
+
 // Bagian trbmasuk
 elseif ($_GET['module'] == 'trbmasuk') {
     include "modul/mod_trbmasuk/trbmasuk.php";

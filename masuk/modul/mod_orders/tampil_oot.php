@@ -81,7 +81,7 @@ $pdf->SetFont('Arial', '', 10);
 $pdf->Cell(2.5, 0, 'Jabatan', 0, 0, 'L');
 $pdf->Cell(0.5, 0, ':', 0, 0, 'L');
 $pdf->SetFont('Arial', '', 10);
-$pdf->Cell(10, 0,'Apoteker Penaggung Jawab' , 0, 0, 'L');
+$pdf->Cell(10, 0,'Apoteker Penanggung Jawab' , 0, 0, 'L');
 
 $pdf->ln(0.4);
 $pdf->SetX(1);

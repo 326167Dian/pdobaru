@@ -14,9 +14,21 @@ $query = "CREATE TABLE IF NOT EXISTS `user_login_logs` (
   KEY `idx_login_time` (`login_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;";
 
+$queryZataktif = "CREATE TABLE IF NOT EXISTS `zataktif` (
+  `id_zataktif` INT(11) NOT NULL AUTO_INCREMENT,
+  `nm_zataktif` VARCHAR(250) NOT NULL,
+  `indikasi` VARCHAR(250) NOT NULL,
+  `aturanpakai` VARCHAR(250) NOT NULL,
+  `saran` VARCHAR(250) NOT NULL,
+  `user` VARCHAR(250) NOT NULL,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_zataktif`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;";
+
 try {
     $db->exec($query);
-    echo "Tabel user_login_logs berhasil dibuat.";
+    $db->exec($queryZataktif);
+    echo "Tabel user_login_logs dan zataktif berhasil dibuat.";
 } catch (PDOException $e) {
     echo "Error: " . $e->getMessage();
 }
