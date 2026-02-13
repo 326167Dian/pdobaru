@@ -59,6 +59,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 								<th style="text-align: right; ">Satuan</th>
 								<th style="text-align: center; ">Jenis Obat</th>
 								<th style="text-align: right; ">Harga Jual</th>
+								<th style="text-align: right; ">Zat Aktif</th>
 								<th style="text-align: center; ">Komposisi dan Indikasi</th>
 								<!--<th style="text-align: center; ">Aksi</th>-->
 								<?php
@@ -202,8 +203,14 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 										<input type='number' min='0' name='hrgjual_barang2' class='form-control' required='required' autocomplete='off'>
 									 </div>
 							  </div>
-							  
-					</div>		  
+
+							  <div class='form-group'>
+									<label class='col-sm-4 control-label'>Zat Aktif</label>        		
+									 <div class='col-sm-8'>
+										<input type='text' name='zataktif' class='form-control' autocomplete='off'>
+									 </div>
+						  	  </div>
+						  					</div>		  
 					<div class='col-md-6'>
 							  <div class='form-group'>
 									<label class='col-sm-5 control-label'>Komposisi dan Indikasi</label>
@@ -362,6 +369,13 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 									<label class='col-sm-4 control-label'>Harga Jual Marketplace</label>        		
 									 <div class='col-sm-8'>
 										<input type='number' min='0' name='hrgjual_barang2' class='form-control' required='required' value='$r[hrgjual_barang2]' autocomplete='off'>
+									 </div>
+							  </div>
+							  
+							  <div class='form-group'>
+									<label class='col-sm-4 control-label'>Zat Aktif</label>        		
+									 <div class='col-sm-8'>
+										<input type='text' name='zataktif' class='form-control' value='$r[zataktif]' autocomplete='off'>
 									 </div>
 							  </div>
 							  

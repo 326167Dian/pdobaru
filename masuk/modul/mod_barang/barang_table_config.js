@@ -51,6 +51,10 @@ $(document).ready(function() {
 			"className": 'text-left',
 		},
 		{
+			"data": "zataktif",
+			"className": 'text-justify'
+		},
+		{
 			"data": "indikasi",
 			"className": 'text-justify'
 		},

@@ -11,8 +11,9 @@ if ($_GET['action'] == "table_data") {
         3 => 'sat_barang',
         4 => 'jenisobat',
         5 => 'hrgjual_barang',
-        6 => 'indikasi',
-        7 => 'id_barang'
+        6 => 'zataktif',
+        7 => 'indikasi',
+        8 => 'id_barang'
     );
 
     $querycount = $db->query("SELECT count(id_barang) as jumlah FROM barang");
@@ -38,6 +39,7 @@ if ($_GET['action'] == "table_data") {
                                     hrgjual_barang,
                                     hrgjual_barang1,
                                     hrgjual_barang2,
+                                    zataktif,
                                     indikasi
             FROM barang ORDER BY $order $dir LIMIT $limit OFFSET $start");
     } else {
@@ -52,6 +54,7 @@ if ($_GET['action'] == "table_data") {
                                     hrgjual_barang,
                                     hrgjual_barang1,
                                     hrgjual_barang2,
+                                    zataktif,
                                     indikasi 
             FROM barang WHERE kd_barang LIKE '%$search%' 
                         OR nm_barang LIKE '%$search%'
@@ -60,6 +63,7 @@ if ($_GET['action'] == "table_data") {
                         OR jenisobat LIKE '%$search%'
                         OR hrgsat_barang LIKE '%$search%'
                         OR hrgjual_barang LIKE '%$search%'
+                        OR zataktif LIKE '%$search%'
                         OR indikasi LIKE '%$search%' 
             ORDER BY $order $dir LIMIT $limit OFFSET $start");
 
@@ -71,6 +75,7 @@ if ($_GET['action'] == "table_data") {
                         OR jenisobat LIKE '%$search%'
                         OR hrgsat_barang LIKE '%$search%'
                         OR hrgjual_barang LIKE '%$search%'
+                        OR zataktif LIKE '%$search%'
                         OR indikasi LIKE '%$search%'");
 
         $datacount = $querycount->fetch(PDO::FETCH_ASSOC);
@@ -98,6 +103,7 @@ if ($_GET['action'] == "table_data") {
                                                 <td><b>(Mp)</b> </td><td>'.format_rupiah($value['hrgjual_barang2']).'</td>
                                             </tr></table>';
                                             
+            $nestedData['zataktif']         = $value['zataktif'];
             $nestedData['indikasi']         = $value['indikasi'];
             $nestedData['aksi']             = $value['id_barang'];
             $data[] = $nestedData;
