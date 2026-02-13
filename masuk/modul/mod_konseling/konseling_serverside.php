@@ -56,9 +56,9 @@ if ($_GET['action'] == "table_data") {
             $nestedData['tindakan'] = htmlspecialchars($value['tindakan']);
             $nestedData['updated_at'] = $value['updated_at'];
 
-            $nestedData['aksi'] = "<a href='?module=konseling&act=edit&id={$value['id_konseling']}' title='EDIT' class='btn btn-warning btn-xs'>EDIT</a> "
-                . "<a href='modul/mod_konseling/tampil_konseling.php?id={$value['id_konseling']}' target='_blank' title='TAMPIL' class='btn btn-primary btn-xs'>TAMPIL</a> "
-                . "<a href=\"javascript:confirmdelete('{$aksi}?module=konseling&act=hapus&id={$value['id_konseling']}')\" title='HAPUS' class='btn btn-danger btn-xs'>HAPUS</a>";
+            $nestedData['aksi'] = "<a href='?module=konseling&act=edit&id={$value['id_konseling']}' title='EDIT' class='btn btn-purple btn-xs'>EDIT</a> "
+                . "<a href='modul/mod_konseling/tampil_konseling.php?id={$value['id_konseling']}' target='_blank' title='TAMPIL' class='btn btn-light-blue btn-xs'>TAMPIL</a> "
+                . "<a href=\"javascript:confirmdelete('{$aksi}?module=konseling&act=hapus&id={$value['id_konseling']}')\" title='HAPUS' class='btn btn-maroon btn-xs'>HAPUS</a>";
 
             $data[] = $nestedData;
             $no++;

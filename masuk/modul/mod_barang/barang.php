@@ -54,13 +54,10 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 						<thead>
 							<tr>
 								<th>No</th>
-								<th>Kode</th>
 								<th>Nama Barang</th>
-								<th>No. Batch</th>
 								<th style="text-align: right; ">Qty/Stok</th>
 								<th style="text-align: right; ">Satuan</th>
 								<th style="text-align: center; ">Jenis Obat</th>
-								<th style="text-align: right; ">Harga Beli</th>
 								<th style="text-align: right; ">Harga Jual</th>
 								<th style="text-align: center; ">Komposisi dan Indikasi</th>
 								<!--<th style="text-align: center; ">Aksi</th>-->
@@ -566,91 +563,6 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 	});
 </script>
 <script>
-	$(document).ready(function() {
-		$('#tes').DataTable({
-			processing: true,
-			serverSide: true,
-			ajax: {
-				"url": "modul/mod_barang/barang-serverside.php?action=table_data",
-				"dataType": "JSON",
-				"type": "POST"
-			},
-			"rowCallback": function(row, data, index) {
-                let q = (data['hrgjual_barang_reguler'] - data['hrgsat_barang']) / data['hrgsat_barang'];
-                
-                if(q <= 0.2){
-                    $(row).find('td:eq(7)').css('background-color', '#ff003f');
-                    $(row).find('td:eq(7)').css('color', '#ffffff');
-                } else if(q > 0.2 && q <= 0.25){
-                    $(row).find('td:eq(7)').css('background-color', '#f39c12');
-                    $(row).find('td:eq(7)').css('color', '#ffffff');
-                    
-                } else if(q > 0.25 && q <= 0.3){
-                    $(row).find('td:eq(7)').css('background-color', '#00ff3f');
-                    $(row).find('td:eq(7)').css('color', '#ffffff');
-                    
-                } else if(q > 0.3){
-                    $(row).find('td:eq(7)').css('background-color', '#00bfff');
-                    $(row).find('td:eq(7)').css('color', '#ffffff');
-                    
-                }
-                
-            },
-			columns: [{
-					"data": "no",
-					"className": 'text-center'
-				},
-				{
-					"data": "kd_barang"
-				},
-				{
-					"data": "nm_barang"
-				},
-				{
-					"data": "batch"
-				},
-				{
-					"data": "stok_barang",
-					"className": 'text-center'
-				},
-				{
-					"data": "sat_barang",
-					"className": 'text-center'
-				},
-				{
-					"data": "jenisobat",
-					"className": 'text-center'
-				},
-				{
-					"data": "hrgsat_barang",
-					"className": 'text-right',
-					"render": function(data, type, row) {
-						return formatRupiah(data);
-					}
-				},
-				{
-					"data": "hrgjual_barang",
-					"className": 'text-left',
-				// 	"render": function(data, type, row) {
-				// 		return formatRupiah(data);
-				// 	}
-				},
-				{
-					"data": "indikasi",
-					"className": 'text-justify'
-				},
-				{
-					"data": "aksi",
-					"visible": <?= ($_SESSION['level'] == 'pemilik') ? 'true' : 'false'; ?>,
-					"render": function(data, type, row) {
-						var btn = "<div style='text-align:center'><a href='?module=barang&act=edit&id=" + data + "' title='EDIT' class='btn btn-warning btn-xs'>EDIT</a> " +
-                            "<div style='text-align:center'><a href='?module=barang&act=detail&id=" + data + "') title='DETAIL' class='btn btn-primary btn-xs'>DETAIL</a> " +
-                            "<a href=javascript:confirmdelete('modul/mod_barang/aksi_barang.php?module=barang&act=hapus&id=" + data + "') title='HAPUS' class='btn btn-danger btn-xs'>HAPUS</a></div>";
-
-						return btn;
-					}
-				},
-			]
-		});
-	});
+var userLevel = '<?= $_SESSION['level']; ?>';
 </script>
+<script src="modul/mod_barang/barang_table_config.js"></script>

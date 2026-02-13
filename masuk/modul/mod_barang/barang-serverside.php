@@ -6,15 +6,13 @@ if ($_GET['action'] == "table_data") {
 
     $columns = array(
         0 => 'id_barang',
-        1 => 'kd_barang',
-        2 => 'nm_barang',
-        3 => 'stok_barang',
-        4 => 'sat_barang',
-        5 => 'jenisobat',
-        6 => 'hrgsat_barang',
-        7 => 'hrgjual_barang',
-        8 => 'indikasi',
-        9 => 'id_barang'
+        1 => 'nm_barang',
+        2 => 'stok_barang',
+        3 => 'sat_barang',
+        4 => 'jenisobat',
+        5 => 'hrgjual_barang',
+        6 => 'indikasi',
+        7 => 'id_barang'
     );
 
     $querycount = $db->query("SELECT count(id_barang) as jumlah FROM barang");
@@ -80,20 +78,11 @@ if ($_GET['action'] == "table_data") {
     }
 
     $data = array();
-    $nomorbatch="";
-    $datenow = date('Y-m-d', time());
     if (!empty($query)) {
         $no = $start + 1;
         while ($value = $query->fetch(PDO::FETCH_ASSOC)) {
-            $batch = $db->query("SELECT * FROM batch WHERE kd_barang = '$value[kd_barang]' AND exp_date > '$datenow' AND status = 'masuk'");
-            while($bt = $batch->fetch(PDO::FETCH_ASSOC)){
-                $nomorbatch .= $bt['no_batch']."<br>";
-            }
-                        
             $nestedData['no']               = $no;
-            $nestedData['batch']            = $nomorbatch;
-            $nestedData['kd_barang']        = $value['kd_barang'];
-            $nestedData['nm_barang']        = $value['nm_barang'];
+            $nestedData['nm_barang']        = $value['nm_barang'] . ' <span style="color: #666;">(' . $value['kd_barang'] . ')</span>';
             $nestedData['stok_barang']      = $value['stok_barang'];
             $nestedData['sat_barang']       = $value['sat_barang'];
             $nestedData['jenisobat']        = $value['jenisobat'];

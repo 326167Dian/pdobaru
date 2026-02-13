@@ -145,7 +145,7 @@ if (empty($_SESSION['username']) && empty($_SESSION['passuser'])) {
                         </div>
 
                         <div class='form-group'>
-                            <label class='col-sm-2 control-label'>Visite</label>
+                            <label class='col-sm-2 control-label'>Visite Sebelumnya</label>
                             <div class='col-sm-6'>
                                 <input type='text' name='visite' class='form-control' required='required' autocomplete='off'>
                             </div>
