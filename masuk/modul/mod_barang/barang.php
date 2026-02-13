@@ -216,7 +216,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 									<label class='col-sm-5 control-label'>Komposisi dan Indikasi</label>
 										<div class='col-sm-12'>
 											<div >	
-													<textarea name='indikasi' class='ckeditor' id='content' rows='3'>$r[indikasi]</textarea>
+													<textarea name='indikasi' id='content' rows='3'></textarea>
 											</div>
 										</div>
 							  </div>
@@ -224,7 +224,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 							  <div class='form-group'>
 									<label class='col-sm-4 control-label'>Keterangan Lain</label>        		
 									 <div class='col-sm-12'>
-										<textarea name='ket_barang' class='ckeditor' rows='3' id='content'></textarea>
+										<textarea name='ket_barang' id='content_ket' rows='3'></textarea>
 									 </div>
 							  </div>
 							  
@@ -374,9 +374,9 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 							  
 							  <div class='form-group'>
 									<label class='col-sm-4 control-label'>Zat Aktif</label>        		
-									 <div class='col-sm-8'>
-										<input type='text' name='zataktif' class='form-control' value='$r[zataktif]' autocomplete='off'>
-									 </div>
+									 <div class='col-sm-8'>										
+									 	<textarea name='zataktif' class='ckeditor' id='content2' rows='3'>$r[zataktif]</textarea>
+										</div>
 							  </div>
 							  
 						</div>
@@ -393,14 +393,14 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 							  <div class='form-group'>
 									<label class='col-sm-4 control-label'>Komposisi</label>        		
 									 <div class='col-sm-8'>
-										<textarea name='ket_barang' class='ckeditor' id='content' rows='3'>$r[ket_barang]</textarea>
+										<textarea name='ket_barang' class='ckeditor'  rows='3'>$r[ket_barang]</textarea>
 									 </div>
 							  </div>
 							  
 							  <div class='form-group'>
 									<label class='col-sm-4 control-label'>Dosis / Kekuatan </label>        		
 									 <div class='col-sm-8'>
-										<textarea name='dosis' rows='3'>$r[dosis]</textarea>
+										<textarea name='dosis' class='ckeditor' id='content3' rows='3'>$r[dosis]</textarea>
 									 </div>
 							  </div>
 							  
@@ -570,11 +570,51 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 
 <script type="text/javascript" src="vendors/ckeditor/ckeditor.js"></script>
 <script type="text/javascript">
-	var editor = CKEDITOR.replace("content", {
-		filebrowserBrowseUrl: '',
-		filebrowserWindowWidth: 1000,
-		filebrowserWindowHeight: 500
-	});
+	// Inisialisasi CKEditor untuk form tambah
+	if (document.getElementById('content')) {
+		CKEDITOR.replace('content', {
+			filebrowserBrowseUrl: '',
+			filebrowserWindowWidth: 1000,
+			filebrowserWindowHeight: 500
+		});
+	}
+	if (document.getElementById('content_ket')) {
+		CKEDITOR.replace('content_ket', {
+			filebrowserBrowseUrl: '',
+			filebrowserWindowWidth: 1000,
+			filebrowserWindowHeight: 500
+		});
+	}
+	
+	// Inisialisasi CKEditor untuk form edit
+	if (document.getElementById('edit_zataktif')) {
+		CKEDITOR.replace('edit_zataktif', {
+			filebrowserBrowseUrl: '',
+			filebrowserWindowWidth: 1000,
+			filebrowserWindowHeight: 500
+		});
+	}
+	if (document.getElementById('edit_indikasi')) {
+		CKEDITOR.replace('edit_indikasi', {
+			filebrowserBrowseUrl: '',
+			filebrowserWindowWidth: 1000,
+			filebrowserWindowHeight: 500
+		});
+	}
+	if (document.getElementById('edit_ket_barang')) {
+		CKEDITOR.replace('edit_ket_barang', {
+			filebrowserBrowseUrl: '',
+			filebrowserWindowWidth: 1000,
+			filebrowserWindowHeight: 500
+		});
+	}
+	if (document.getElementById('edit_dosis')) {
+		CKEDITOR.replace('edit_dosis', {
+			filebrowserBrowseUrl: '',
+			filebrowserWindowWidth: 1000,
+			filebrowserWindowHeight: 500
+		});
+	}
 </script>
 <script>
 var userLevel = '<?= $_SESSION['level']; ?>';

@@ -40,7 +40,8 @@ if ($_GET['action'] == "table_data") {
                                     hrgjual_barang1,
                                     hrgjual_barang2,
                                     zataktif,
-                                    indikasi
+                                    indikasi,
+                                    updated_by
             FROM barang ORDER BY $order $dir LIMIT $limit OFFSET $start");
     } else {
         $search = $_POST['search']['value'];
@@ -55,7 +56,8 @@ if ($_GET['action'] == "table_data") {
                                     hrgjual_barang1,
                                     hrgjual_barang2,
                                     zataktif,
-                                    indikasi 
+                                    indikasi,
+                                    updated_by 
             FROM barang WHERE kd_barang LIKE '%$search%' 
                         OR nm_barang LIKE '%$search%'
                         OR stok_barang LIKE '%$search%'
@@ -102,8 +104,13 @@ if ($_GET['action'] == "table_data") {
                                             <tr>
                                                 <td><b>(Mp)</b> </td><td>'.format_rupiah($value['hrgjual_barang2']).'</td>
                                             </tr></table>';
-                                            
-            $nestedData['zataktif']         = $value['zataktif'];
+            
+            // Menampilkan zataktif dengan nama admin di dalam kurung
+            $zataktif_display = $value['zataktif'];
+            if (!empty($value['updated_by'])) {
+                $zataktif_display .= ' <span style="color: #999; font-size: 0.9em;">(' . $value['updated_by'] . ')</span>';
+            }
+            $nestedData['zataktif']         = $zataktif_display;
             $nestedData['indikasi']         = $value['indikasi'];
             $nestedData['aksi']             = $value['id_barang'];
             $data[] = $nestedData;

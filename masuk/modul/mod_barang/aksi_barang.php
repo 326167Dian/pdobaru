@@ -37,7 +37,10 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 					echo "<script type='text/javascript'>alert('Kode dengan Nama Barang dan Satuan ini sudah ada!');history.go(-1);</script>";
 				} else {
 
-					$db->prepare("INSERT INTO barang(kd_barang, nm_barang, stok_buffer, sat_barang, sat_grosir, jenisobat, konversi, hrgsat_barang, hrgsat_grosir, hrgjual_barang, hrgjual_barang1, hrgjual_barang2, indikasi, ket_barang, zataktif) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")->execute([$_POST['kd_barang'], $_POST['nm_barang'], $_POST['stok_buffer'], $_POST['sat_barang'], $_POST['sat_grosir'], $_POST['jenisobat'], $_POST['konversi'], $_POST['hrgsat_barang'], $_POST['hrgsat_grosir'], $_POST['hrgjual_barang'], $_POST['hrgjual_barang1'], $_POST['hrgjual_barang2'], $_POST['indikasi'], $_POST['ket_barang'], $_POST['zataktif']]);
+					$tanggal = date('Y-m-d H:i:s');
+				$updated_by = isset($_SESSION['namalengkap']) && !empty($_SESSION['namalengkap']) ? $_SESSION['namalengkap'] : $_SESSION['username'];
+
+				$db->prepare("INSERT INTO barang(kd_barang, nm_barang, stok_buffer, sat_barang, sat_grosir, jenisobat, konversi, hrgsat_barang, hrgsat_grosir, hrgjual_barang, hrgjual_barang1, hrgjual_barang2, indikasi, ket_barang, zataktif, tgl, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")->execute([$_POST['kd_barang'], $_POST['nm_barang'], $_POST['stok_buffer'], $_POST['sat_barang'], $_POST['sat_grosir'], $_POST['jenisobat'], $_POST['konversi'], $_POST['hrgsat_barang'], $_POST['hrgsat_grosir'], $_POST['hrgjual_barang'], $_POST['hrgjual_barang1'], $_POST['hrgjual_barang2'], $_POST['indikasi'], $_POST['ket_barang'], $_POST['zataktif'], $tanggal, $updated_by]);
 
 					//echo "<script type='text/javascript'>alert('Data berhasil ditambahkan !');window.location='../../media_admin.php?module=".$module."'</script>";
 					header('location:../../media_admin.php?module=' . $module);
@@ -48,7 +51,11 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 	//update barang
 	elseif ($module == 'barang' and $act == 'update_barang') {
 
-		$db->prepare("UPDATE barang SET
+		$tanggal = date('Y-m-d H:i:s');
+		$updated_by = isset($_SESSION['namalengkap']) && !empty($_SESSION['namalengkap']) ? $_SESSION['namalengkap'] : $_SESSION['username'];
+
+		try {
+			$stmt = $db->prepare("UPDATE barang SET
                                     kd_barang = ?,
 									nm_barang = ?,									
 									stok_buffer = ?,
@@ -64,11 +71,17 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 									indikasi = ?,
 									ket_barang = ?,
 									dosis = ?,
-									zataktif = ?
-									WHERE id_barang = ?")->execute([$_POST['kd_barang'], $_POST['nm_barang'], $_POST['stok_buffer'], $_POST['sat_barang'], $_POST['sat_grosir'], $_POST['jenisobat'], $_POST['konversi'], $_POST['hrgsat_barang'], $_POST['hrgsat_grosir'], $_POST['hrgjual_barang'], $_POST['hrgjual_barang1'], $_POST['hrgjual_barang2'], $_POST['indikasi'], $_POST['ket_barang'], $_POST['dosis'], $_POST['zataktif'], $_POST['id']]);
+									zataktif = ?,
+									tgl = ?,
+									updated_by = ?
+									WHERE id_barang = ?");
+			$stmt->execute([$_POST['kd_barang'], $_POST['nm_barang'], $_POST['stok_buffer'], $_POST['sat_barang'], $_POST['sat_grosir'], $_POST['jenisobat'], $_POST['konversi'], $_POST['hrgsat_barang'], $_POST['hrgsat_grosir'], $_POST['hrgjual_barang'], $_POST['hrgjual_barang1'], $_POST['hrgjual_barang2'], $_POST['indikasi'], $_POST['ket_barang'], $_POST['dosis'], $_POST['zataktif'], $tanggal, $updated_by, $_POST['id']]);
 									
-		//echo "<script type='text/javascript'>alert('Data berhasil diubah !');window.location='../../media_admin.php?module=".$module."'</script>";
-		header('location:../../media_admin.php?module=' . $module);
+			//echo "<script type='text/javascript'>alert('Data berhasil diubah !');window.location='../../media_admin.php?module=".$module."'</script>";
+			header('location:../../media_admin.php?module=' . $module);
+		} catch (PDOException $e) {
+			echo "<script type='text/javascript'>alert('Error: " . $e->getMessage() . "');history.go(-1);</script>";
+		}
 	}
 	//Hapus Proyek
 	elseif ($module == 'barang' and $act == 'hapus') {
