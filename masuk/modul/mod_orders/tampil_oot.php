@@ -302,7 +302,7 @@ $pdf->Cell(9, 0, 'Apoteker Pemesan,', 0, 0, 'C');
 
 $signaturePath = "../../images/".$rh['tandatangan'];
 $signatureFile = __DIR__."/../../images/".$rh['tandatangan'];
-if (($res['tandatangan']) == 'YA') {
+if (($res['tandatangan']) == 'YA' && $rh['tandatangan'] != '') {
     $pdf->ln(0.3);
     $pdf->SetX(14);
     $pdf->Image($signaturePath, $pdf->GetX(), $pdf->GetY()-0.5, 4, 4);
@@ -318,3 +318,4 @@ $pdf->SetFont('Arial', '', 7);
 $pdf->Cell(10, 0, '', 0, 0, 'R');
 $pdf->Cell(9, 0, $rh['tujuh'], 0, 0, 'C');
 $pdf->Output("order-prekursor_".$res['tgl_trbmasuk'], "I");
+?>

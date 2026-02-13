@@ -17,7 +17,8 @@ $alamat = $db->prepare("select * from supplier where id_supplier=?");
 $alamat->execute([$res['id_supplier']]);
 $alt = $alamat->fetch(PDO::FETCH_ASSOC);
 //ambil header
-$ah = $db->query("SELECT * FROM setheader ");
+$ah = $db->prepare("SELECT * FROM setheader ");
+$ah->execute();
 $rh = $ah->fetch(PDO::FETCH_ASSOC);
 
 $pdf = new FPDF("P", "cm", "A5");
@@ -28,7 +29,7 @@ $pdf->AddPage();
 
 // $pdf->Image('../../images/logo.png',1,0.7,2,2.5,'');
 $myImage = "../../images/".$rh['logo'];
-$pdf->Image($myImage, 1, 0.7, 2,2.3);
+$pdf->Image($myImage, 1, 0.7, 2, 2.3);
 $pdf->ln(1);
 $pdf->SetFont('helvetica', 'B', 16);
 $pdf->SetTextColor(0, 0, 0);
@@ -135,7 +136,7 @@ $pdf->Cell(9, 0, 'Apoteker Pemesan,', 0, 0, 'C');
 
 $signaturePath = "../../images/".$rh['tandatangan'];
 $signatureFile = __DIR__."/../../images/".$rh['tandatangan'];
-if (($res['tandatangan']) == 'YA') {
+if (($res['tandatangan']) == 'YA' && $rh['tandatangan'] != '') {
     $pdf->ln(0.3);
     $pdf->SetX(9);
     $pdf->Image($signaturePath, $pdf->GetX(), $pdf->GetY()-0.5, 4, 4);
@@ -151,3 +152,4 @@ $pdf->SetFont('Arial', '', 8);
 $pdf->Cell(5, 0, '', 0, 0, 'R');
 $pdf->Cell(9, 0,$rh['tujuh'], 0, 0, 'C');
 $pdf->Output("order".$res['tgl_trbmasuk'], "I");
+?>
