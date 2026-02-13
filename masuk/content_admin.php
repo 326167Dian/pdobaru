@@ -106,6 +106,11 @@ elseif ($_GET['module'] == 'konseling') {
     include "modul/mod_konseling/konseling.php";
 }
 
+// Bagian meso
+elseif ($_GET['module'] == 'meso') {
+    include "modul/mod_meso/meso.php";
+}
+
 // Bagian supplier
 elseif ($_GET['module'] == 'supplier') {
     include "modul/mod_supplier/supplier.php";

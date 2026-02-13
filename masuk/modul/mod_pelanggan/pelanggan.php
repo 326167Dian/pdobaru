@@ -32,6 +32,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 				<div class="box-body table-responsive">
 					<a class='btn  btn-success btn-flat' href='?module=pelanggan&act=tambah'>TAMBAH</a>
 					<a class='btn btn-primary btn-flat' href='?module=konseling'>KONSELING</a>
+					<a class='btn btn-warning btn-flat' href='?module=meso'>MESO</a>
 					<br><br>
 
 

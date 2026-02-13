@@ -81,7 +81,8 @@ if ($_GET['action'] == "table_data") {
                     . '<div class="dropdown-menu">'
                     . '<a href="?module=pelanggan&act=edit&id=' . $value['id_pelanggan'] . '" title="EDIT" class="btn btn-info btn-xs" style="width: 50%; margin:5px 0">EDIT</a> <br>'
                     . '<a href="?module=pelanggan&act=riwayat&id=' . $value['id_pelanggan'] . '" title="RIWAYAT" class="btn btn-success btn-xs" style="width:50%; margin:5px 0">RIWAYAT</a> <br>'
-                    . '<a href="?module=konseling&act=tambah&id_pelanggan=' . $value['id_pelanggan'] . '" title="KONSELING" class="btn btn-success btn-xs" style="width:50%; margin:5px 0">KONSELING</a> <br>'
+                    . '<a href="?module=konseling&act=tambah&id_pelanggan=' . $value['id_pelanggan'] . '" title="KONSELING" class="btn btn-primary btn-xs" style="width:50%; margin:5px 0">KONSELING</a> <br>'
+                    . '<a href="?module=meso&act=input_meso&id_pelanggan=' . $value['id_pelanggan'] . '" title="MESO" class="btn btn-warning btn-xs" style="width:50%; margin:5px 0">MESO</a> <br>'
                     . '<a href="javascript:confirmdelete(\'' . $aksi . '?module=pelanggan&act=hapus&id=' . $value['id_pelanggan'] . '\')" title="HAPUS" class="btn btn-danger btn-xs" style="width:50%; margin:5px 0">HAPUS</a>'
                     . '</div>'
                     . '</div>';
@@ -92,6 +93,7 @@ if ($_GET['action'] == "table_data") {
                     . '<a href="?module=pelanggan&act=edit&id=' . $value['id_pelanggan'] . '" title="EDIT" class="btn btn-info btn-xs" style="width:50%; margin:5px 0">EDIT</a>'
                     . '<a href="?module=pelanggan&act=riwayat&id=' . $value['id_pelanggan'] . '" title="RIWAYAT" class="btn btn-success btn-xs" style="width:50%; margin:5px 0">RIWAYAT</a><br>'
                     . '<a href="?module=konseling&act=tambah&id_pelanggan=' . $value['id_pelanggan'] . '" title="KONSELING" class="btn btn-success btn-xs" style="width:50%; margin:5px 0">KONSELING</a><br>'
+                    . '<a href="?module=meso&act=input_meso&id_pelanggan=' . $value['id_pelanggan'] . '" title="MESO" class="btn btn-warning btn-xs" style="width:50%; margin:5px 0">MESO</a> <br>'
                     . '</div>'
                     . '</div>';
             }
