@@ -8,7 +8,7 @@ session_start();
 else{
 
 $aksi="modul/mod_profil/aksi_profil.php";
-switch($_GET[act]){
+switch($_GET['act']){
   // Tampil User
   default:
       $tampil_profil = $db->query("SELECT * FROM admin ORDER BY username");
@@ -46,13 +46,13 @@ switch($_GET[act]){
 									 <td>$r[level]</td>  
 									 <td>$r[blokir]</td>
 									 <td>";
-									 if($r['id_profil'] == "1"){
-									 echo"<a href='?module=profil&act=editprofil&id=$r[id_profil]' title='Edit' class='btn btn-warning btn-xs'>EDIT</a>
-									 ";
-									 }else{
-									 echo"
-									 <a href='?module=profil&act=editprofil&id=$r[id_profil]' title='Edit' class='btn btn-warning btn-xs'>EDIT</a>
-									 <a href=javascript:confirmdelete('$aksi?module=profil&act=hapus&id=$r[id_profil]') title='Hapus' class='btn btn-danger btn-xs'>HAPUS</a>
+								 if($r['id_admin'] == "1"){
+								 echo"<a href='?module=profil&act=editprofil&id=$r[id_admin]' title='Edit' class='btn btn-warning btn-xs'>EDIT</a>
+								 ";
+								 }else{
+								 echo"
+								 <a href='?module=profil&act=editprofil&id=$r[id_admin]' title='Edit' class='btn btn-warning btn-xs'>EDIT</a>
+								 <a href=javascript:confirmdelete('$aksi?module=profil&act=hapus&id=$r[id_admin]') title='Hapus' class='btn btn-danger btn-xs'>HAPUS</a>
 									 ";
 									 }
 									 echo"
@@ -69,10 +69,10 @@ switch($_GET[act]){
     break;
 
   case "editprofil":
-    $pengguna = $_SESSION['id_admin'];
+    $id_admin = isset($_GET['id']) ? $_GET['id'] : $_SESSION['id_admin'];
       
     $edit = $db->prepare("SELECT * FROM admin WHERE id_admin=?");
-    $edit->execute([$pengguna]);
+    $edit->execute([$id_admin]);
     $r = $edit->fetch(PDO::FETCH_ASSOC);
 
     echo "
