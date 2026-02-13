@@ -22,6 +22,16 @@ body {
     border: 2px solid black;
     padding: 30px;
     min-height: 280mm;
+    position: relative;
+}
+
+.logo {
+    position: absolute;
+    top: 20px;
+    left: 40px;
+    width: 2cm;
+    height: 2cm;
+    object-fit: contain;
 }
 
 h1 {
@@ -52,14 +62,14 @@ h1 {
 
 .signature-section {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     margin-top: 50px;
     padding: 0 20px;
 }
 
 .signature-box {
     text-align: center;
-    width: 200px;
+    width: 300px;
 }
 
 .dot-line {

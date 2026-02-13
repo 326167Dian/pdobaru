@@ -6,6 +6,12 @@ $id_konseling = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $data = null;
 $alert = '';
 
+$tampil_setheader = $db->query("SELECT * FROM setheader ORDER BY id_setheader ");
+$rk = $tampil_setheader->fetch(PDO::FETCH_ASSOC);
+
+
+
+
 if ($id_konseling > 0) {
     $stmt = $db->prepare("SELECT k.*, p.jenis_kelamin, p.tanggal_lahir, p.alamat_pelanggan
         FROM konseling k
@@ -55,7 +61,10 @@ if (!empty($data['visite'])) {
       
         
         <div class="border-box">
-            <h1>DOKUMENTASI KONSELING</h1>
+            <?php if (!empty($rk['logo'])) { ?>
+                <img src="../../images/<?php echo e($rk['logo']); ?>" alt="Logo" class="logo">
+            <?php } ?>
+            <h1>DOKUMENTASI KONSELING <?php echo e($rk['satu'] ?? ''); ?></h1>
 
             <table class="form-table">
                 <tr>
@@ -95,7 +104,7 @@ if (!empty($data['visite'])) {
                 </tr>
                 <tr class="tall-row">
                     <td colspan="3">
-                        Nama obat, dosis dan cara pemakaian :
+                        Riwayat Penyakit / Pemberian obat sebelumnya :
                         <div class="content-area"><?php echo e($data['riwayat_penyakit'] ?? ''); ?></div>
                     </td>
                 </tr>
@@ -111,7 +120,7 @@ if (!empty($data['visite'])) {
                     </td>
                 </tr>
                 <tr>
-                    <td>Pasien pernah datang konseling sebelumnya</td>
+                    <td>Kapan Pasien Terakhir berkunjung ke Apotek</td>
                     <td>:</td>
                     <td><?php echo e($visite_text); ?></td>
                 </tr>
@@ -124,13 +133,13 @@ if (!empty($data['visite'])) {
             </table>
 
             <div class="signature-section">
-                <div class="signature-box">
+                <!-- <div class="signature-box">
                     <p>Pasien</p>
                     <div class="dot-line">...........................</div>
-                </div>
+                </div> -->
                 <div class="signature-box">
                     <p>Apoteker</p>
-                    <div class="dot-line">...........................</div>
+                    <div class="dot-line"><?php echo e($rk['empat'] ?? ''); ?></div>
                 </div>
             </div>
         </div>
