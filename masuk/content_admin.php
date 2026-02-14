@@ -121,6 +121,11 @@ elseif ($_GET['module'] == 'cpp') {
     include "modul/mod_cpp/cpp.php";
 }
 
+// Bagian homecare
+elseif ($_GET['module'] == 'homecare') {
+    include "modul/mod_homecare/homecare.php";
+}
+
 // Bagian supplier
 elseif ($_GET['module'] == 'supplier') {
     include "modul/mod_supplier/supplier.php";

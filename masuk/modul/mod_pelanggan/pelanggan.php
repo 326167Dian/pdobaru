@@ -35,6 +35,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 					<a class='btn btn-warning btn-flat' href='?module=meso'>MESO</a>
 					<a class='btn btn-danger btn-flat' href='?module=pio'>PIO</a>
 					<a class='btn btn-success btn-flat' href='?module=cpp'>CATATAN PENGOBATAN PASIEN (CPP)</a>
+					<a class='btn btn-info btn-flat' href='?module=homecare'>HOME CARE </a>
 					<br><br>
 
 
