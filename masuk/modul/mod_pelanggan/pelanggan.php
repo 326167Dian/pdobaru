@@ -187,8 +187,11 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 			echo "
 		  <div class='box box-primary box-solid'>
 				<div class='box-header with-border'>
-					<h3 class='box-title'>RIWAYAT PELANGGAN : $p[nm_pelanggan]</h3>
+					<h3 class='box-title'>SWAMEDIKASI DAN RIWAYAT PELANGGAN : $p[nm_pelanggan]</h3>
 					<div class='box-tools pull-right'>
+						<a href='modul/mod_pelanggan/cetak_riwayat_pdf.php?id=$_GET[id]' target='_blank' class='btn btn-danger btn-sm' title='Cetak PDF'>
+							<i class='fa fa-file-pdf-o'></i> CETAK PDF
+						</a>
 						<button class='btn btn-box-tool' data-widget='collapse'><i class='fa fa-minus'></i></button>
 					</div><!-- /.box-tools -->
 				</div>
