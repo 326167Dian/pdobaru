@@ -8,12 +8,11 @@ if ($_GET['action'] == "table_data") {
         0 => 'id_barang',
         1 => 'nm_barang',
         2 => 'stok_barang',
-        3 => 'sat_barang',
-        4 => 'jenisobat',
-        5 => 'hrgjual_barang',
-        6 => 'zataktif',
-        7 => 'indikasi',
-        8 => 'id_barang'
+        3 => 'jenisobat',
+        4 => 'hrgjual_barang',
+        5 => 'zataktif',
+        6 => 'indikasi',
+        7 => 'id_barang'
     );
 
     $querycount = $db->query("SELECT count(id_barang) as jumlah FROM barang");
@@ -90,8 +89,7 @@ if ($_GET['action'] == "table_data") {
         while ($value = $query->fetch(PDO::FETCH_ASSOC)) {
             $nestedData['no']               = $no;
             $nestedData['nm_barang']        = $value['nm_barang'] . ' <span style="color: #666;">(' . $value['kd_barang'] . ')</span>';
-            $nestedData['stok_barang']      = $value['stok_barang'];
-            $nestedData['sat_barang']       = $value['sat_barang'];
+            $nestedData['stok_barang']      = $value['stok_barang'] . ' <br><span style="color: #666;">(' . $value['sat_barang'] . ')</span>';
             $nestedData['jenisobat']        = $value['jenisobat'];
             $nestedData['hrgsat_barang']    = $value['hrgsat_barang'];
             $nestedData['hrgjual_barang_reguler']   = $value['hrgjual_barang'];
