@@ -48,7 +48,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 						<button type="button" class="btn btn-danger">PROFIT < 20% </button>
 					</center>
 					<br><br>
-					<CENTER><strong><h4>Anisa Icha Kayla Mufidah Fadiah Nugie Ahmad Fathi Nurrodi Yusuf Ryan Rahma Zaky Siska Septiana Zara</h4></strong></CENTER><br>
+					
 
 
 					<table id="tes" class="table table-bordered table-striped">
