@@ -8,7 +8,7 @@ if ($_GET['action'] == "table_data") {
         0 => 'id_barang',
         1 => 'nm_barang',
         2 => 'stok_barang',
-        3 => 'jenisobat',
+        3 => 'updated_by',
         4 => 'hrgjual_barang',
         5 => 'zataktif',
         6 => 'indikasi',
@@ -61,7 +61,7 @@ if ($_GET['action'] == "table_data") {
                         OR nm_barang LIKE '%$search%'
                         OR stok_barang LIKE '%$search%'
                         OR sat_barang LIKE '%$search%'
-                        OR jenisobat LIKE '%$search%'
+                        OR updated_by LIKE '%$search%'
                         OR hrgsat_barang LIKE '%$search%'
                         OR hrgjual_barang LIKE '%$search%'
                         OR zataktif LIKE '%$search%'
@@ -73,7 +73,7 @@ if ($_GET['action'] == "table_data") {
                         OR nm_barang LIKE '%$search%'
                         OR stok_barang LIKE '%$search%'
                         OR sat_barang LIKE '%$search%'
-                        OR jenisobat LIKE '%$search%'
+                        OR updated_by LIKE '%$search%'
                         OR hrgsat_barang LIKE '%$search%'
                         OR hrgjual_barang LIKE '%$search%'
                         OR zataktif LIKE '%$search%'
@@ -90,7 +90,7 @@ if ($_GET['action'] == "table_data") {
             $nestedData['no']               = $no;
             $nestedData['nm_barang']        = $value['nm_barang'] . ' <span style="color: #666;">(' . $value['kd_barang'] . ')</span>';
             $nestedData['stok_barang']      = $value['stok_barang'] . ' <br><span style="color: #666;">(' . $value['sat_barang'] . ')</span>';
-            $nestedData['jenisobat']        = $value['jenisobat'];
+            $nestedData['updated_by']       = $value['updated_by'];
             $nestedData['hrgsat_barang']    = $value['hrgsat_barang'];
             $nestedData['hrgjual_barang_reguler']   = $value['hrgjual_barang'];
             $nestedData['hrgjual_barang']   = '<table><tr>

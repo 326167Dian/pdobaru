@@ -39,7 +39,7 @@ $(document).ready(function() {
 			"className": 'text-center'
 		},
 		{
-			"data": "jenisobat",
+			"data": "updated_by",
 			"className": 'text-center'
 		},
 		{

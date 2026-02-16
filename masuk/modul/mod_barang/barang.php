@@ -48,6 +48,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 						<button type="button" class="btn btn-danger">PROFIT < 20% </button>
 					</center>
 					<br><br>
+					<CENTER><strong>Nugi</strong></CENTER><br>
 
 
 					<table id="tes" class="table table-bordered table-striped">
@@ -56,7 +57,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 								<th>No</th>
 								<th>Nama Barang</th>
 								<th style="text-align: right; ">Qty/Stok</th>
-								<th style="text-align: center; ">Jenis Obat</th>
+								<th style="text-align: center; ">Nama Editor</th>
 								<th style="text-align: right; ">Harga Jual</th>
 								<th style="text-align: right; ">Zat Aktif</th>
 								<th style="text-align: center; ">Komposisi dan Indikasi</th>
@@ -618,4 +619,8 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 <script>
 var userLevel = '<?= $_SESSION['level']; ?>';
 </script>
-<script src="modul/mod_barang/barang_table_config.js"></script>
+<?php
+$barang_table_config_path = __DIR__ . '/barang_table_config.js';
+$barang_table_config_ver = file_exists($barang_table_config_path) ? filemtime($barang_table_config_path) : time();
+?>
+<script src="modul/mod_barang/barang_table_config.js?v=<?= $barang_table_config_ver ?>"></script>
