@@ -48,7 +48,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 						<button type="button" class="btn btn-danger">PROFIT < 20% </button>
 					</center>
 					<br><br>
-					<CENTER><strong>Nugi</strong></CENTER><br>
+					<CENTER><strong><h4>Anisa Icha Kayla Mufidah Fadiah Nugie Ahmad Fathi Nurrodi Yusuf Ryan Rahma Zaky Siska Septiana Zara</h4></strong></CENTER><br>
 
 
 					<table id="tes" class="table table-bordered table-striped">
@@ -73,6 +73,13 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 						</thead>
 
 					</table>
+					<?php
+					$editor = $db->query("select updated_by, count(*) as jumlah from barang GROUP BY updated_by");
+					
+					while ($row = $editor->fetch(PDO::FETCH_ASSOC)) {
+						echo "<p style='color: #666; font-size: 12px;'>Nama Editor <strong>$row[updated_by]</strong> : $row[jumlah] item</p>";
+					}
+					?>
 				</div>
 			</div>
 
