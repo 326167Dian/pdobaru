@@ -56,14 +56,7 @@ $(document).ready(function() {
 		},
 		{
 			"data": "aksi",
-			"visible": (typeof userLevel !== 'undefined' && userLevel == 'pemilik'),
-			"render": function(data, type, row) {
-				var btn = "<div style='text-align:center'><a href='?module=barang&act=edit&id=" + data + "' title='EDIT' class='btn btn-warning btn-xs'>EDIT</a> " +
-					"<a href='?module=barang&act=detail&id=" + data + "' title='DETAIL' class='btn btn-primary btn-xs'>DETAIL</a> " +
-					"<a href=javascript:confirmdelete('modul/mod_barang/aksi_barang.php?module=barang&act=hapus&id=" + data + "') title='HAPUS' class='btn btn-danger btn-xs'>HAPUS</a></div>";
-
-				return btn;
-			}
+			"visible": (typeof userLevel !== 'undefined' && userLevel == 'pemilik')
 		}]
 	});
 });

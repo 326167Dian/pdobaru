@@ -101,7 +101,9 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
                                 <th style="text-align: center; ">Bulan</th>
                                 <th style="text-align: center; ">Nomor Transaksi</th>
                                 <th style="text-align: center; ">Qty Masuk (Pembelian)</th>
+                                <th style="text-align: center; ">no_batch & ED masuk</th>
                                 <th style="text-align: center; ">Qty Keluar (Penjualan)</th>
+                                <th style="text-align: center; ">no_batch & ED keluar</th>
                                 <th style="text-align: center; ">Total (Qty Masuk - Qty Keluar)</th>
 
                             </tr>
@@ -130,7 +132,9 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
                                     <td class="text-center"><?= date('F', strtotime($r['tgl_sekarang'])); ?></td>
                                     <td><?= $r['kode_transaksi']; ?></td>
                                     <td class="text-center"><?= ($r['qty_dtrbmasuk'] != null) ? $r['qty_dtrbmasuk'] : 0; ?></td>
+                                    <td class="text-center"><?= ($r['no_batch'] != null) ? $r['no_batch'] : 0; ?> & <?= ($r['ed'] != null) ? $r['ed'] : 0; ?></td>
                                     <td class="text-center"><?= ($r['qty_dtrkasir'] != null) ? $r['qty_dtrkasir'] : 0; ?></td>
+                                    <td class="text-center"><?= ($r['no_batch_keluar'] != null) ? $r['no_batch_keluar'] : 0; ?> & <?= ($r['ed_keluar'] != null) ? $r['ed_keluar'] : 0; ?></td>
                                     <td class="text-center"><?= $total; ?></td>
                                 </tr>
                             <?php

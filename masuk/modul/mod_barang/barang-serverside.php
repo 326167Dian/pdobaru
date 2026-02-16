@@ -2,6 +2,8 @@
 include_once '../../../configurasi/koneksi.php';
 include_once '../../../configurasi/fungsi_rupiah.php';
 
+$aksi = "modul/mod_barang/aksi_barang.php";
+
 if ($_GET['action'] == "table_data") {
 
     $columns = array(
@@ -110,7 +112,18 @@ if ($_GET['action'] == "table_data") {
             }
             $nestedData['zataktif']         = $zataktif_display;
             $nestedData['indikasi']         = $value['indikasi'];
-            $nestedData['aksi']             = $value['id_barang'];
+                        $nestedData['aksi']             = "<div class='dropdown'>
+    <button class='btn btn-default dropdown-toggle' type='button' id='dropdownMenuAksi" . $value['id_barang'] . "' data-toggle='dropdown' aria-haspopup='true' aria-expanded='true'>
+        action
+        <span class='caret'></span>
+    </button>
+    <ul class='dropdown-menu' aria-labelledby='dropdownMenuAksi" . $value['id_barang'] . "'>
+        <li style='background-color:yellow;'><a href='?module=barang&act=edit&id=" . $value['id_barang'] . "'>EDIT</a></li>
+        <li style='background-color:aqua;'><a href='?module=barang&act=detail&id=" . $value['id_barang'] . "'>DETAIL</a></li>
+        <li style='background-color:aqua;'><a href='?module=kartustok&act=view&id=" . $value['kd_barang'] . "'>KARTU STOK</a></li>
+        <li style='background-color:red;'><a href=javascript:confirmdelete('" . $aksi . "?module=barang&act=hapus&id=" . $value['id_barang'] . "')>HAPUS</a></li>
+    </ul>
+</div>";
             $data[] = $nestedData;
             $no++;
         }
