@@ -48,7 +48,13 @@ $(document).ready(function() {
 		},
 		{
 			"data": "indikasi",
-			"className": 'text-justify'
+			"className": 'text-justify',
+			"render": function(data, type, row) {
+				if (type === 'display') {
+					return (data || '') + "<div style='margin-top:6px;'><button type='button' class='btn btn-xs btn-info btn-edit-indikasi'>Edit</button></div>";
+				}
+				return data;
+			}
 		},
 		{
 			"data": "aksi",
@@ -56,10 +62,8 @@ $(document).ready(function() {
 		}]
 	});
 
-	$('#tes tbody').on('dblclick', 'td', function() {
-		var cell = table.cell(this);
+	function openIndikasiEditor(cell) {
 		var colIndex = cell.index().column;
-		// kolom indikasi berada di index 5
 		if (colIndex !== 5) {
 			return;
 		}
@@ -101,12 +105,12 @@ $(document).ready(function() {
 			cell.data(originalHtml).draw(false);
 		});
 
-			saveBtn.on('click', function(e) {
+		saveBtn.on('click', function(e) {
 			e.preventDefault();
-				var newText = textarea.val();
-				if (CKEDITOR && CKEDITOR.instances && CKEDITOR.instances[editorId]) {
-					newText = CKEDITOR.instances[editorId].getData();
-				}
+			var newText = textarea.val();
+			if (CKEDITOR && CKEDITOR.instances && CKEDITOR.instances[editorId]) {
+				newText = CKEDITOR.instances[editorId].getData();
+			}
 			$.ajax({
 				type: 'POST',
 				url: 'modul/mod_barang/aksi_barang.php?module=barang&act=update_indikasi',
@@ -115,19 +119,30 @@ $(document).ready(function() {
 					indikasi: newText
 				},
 				success: function() {
-						if (CKEDITOR && CKEDITOR.instances && CKEDITOR.instances[editorId]) {
-							CKEDITOR.instances[editorId].destroy(true);
-						}
+					if (CKEDITOR && CKEDITOR.instances && CKEDITOR.instances[editorId]) {
+						CKEDITOR.instances[editorId].destroy(true);
+					}
 					cell.data(newText).draw(false);
 				},
 				error: function() {
-						if (CKEDITOR && CKEDITOR.instances && CKEDITOR.instances[editorId]) {
-							CKEDITOR.instances[editorId].destroy(true);
-						}
-						cell.data(originalHtml).draw(false);
+					if (CKEDITOR && CKEDITOR.instances && CKEDITOR.instances[editorId]) {
+						CKEDITOR.instances[editorId].destroy(true);
+					}
+					cell.data(originalHtml).draw(false);
 					alert('Gagal menyimpan perubahan.');
 				}
 			});
 		});
+	}
+
+	$('#tes tbody').on('dblclick', 'td', function() {
+		var cell = table.cell(this);
+		openIndikasiEditor(cell);
+	});
+
+	$('#tes tbody').on('click', '.btn-edit-indikasi', function(e) {
+		e.preventDefault();
+		var cell = table.cell($(this).closest('td'));
+		openIndikasiEditor(cell);
 	});
 });
