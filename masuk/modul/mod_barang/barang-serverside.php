@@ -89,6 +89,7 @@ if ($_GET['action'] == "table_data") {
         $no = $start + 1;
         while ($value = $query->fetch(PDO::FETCH_ASSOC)) {
             $nestedData['no']               = $no;
+            $nestedData['id_barang']        = $value['id_barang'];
             $nestedData['nm_barang']        = $value['nm_barang'] . ' <span style="color: #666;">(' . $value['kd_barang'] . ')</span>' .
                                               ' - ' . $value['stok_barang'] . '<br><span style="color: #666;">(' . $value['sat_barang'] . ')</span>';
             $nestedData['updated_by']       = $value['updated_by'];

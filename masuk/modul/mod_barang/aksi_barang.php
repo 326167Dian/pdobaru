@@ -90,4 +90,15 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 		//echo "<script type='text/javascript'>alert('Data berhasil dihapus !');window.location='../../media_admin.php?module=".$module."'</script>";
 		header('location:../../media_admin.php?module=' . $module);
 	}
+	// Update indikasi inline
+	elseif ($module == 'barang' and $act == 'update_indikasi') {
+		if (!isset($_POST['id_barang'])) {
+			http_response_code(400);
+			exit('ID barang tidak ditemukan');
+		}
+		$indikasi = isset($_POST['indikasi']) ? $_POST['indikasi'] : '';
+		$stmt = $db->prepare("UPDATE barang SET indikasi = ? WHERE id_barang = ?");
+		$stmt->execute([$indikasi, $_POST['id_barang']]);
+		echo 'OK';
+	}
 }
