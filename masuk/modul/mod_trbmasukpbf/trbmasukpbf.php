@@ -2517,7 +2517,8 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
                 ],
                 "footerCallback": function(row, data, start, end, display) {
                     // console.log(row);
-                }
+                },
+                
             })
 
         });

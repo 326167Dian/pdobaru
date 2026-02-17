@@ -18,7 +18,7 @@ $cari   = $trbmasuk->rowCount();
 // die();
 if ($cari > 0) {
     // code...
-    $id_dtrbmasuk   = $detail['id_dtrbmasuk'];
+    // $id_dtrbmasuk   = $detail['id_dtrbmasuk'];
     
     $stmt_update_detail = $db->prepare("UPDATE trbmasuk_detail SET 
 										exp_date            = ?
@@ -112,18 +112,18 @@ else {
 	$stmt_insert_detail->execute([$kd_trbmasuk, $kd_orders, $odt['id_barang'], $odt['kd_barang'], $odt['nmbrg_dtrbmasuk'], $qty_dtrbmasuk, $_POST['qtygrosir_dtrbmasuk'], $odt['sat_dtrbmasuk'], $odt['satgrosir_dtrbmasuk'], $odt['konversi'], $rst['hna'], $odt['diskon'], $harga_satuan, $hrgjual_barang, $total_harga, $odt['no_batch'], $exp_date, $waktu]);
 										
 										
-	// Insert batch
-	$datetime = date('Y-m-d H:i:s', time());
-    $stmt_insert_batch = $db->prepare("INSERT INTO batch(
-                                        tgl_transaksi,
-                                        no_batch,
-										exp_date,
-										qty,
-										satuan,
-										kd_transaksi,
-										kd_barang,
-										status)
-								  VALUES(?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt_insert_batch->execute([$datetime, $odt['no_batch'], $exp_date, $odt['qty_dtrbmasuk'], $odt['sat_dtrbmasuk'], $kd_trbmasuk, $odt['kd_barang'], 'masuk']);
+// 	// Insert batch
+// 	$datetime = date('Y-m-d H:i:s', time());
+//     $stmt_insert_batch = $db->prepare("INSERT INTO batch(
+//                                         tgl_transaksi,
+//                                         no_batch,
+// 										exp_date,
+// 										qty,
+// 										satuan,
+// 										kd_transaksi,
+// 										kd_barang,
+// 										status)
+// 								  VALUES(?, ?, ?, ?, ?, ?, ?, ?)");
+//     $stmt_insert_batch->execute([$datetime, $odt['no_batch'], $exp_date, $odt['qty_dtrbmasuk'], $odt['sat_dtrbmasuk'], $kd_trbmasuk, $odt['kd_barang'], 'masuk']);
 }
 ?>

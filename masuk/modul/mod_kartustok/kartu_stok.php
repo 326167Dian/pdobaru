@@ -111,7 +111,8 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
                         <tbody>
                             <?php
                             $no = 1;
-                            $getlogs = $db->prepare("SELECT * FROM kartu_stok a 
+                            $getlogs = $db->prepare("SELECT *, b.no_batch as batch_masuk, b.exp_date as ed_masuk,
+                            c.no_batch as batch_keluar, c.exp_date as ed_keluar FROM kartu_stok a 
                             LEFT JOIN trbmasuk_detail b ON a.kode_transaksi=b.kd_trbmasuk
                             LEFT JOIN trkasir_detail c ON a.kode_transaksi=c.kd_trkasir
                             WHERE b.kd_barang = ? OR c.kd_barang = ? ORDER BY tgl_sekarang ASC");
@@ -132,9 +133,9 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
                                     <td class="text-center"><?= date('F', strtotime($r['tgl_sekarang'])); ?></td>
                                     <td><?= $r['kode_transaksi']; ?></td>
                                     <td class="text-center"><?= ($r['qty_dtrbmasuk'] != null) ? $r['qty_dtrbmasuk'] : 0; ?></td>
-                                    <td class="text-center"><?= ($r['no_batch'] != null) ? $r['no_batch'] : 0; ?> & <?= ($r['ed'] != null) ? $r['ed'] : 0; ?></td>
+                                    <td class="text-center"><?= ($r['batch_masuk'] != null) ? $r['batch_masuk'] : 0; ?> & <?= ($r['ed_masuk'] != null) ? $r['ed_masuk'] : 0; ?></td>
                                     <td class="text-center"><?= ($r['qty_dtrkasir'] != null) ? $r['qty_dtrkasir'] : 0; ?></td>
-                                    <td class="text-center"><?= ($r['no_batch_keluar'] != null) ? $r['no_batch_keluar'] : 0; ?> & <?= ($r['ed_keluar'] != null) ? $r['ed_keluar'] : 0; ?></td>
+                                    <td class="text-center"><?= ($r['batch_keluar'] != null) ? $r['batch_keluar'] : 0; ?> & <?= ($r['ed_keluar'] != null) ? $r['ed_keluar'] : 0; ?></td>
                                     <td class="text-center"><?= $total; ?></td>
                                 </tr>
                             <?php

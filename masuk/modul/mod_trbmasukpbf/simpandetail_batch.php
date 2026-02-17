@@ -1,5 +1,7 @@
 <?php
 include "../../../configurasi/koneksi.php";
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 $no_batch       = $_POST['no_batch'];
 $kd_barang      = $_POST['kd_barang'];
@@ -20,10 +22,10 @@ $cari = $trbmasuk->rowCount();
 
 if ($cari > 0) {
     // code...
-    $id_dtrbmasuk1   = $detail['id_dtrbmasuk'];
+    // $id_dtrbmasuk1   = $detail['id_dtrbmasuk'];
     $db->prepare("UPDATE trbmasuk_detail SET 
 					no_batch = ?
-					WHERE id_dtrbmasuk = ?")->execute([$no_batch, $id_dtrbmasuk1]);
+					WHERE id_dtrbmasuk = ?")->execute([$no_batch, $id_dtrbmasuk]);
 										
 	// Update batch
 	$datetime = date('Y-m-d H:i:s', time());
@@ -42,8 +44,8 @@ if ($cari > 0) {
 }
 else {
     $stmt_order = $db->prepare("SELECT * FROM ordersdetail 
-                            WHERE kd_barang=? AND kd_trbmasuk=?");
-    $stmt_order->execute([$kd_barang, $kd_orders]);
+                            WHERE kd_barang=? AND kd_trbmasuk=? AND id_dtrbmasuk=?");
+    $stmt_order->execute([$kd_barang, $kd_orders, $id_dtrbmasuk]);
     $odt = $stmt_order->fetch(PDO::FETCH_ASSOC);
     
     $qty_dtrbmasuk  = $_POST['qtygrosir_dtrbmasuk'] * $odt['konversi'];
@@ -70,15 +72,15 @@ else {
     
     
     $db->prepare("UPDATE barang SET 
-                                                stok_barang = ?,
-                                                hrgsat_barang = ?,
-                                                hrgjual_barang = ?
-                                                WHERE id_barang = ?")->execute([$stokakhir, $harga_satuan, $hrgjual_barang, $odt['id_barang']]);
+                    stok_barang = ?,
+                    hrgsat_barang = ?,
+                    hrgjual_barang = ?
+                    WHERE id_barang = ?")->execute([$stokakhir, $harga_satuan, $hrgjual_barang, $odt['id_barang']]);
     
     // Update order karena barang sudah masuk
     $db->prepare("UPDATE ordersdetail SET 
-                                                masuk = '0'
-                                                WHERE id_dtrbmasuk = ?")->execute([$odt['id_dtrbmasuk']]);
+                    masuk = '0'
+                    WHERE id_dtrbmasuk = ?")->execute([$odt['id_dtrbmasuk']]);
                                                 
     // Insert trbmasuk detail
     $db->prepare("INSERT INTO trbmasuk_detail(
@@ -125,7 +127,8 @@ else {
 	$datetime = date('Y-m-d H:i:s', time());
 	$getbatch = $db->prepare("SELECT * FROM batch 
 	                            WHERE kd_transaksi =?
-	                            AND no_batch =?")->execute([$kd_trbmasuk, $no_batch]);
+	                            AND no_batch =?");
+	$getbatch->execute([$kd_trbmasuk, $no_batch]);
 	$countbatch = $getbatch->rowCount();
 	$rowbatch   = $getbatch->fetch(PDO::FETCH_ASSOC);
 	if ($countbatch > 0) {
@@ -138,24 +141,24 @@ else {
 	} else {
 	    
         $db->prepare("INSERT INTO batch(
-                                            tgl_transaksi,
-                                            no_batch,
-    										exp_date,
-    										qty,
-    										satuan,
-    										kd_transaksi,
-    										kd_barang,
-    										status)
-    								  VALUES(?,?,?,?,?,?,?,?)")->execute([
-    								        $datetime,
-    								        $no_batch,
-    										$odt['exp_date'],
-    										$odt['qty_dtrbmasuk'],
-    										$odt['sat_dtrbmasuk'],
-    										$kd_trbmasuk,
-    										$odt['kd_barang'],
-    										'masuk'
-    										]);
+                                        tgl_transaksi,
+                                        no_batch,
+    									exp_date,
+    									qty,
+    									satuan,
+    									kd_transaksi,
+    									kd_barang,
+    									status)
+    						    VALUES(?,?,?,?,?,?,?,?)")->execute([
+    							        $datetime,
+    								    $no_batch,
+    									$odt['exp_date'],
+    									$odt['qty_dtrbmasuk'],
+    									$odt['sat_dtrbmasuk'],
+    									$kd_trbmasuk,
+    									$odt['kd_barang'],
+    									'masuk'
+    									]);
        
 	}
 }

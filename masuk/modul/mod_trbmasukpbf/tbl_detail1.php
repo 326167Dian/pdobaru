@@ -419,8 +419,11 @@
                             },
                             success: function (data) {
                                 tabel_detail1();
+                            },
+                            error: function(xhr, error, thrown) {
+                                console.log("AJAX Error:");
+                                console.log(xhr.responseText);
                             }
-                
                         });
                     });
                     
@@ -445,7 +448,6 @@
                             },
                             success: function (data) {
                                 tabel_detail1();
-                                console.log(data);
                             }
                 
                         });
