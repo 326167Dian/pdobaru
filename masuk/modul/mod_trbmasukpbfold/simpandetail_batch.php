@@ -5,25 +5,22 @@ $no_batch       = $_POST['no_batch'];
 $kd_barang      = $_POST['kd_barang'];
 $kd_trbmasuk    = $_POST['kd_trbmasuk'];
 $kd_orders      = $_POST['kd_orders'];
-$id_dtrbmasuk   = $_POST['id_dtrbmasuk'];
 
-$trbmasuk = $db->prepare("SELECT * FROM trbmasuk_detail 
-                            WHERE kd_barang=? 
-                            AND kd_trbmasuk=? 
-                            AND id_dtrbmasuk= ?");
-$trbmasuk->execute([$kd_barang, $kd_trbmasuk, $id_dtrbmasuk]);
-$detail = $trbmasuk->fetch(PDO::FETCH_ASSOC);
-$cari = $trbmasuk->rowCount();
+$stmt = $db->prepare("SELECT * FROM trbmasuk_detail 
+                            WHERE kd_barang=? AND kd_trbmasuk=? AND id_dtrbmasuk=?");
+$stmt->execute([$kd_barang, $kd_trbmasuk, $_POST['id_dtrbmasuk']]);
+$detail = $stmt->fetch(PDO::FETCH_ASSOC);
+$cari = $stmt->rowCount();
 
 // echo "Kode Barang = ".$kd_barang."\nKode Orders = ".$kd_orders."\nKode Barang Masuk = ".$kd_trbmasuk."\nBatch = ".$no_batch;
 // die();
 
 if ($cari > 0) {
     // code...
-    $id_dtrbmasuk1   = $detail['id_dtrbmasuk'];
+    $id_dtrbmasuk   = $detail['id_dtrbmasuk'];
     $db->prepare("UPDATE trbmasuk_detail SET 
-					no_batch = ?
-					WHERE id_dtrbmasuk = ?")->execute([$no_batch, $id_dtrbmasuk1]);
+										no_batch = ?
+										WHERE id_dtrbmasuk = ?")->execute([$no_batch, $id_dtrbmasuk]);
 										
 	// Update batch
 	$datetime = date('Y-m-d H:i:s', time());

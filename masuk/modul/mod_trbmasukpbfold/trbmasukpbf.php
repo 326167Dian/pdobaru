@@ -1770,40 +1770,32 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 	        $ubah->execute([$_GET['id']]);
             $re = $ubah->fetch(PDO::FETCH_ASSOC);
 
-            $cektrbmasuk = $db->prepare("SELECT * FROM trbmasuk 
-                                            WHERE kd_orders=?");
-            $cektrbmasuk->execute([$re['kd_trbmasuk']]);
-            $masuk = $cektrbmasuk->fetch(PDO::FETCH_ASSOC);
-            
-            if($cektrbmasuk->rowCount() <= 0){
-                $cekkd = $db->prepare("SELECT * FROM kdbm 
-                                        WHERE id_admin=? 
-                                        AND id_resto=? 
-                                        AND stt_kdbm=?");
-                $cekkd->execute([$_SESSION['idadmin'], 'pusat', 'ON']);
-                $ketemucekkd = $cekkd->rowCount();
-                $hcekkd = $cekkd->fetch(PDO::FETCH_ASSOC);
-                $petugas = $_SESSION['namalengkap'];
-    
-                if ($ketemucekkd > 0) {
-                    $kdtransaksi = $hcekkd['kd_trbmasuk'];
-                } else {
-                    $kdunik = date('dmyhis');
-                    $kdtransaksi = "BMP-" . $kdunik;
-                    $cekkd2 = $db->prepare("SELECT * FROM kdbm 
-                                        WHERE kd_trbmasuk=?");
-                    $cekkd2->execute([$kdtransaksi]);
-                    $ketemucekkd2 = $cekkd2->rowCount();
-                    if ($ketemucekkd2 > 0) {
-                        $kdunik2 = date('dmyhis')+1;
-                        $kdtransaksi = "BMP-" . $kdunik2;
-                    }
-                    $stmt_insert_kdbm = $db->prepare("INSERT INTO kdbm(kd_trbmasuk,id_resto,id_admin) VALUES(?, 'pusat', ?)");
-    				$stmt_insert_kdbm->execute([$kdtransaksi, $_SESSION['id_admin']]);
-                }
+            $cekkd = $db->prepare("SELECT * FROM kdbm 
+                                    WHERE id_admin=? 
+                                    AND id_resto=? 
+                                    AND stt_kdbm=?");
+            $cekkd->execute([$_SESSION['idadmin'], 'pusat', 'ON']);
+            $ketemucekkd = $cekkd->rowCount();
+            $hcekkd = $cekkd->fetch(PDO::FETCH_ASSOC);
+            $petugas = $_SESSION['namalengkap'];
+
+            if ($ketemucekkd > 0) {
+                $kdtransaksi = $hcekkd['kd_trbmasuk'];
             } else {
-                $kdtransaksi = $masuk['kd_trbmasuk'];
+                $kdunik = date('dmyhis');
+                $kdtransaksi = "BMP-" . $kdunik;
+                $cekkd2 = $db->prepare("SELECT * FROM kdbm 
+                                    WHERE kd_trbmasuk=?");
+                $cekkd2->execute([$kdtransaksi]);
+                $ketemucekkd2 = $cekkd2->rowCount();
+                if ($ketemucekkd2 > 0) {
+                    $kdunik2 = date('dmyhis')+1;
+                    $kdtransaksi = "BMP-" . $kdunik2;
+                }
+                $stmt_insert_kdbm = $db->prepare("INSERT INTO kdbm(kd_trbmasuk,id_resto,id_admin) VALUES(?, 'pusat', ?)");
+				$stmt_insert_kdbm->execute([$kdtransaksi, $_SESSION['id_admin']]);
             }
+            
             $tglharini = date('Y-m-d');
             
             echo "

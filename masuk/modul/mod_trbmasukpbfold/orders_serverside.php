@@ -41,11 +41,8 @@ if ($_GET['action'] == "table_data") {
         //             WHERE id_resto = 'pesan'
         //             AND kd_trbmasuk NOT IN (SELECT kd_orders FROM trx_orders)
         //             ORDER BY $order DESC LIMIT $limit OFFSET $start");
-        // $query = $db->prepare("SELECT * FROM orders
-        //                         INNER JOIN ordersdetail ON ordersdetail.kd_trbmasuk = orders.kd_trbmasuk
-        //                         WHERE orders.id_resto = 'pesan'
-        //                         ORDER BY $order DESC LIMIT $limit OFFSET $start");
         $query = $db->prepare("SELECT * FROM orders
+                                INNER JOIN ordersdetail ON ordersdetail.kd_trbmasuk = orders.kd_trbmasuk
                                 WHERE orders.id_resto = 'pesan'
                                 ORDER BY $order DESC LIMIT $limit OFFSET $start");
                     
@@ -75,18 +72,8 @@ if ($_GET['action'] == "table_data") {
         //                 OR ttl_trbmasuk LIKE '%$search%'
         //                 OR dp_bayar     LIKE '%$search%'
         //                 OR sisa_bayar   LIKE '%$search%'");
-        // $query = $db->prepare("SELECT * FROM orders
-        //                         INNER JOIN ordersdetail ON ordersdetail.kd_trbmasuk = orders.kd_trbmasuk
-        //                         WHERE orders.id_resto = 'pesan'
-        //                         AND (orders.kd_trbmasuk LIKE '%$search%'
-        //                         OR orders.tgl_trbmasuk LIKE '%$search%'
-        //                         OR orders.nm_supplier  LIKE '%$search%'
-        //                         OR orders.ket_trbmasuk LIKE '%$search%'
-        //                         OR orders.ttl_trbmasuk LIKE '%$search%'
-        //                         OR orders.dp_bayar     LIKE '%$search%'
-        //                         OR orders.sisa_bayar   LIKE '%$search%')
-        //                         ORDER BY $order DESC LIMIT $limit OFFSET $start");
         $query = $db->prepare("SELECT * FROM orders
+                                INNER JOIN ordersdetail ON ordersdetail.kd_trbmasuk = orders.kd_trbmasuk
                                 WHERE orders.id_resto = 'pesan'
                                 AND (orders.kd_trbmasuk LIKE '%$search%'
                                 OR orders.tgl_trbmasuk LIKE '%$search%'
@@ -98,17 +85,8 @@ if ($_GET['action'] == "table_data") {
                                 ORDER BY $order DESC LIMIT $limit OFFSET $start");
 
        
-        // $querycount = $db->prepare("SELECT count(id_trbmasuk) as jumlah FROM orders
-        //                         INNER JOIN ordersdetail ON ordersdetail.kd_trbmasuk = orders.kd_trbmasuk
-        //                         WHERE orders.id_resto = 'pesan'
-        //                         AND (orders.kd_trbmasuk LIKE '%$search%'
-        //                         OR orders.tgl_trbmasuk LIKE '%$search%'
-        //                         OR orders.nm_supplier  LIKE '%$search%'
-        //                         OR orders.ket_trbmasuk LIKE '%$search%'
-        //                         OR orders.ttl_trbmasuk LIKE '%$search%'
-        //                         OR orders.dp_bayar     LIKE '%$search%'
-        //                         OR orders.sisa_bayar   LIKE '%$search%')");
         $querycount = $db->prepare("SELECT count(id_trbmasuk) as jumlah FROM orders
+                                INNER JOIN ordersdetail ON ordersdetail.kd_trbmasuk = orders.kd_trbmasuk
                                 WHERE orders.id_resto = 'pesan'
                                 AND (orders.kd_trbmasuk LIKE '%$search%'
                                 OR orders.tgl_trbmasuk LIKE '%$search%'
@@ -130,7 +108,7 @@ if ($_GET['action'] == "table_data") {
         $query->execute();
         while ($value = $query->fetch(PDO::FETCH_ASSOC)) {
             // for column
-            
+
             $nestedData['no']           = $no;
             $nestedData['petugas']      = $value['petugas'];
             $nestedData['kd_trbmasuk']  = $value['kd_trbmasuk'];

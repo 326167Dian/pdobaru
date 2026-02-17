@@ -5,17 +5,13 @@ $hnasat_dtrbmasuk       = str_replace(".","",$_POST['hnasat_dtrbmasuk']);
 $kd_barang              = $_POST['kd_barang'];
 $kd_trbmasuk            = $_POST['kd_trbmasuk'];
 $kd_orders              = $_POST['kd_orders'];
-$id_dtrbmasuk           = $_POST['id_dtrbmasuk'];
 
 $trbmasuk = $db->prepare("SELECT * FROM trbmasuk_detail 
-                            WHERE kd_barang=? 
-                            AND kd_trbmasuk=? 
-                            AND id_dtrbmasuk= ?");
-$trbmasuk->execute([$kd_barang, $kd_trbmasuk, $id_dtrbmasuk]);
+                            WHERE kd_barang=? AND kd_trbmasuk=? AND id_dtrbmasuk=?");
+$trbmasuk->execute([$kd_barang, $kd_trbmasuk, $_POST['id_dtrbmasuk']]);
 $detail = $trbmasuk->fetch(PDO::FETCH_ASSOC);
 $cari   = $trbmasuk->rowCount();
-// print_r($detail);
-// die();
+
 if ($cari > 0) {
     // code...
     $id_dtrbmasuk   = $detail['id_dtrbmasuk'];

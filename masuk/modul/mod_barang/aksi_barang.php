@@ -78,7 +78,12 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 			$stmt->execute([$_POST['kd_barang'], $_POST['nm_barang'], $_POST['stok_buffer'], $_POST['sat_barang'], $_POST['sat_grosir'], $_POST['jenisobat'], $_POST['konversi'], $_POST['hrgsat_barang'], $_POST['hrgsat_grosir'], $_POST['hrgjual_barang'], $_POST['hrgjual_barang1'], $_POST['hrgjual_barang2'], $_POST['indikasi'], $_POST['ket_barang'], $_POST['dosis'], $_POST['zataktif'], $tanggal, $updated_by, $_POST['id']]);
 									
 			//echo "<script type='text/javascript'>alert('Data berhasil diubah !');window.location='../../media_admin.php?module=".$module."'</script>";
-			header('location:../../media_admin.php?module=' . $module);
+			$returnStart = isset($_POST['return_start']) ? (int)$_POST['return_start'] : 0;
+			$redirectUrl = '../../media_admin.php?module=' . $module;
+			if ($returnStart > 0) {
+				$redirectUrl .= '&start=' . $returnStart;
+			}
+			header('location:' . $redirectUrl);
 		} catch (PDOException $e) {
 			echo "<script type='text/javascript'>alert('Error: " . $e->getMessage() . "');history.go(-1);</script>";
 		}

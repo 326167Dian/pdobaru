@@ -255,6 +255,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 			$edit = $db->prepare("SELECT * FROM barang WHERE id_barang = ?");
 			$edit->execute([$_GET['id']]);
 			$r = $edit->fetch(PDO::FETCH_ASSOC);
+			$returnStart = isset($_GET['start']) ? (int)$_GET['start'] : 0;
 
 			echo "
 		  <div class='box box-primary box-solid'>
@@ -267,6 +268,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 				<div class='box-body table-responsive'>
 						<form method=POST method=POST action=$aksi?module=barang&act=update_barang  enctype='multipart/form-data' class='form-horizontal'>
 							  <input type=hidden name=id value='$r[id_barang]'>						  
+							  <input type=hidden name=return_start value='$returnStart'>
 						<div class='col-md-6'>	 
 							  <div class='form-group'>
 									<label class='col-sm-4 control-label'>Kode Barang</label>        		

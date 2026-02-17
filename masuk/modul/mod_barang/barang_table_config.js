@@ -1,7 +1,18 @@
 $(document).ready(function() {
+	function getParam(name) {
+		var url = new URL(window.location.href);
+		return url.searchParams.get(name);
+	}
+	var startParam = parseInt(getParam('start') || '0', 10);
+	if (isNaN(startParam) || startParam < 0) {
+		startParam = 0;
+	}
+
 	var table = $('#tes').DataTable({
 		processing: true,
 		serverSide: true,
+		autoWidth: false,
+		displayStart: startParam,
 		ajax: {
 			"url": "modul/mod_barang/barang-serverside.php?action=table_data",
 			"dataType": "JSON",
@@ -60,6 +71,27 @@ $(document).ready(function() {
 			"data": "aksi",
 			"visible": (typeof userLevel !== 'undefined' && userLevel == 'pemilik')
 		}]
+	});
+
+	$(window).on('resize', function() {
+		table.columns.adjust();
+	});
+	$(document).on('expanded.pushMenu collapsed.pushMenu', function() {
+		table.columns.adjust();
+	});
+
+	$('#tes tbody').on('click', 'a', function(e) {
+		var href = $(this).attr('href') || '';
+		if (href.indexOf('act=edit') === -1) {
+			return;
+		}
+		if (href.indexOf('start=') !== -1) {
+			return;
+		}
+		var info = table.page.info();
+		var start = info ? info.start : 0;
+		var separator = href.indexOf('?') !== -1 ? '&' : '?';
+		$(this).attr('href', href + separator + 'start=' + start);
 	});
 
 	function openIndikasiEditor(cell) {

@@ -1,4 +1,4 @@
-<style>
+a<style>
     .table-condensed {
         font-size: 13px;
     }
@@ -56,13 +56,8 @@
                                                 WHERE kd_orders =? ORDER BY id_dtrbmasuk ASC");
             $stmt_trb->execute([$kd_trbmasuk]);
             $ctrb = $stmt_trb->rowCount();
-            $no = 1;
-            $total = 0;
-            $totalharga = array();
-            $grandnya = 0;
-            $nilai_batch = 1;
-            
             $totalharga1= 0;
+            $no=1;
             if ($ctrb > 0) {
                 while($trb = $stmt_trb->fetch(PDO::FETCH_ASSOC)){
                         
@@ -163,10 +158,15 @@
             }
             
             $stmt = $db->prepare("SELECT * FROM ordersdetail 
-    							   WHERE kd_trbmasuk=?
-    							   AND masuk = '1'
-    							   ORDER BY id_dtrbmasuk ASC");
+							   WHERE kd_trbmasuk=?
+							   AND masuk = '1'
+							   ORDER BY id_dtrbmasuk ASC");
             $stmt->execute([$kd_trbmasuk]);
+            // $no = 1;
+            $total = 0;
+            $totalharga = array();
+            $grandnya = 0;
+            $nilai_batch = 1;
             
             $cord = $stmt->rowCount();
             if ($cord > 0) {
@@ -445,7 +445,6 @@
                             },
                             success: function (data) {
                                 tabel_detail1();
-                                console.log(data);
                             }
                 
                         });
