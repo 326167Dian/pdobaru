@@ -72,6 +72,42 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 						</thead>
 
 					</table>
+
+					<div id="indikasiModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+						<div class="modal-dialog modal-fullscreen" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+									<h4 class="modal-title">Edit Komposisi dan Indikasi</h4>
+								</div>
+								<div class="modal-body">
+									<textarea id="indikasi_modal_editor" rows="12"></textarea>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+									<button type="button" class="btn btn-primary" id="indikasi_modal_save">Simpan</button>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div id="zataktifModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+						<div class="modal-dialog modal-fullscreen" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+									<h4 class="modal-title">Edit Zat Aktif</h4>
+								</div>
+								<div class="modal-body">
+									<textarea id="zataktif_modal_editor" rows="12"></textarea>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+									<button type="button" class="btn btn-primary" id="zataktif_modal_save">Simpan</button>
+								</div>
+							</div>
+						</div>
+					</div>
 					<?php
 					$editor = $db->query("select updated_by, count(*) as jumlah from barang GROUP BY updated_by");
 					
@@ -577,6 +613,62 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 ?>
 
 <script type="text/javascript" src="vendors/ckeditor/ckeditor.js"></script>
+<style>
+	.modal-fullscreen {
+		width: 98%;
+		margin: 10px auto;
+	}
+	.modal-fullscreen .modal-content {
+		height: calc(100vh - 20px);
+		overflow: hidden;
+	}
+	.modal-fullscreen .modal-body {
+		height: calc(100% - 120px);
+		overflow: auto;
+	}
+	#indikasi_modal_editor {
+		width: 100%;
+		height: 100%;
+	}
+	#zataktif_modal_editor {
+		width: 100%;
+		height: 100%;
+	}
+	#indikasiModal.is-open {
+		display: block;
+		position: fixed;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.5);
+		z-index: 1050;
+		overflow: auto;
+	}
+	#indikasiModal.is-open.fade {
+		opacity: 1;
+	}
+	#indikasiModal.is-open .modal-content {
+		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+	}
+	#indikasiModal.is-open .modal-dialog {
+		margin: 10px auto;
+	}
+	#zataktifModal.is-open {
+		display: block;
+		position: fixed;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.5);
+		z-index: 1050;
+		overflow: auto;
+	}
+	#zataktifModal.is-open.fade {
+		opacity: 1;
+	}
+	#zataktifModal.is-open .modal-content {
+		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+	}
+	#zataktifModal.is-open .modal-dialog {
+		margin: 10px auto;
+	}
+</style>
 <script type="text/javascript">
 	// Inisialisasi CKEditor untuk form tambah
 	if (document.getElementById('content')) {

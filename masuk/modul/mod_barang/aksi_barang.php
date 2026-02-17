@@ -106,4 +106,15 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 		$stmt->execute([$indikasi, $_POST['id_barang']]);
 		echo 'OK';
 	}
+	// Update zataktif inline
+	elseif ($module == 'barang' and $act == 'update_zataktif') {
+		if (!isset($_POST['id_barang'])) {
+			http_response_code(400);
+			exit('ID barang tidak ditemukan');
+		}
+		$zataktif = isset($_POST['zataktif']) ? $_POST['zataktif'] : '';
+		$stmt = $db->prepare("UPDATE barang SET zataktif = ? WHERE id_barang = ?");
+		$stmt->execute([$zataktif, $_POST['id_barang']]);
+		echo 'OK';
+	}
 }

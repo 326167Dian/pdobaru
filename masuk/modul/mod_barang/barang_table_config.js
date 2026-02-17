@@ -55,14 +55,20 @@ $(document).ready(function() {
 		},
 		{
 			"data": "zataktif",
-			"className": 'text-justify'
+			"className": 'text-justify',
+			"render": function(data, type, row) {
+				if (type === 'display') {
+					return (data || '') + "<div style='margin-top:6px;'><button type='button' class='btn btn-xs btn-info btn-edit-zataktif' data-id='" + (row.id_barang || '') + "'>Edit</button></div>";
+				}
+				return data;
+			}
 		},
 		{
 			"data": "indikasi",
 			"className": 'text-justify',
 			"render": function(data, type, row) {
 				if (type === 'display') {
-					return (data || '') + "<div style='margin-top:6px;'><button type='button' class='btn btn-xs btn-info btn-edit-indikasi'>Edit</button></div>";
+					return (data || '') + "<div style='margin-top:6px;'><button type='button' class='btn btn-xs btn-info btn-edit-indikasi' data-id='" + (row.id_barang || '') + "'>Edit</button></div>";
 				}
 				return data;
 			}
@@ -94,87 +100,194 @@ $(document).ready(function() {
 		$(this).attr('href', href + separator + 'start=' + start);
 	});
 
-	function openIndikasiEditor(cell) {
-		var colIndex = cell.index().column;
-		if (colIndex !== 5) {
+	var indikasiModalRow = null;
+	var indikasiModalData = null;
+	var zataktifModalRow = null;
+	var zataktifModalData = null;
+
+	function showIndikasiModal() {
+		if (typeof $.fn.modal === 'function') {
+			$('#indikasiModal').modal('show');
+		} else {
+			$('body').addClass('modal-open');
+			$('#indikasiModal')
+				.addClass('is-open in')
+				.attr('aria-hidden', 'false');
+		}
+	}
+	function hideIndikasiModal() {
+		if (typeof $.fn.modal === 'function') {
+			$('#indikasiModal').modal('hide');
+		} else {
+			$('body').removeClass('modal-open');
+			$('#indikasiModal')
+				.removeClass('is-open in')
+				.attr('aria-hidden', 'true');
+		}
+	}
+	function showZataktifModal() {
+		if (typeof $.fn.modal === 'function') {
+			$('#zataktifModal').modal('show');
+		} else {
+			$('body').addClass('modal-open');
+			$('#zataktifModal')
+				.addClass('is-open in')
+				.attr('aria-hidden', 'false');
+		}
+	}
+	function hideZataktifModal() {
+		if (typeof $.fn.modal === 'function') {
+			$('#zataktifModal').modal('hide');
+		} else {
+			$('body').removeClass('modal-open');
+			$('#zataktifModal')
+				.removeClass('is-open in')
+				.attr('aria-hidden', 'true');
+		}
+	}
+
+	$(document).on('click', '.btn-edit-indikasi', function(e) {
+		e.preventDefault();
+		var rowEl = $(this).closest('tr');
+		indikasiModalRow = table.row(rowEl).index();
+		indikasiModalData = table.row(rowEl).data() || {};
+		var idBarang = indikasiModalData.id_barang || $(this).data('id');
+		if (!idBarang) {
 			return;
 		}
-
-		var rowData = table.row(cell.index().row).data();
-		if (!rowData || !rowData.id_barang) {
-			return;
+		indikasiModalData.id_barang = idBarang;
+		var indikasiHtml = indikasiModalData.indikasi || '';
+		if (!indikasiHtml) {
+			var cellHtml = table.cell(rowEl, 5).data() || '';
+			var temp = $('<div>').html(cellHtml);
+			temp.find('.btn-edit-indikasi').remove();
+			indikasiHtml = temp.html();
 		}
-
-		var originalHtml = cell.data();
-		var editorId = 'indikasi_edit_' + rowData.id_barang;
-		if (CKEDITOR && CKEDITOR.instances && CKEDITOR.instances[editorId]) {
-			CKEDITOR.instances[editorId].destroy(true);
-		}
-		var textarea = $('<textarea class="form-control" rows="4"></textarea>')
-			.attr('id', editorId)
-			.val('');
-		var saveBtn = $('<button class="btn btn-xs btn-primary" style="margin-top:6px;">Simpan</button>');
-		var cancelBtn = $('<button class="btn btn-xs btn-default" style="margin-top:6px;margin-left:6px;">Batal</button>');
-
-		$(cell.node()).empty().append(textarea, $('<div></div>').append(saveBtn, cancelBtn));
+		showIndikasiModal();
 		if (typeof CKEDITOR !== 'undefined') {
-			CKEDITOR.replace(editorId, {
+			if (CKEDITOR.instances.indikasi_modal_editor) {
+				CKEDITOR.instances.indikasi_modal_editor.destroy(true);
+			}
+			CKEDITOR.replace('indikasi_modal_editor', {
 				filebrowserBrowseUrl: '',
 				filebrowserWindowWidth: 1000,
 				filebrowserWindowHeight: 500
 			});
-			CKEDITOR.instances[editorId].setData(originalHtml || '');
+			CKEDITOR.instances.indikasi_modal_editor.setData(indikasiHtml || '');
 		} else {
-			textarea.val($(cell.node()).text().trim());
-			textarea.focus();
+			$('#indikasi_modal_editor').val(indikasiHtml || '');
 		}
-
-		cancelBtn.on('click', function(e) {
-			e.preventDefault();
-			if (CKEDITOR && CKEDITOR.instances && CKEDITOR.instances[editorId]) {
-				CKEDITOR.instances[editorId].destroy(true);
-			}
-			cell.data(originalHtml).draw(false);
-		});
-
-		saveBtn.on('click', function(e) {
-			e.preventDefault();
-			var newText = textarea.val();
-			if (CKEDITOR && CKEDITOR.instances && CKEDITOR.instances[editorId]) {
-				newText = CKEDITOR.instances[editorId].getData();
-			}
-			$.ajax({
-				type: 'POST',
-				url: 'modul/mod_barang/aksi_barang.php?module=barang&act=update_indikasi',
-				data: {
-					id_barang: rowData.id_barang,
-					indikasi: newText
-				},
-				success: function() {
-					if (CKEDITOR && CKEDITOR.instances && CKEDITOR.instances[editorId]) {
-						CKEDITOR.instances[editorId].destroy(true);
-					}
-					cell.data(newText).draw(false);
-				},
-				error: function() {
-					if (CKEDITOR && CKEDITOR.instances && CKEDITOR.instances[editorId]) {
-						CKEDITOR.instances[editorId].destroy(true);
-					}
-					cell.data(originalHtml).draw(false);
-					alert('Gagal menyimpan perubahan.');
-				}
-			});
-		});
-	}
-
-	$('#tes tbody').on('dblclick', 'td', function() {
-		var cell = table.cell(this);
-		openIndikasiEditor(cell);
 	});
 
-	$('#tes tbody').on('click', '.btn-edit-indikasi', function(e) {
+	$('#indikasiModal').on('hidden.bs.modal', function() {
+		if (typeof CKEDITOR !== 'undefined' && CKEDITOR.instances.indikasi_modal_editor) {
+			CKEDITOR.instances.indikasi_modal_editor.destroy(true);
+		}
+		$('#indikasi_modal_editor').val('');
+		indikasiModalRow = null;
+		indikasiModalData = null;
+	});
+	$('#zataktifModal').on('hidden.bs.modal', function() {
+		if (typeof CKEDITOR !== 'undefined' && CKEDITOR.instances.zataktif_modal_editor) {
+			CKEDITOR.instances.zataktif_modal_editor.destroy(true);
+		}
+		$('#zataktif_modal_editor').val('');
+		zataktifModalRow = null;
+		zataktifModalData = null;
+	});
+	$(document).on('click', '#indikasiModal .close, #indikasiModal [data-dismiss="modal"]', function(e) {
 		e.preventDefault();
-		var cell = table.cell($(this).closest('td'));
-		openIndikasiEditor(cell);
+		hideIndikasiModal();
+	});
+	$(document).on('click', '#zataktifModal .close, #zataktifModal [data-dismiss="modal"]', function(e) {
+		e.preventDefault();
+		hideZataktifModal();
+	});
+
+	$('#indikasi_modal_save').on('click', function(e) {
+		e.preventDefault();
+		if (!indikasiModalData || !indikasiModalData.id_barang) {
+			return;
+		}
+		var newText = $('#indikasi_modal_editor').val();
+		if (typeof CKEDITOR !== 'undefined' && CKEDITOR.instances.indikasi_modal_editor) {
+			newText = CKEDITOR.instances.indikasi_modal_editor.getData();
+		}
+		$.ajax({
+			type: 'POST',
+			url: 'modul/mod_barang/aksi_barang.php?module=barang&act=update_indikasi',
+			data: {
+				id_barang: indikasiModalData.id_barang,
+				indikasi: newText
+			},
+				success: function() {
+				indikasiModalData.indikasi = newText;
+				table.row(indikasiModalRow).data(indikasiModalData).invalidate().draw(false);
+					hideIndikasiModal();
+			},
+			error: function() {
+				alert('Gagal menyimpan perubahan.');
+			}
+		});
+	});
+
+	$(document).on('click', '.btn-edit-zataktif', function(e) {
+		e.preventDefault();
+		var rowEl = $(this).closest('tr');
+		zataktifModalRow = table.row(rowEl).index();
+		zataktifModalData = table.row(rowEl).data() || {};
+		var idBarang = zataktifModalData.id_barang || $(this).data('id');
+		if (!idBarang) {
+			return;
+		}
+		zataktifModalData.id_barang = idBarang;
+		var zataktifHtml = zataktifModalData.zataktif || '';
+		if (!zataktifHtml) {
+			var cellHtml = table.cell(rowEl, 4).data() || '';
+			var temp = $('<div>').html(cellHtml);
+			temp.find('.btn-edit-zataktif').remove();
+			zataktifHtml = temp.html();
+		}
+		showZataktifModal();
+		if (typeof CKEDITOR !== 'undefined') {
+			if (CKEDITOR.instances.zataktif_modal_editor) {
+				CKEDITOR.instances.zataktif_modal_editor.destroy(true);
+			}
+			CKEDITOR.replace('zataktif_modal_editor', {
+				filebrowserBrowseUrl: '',
+				filebrowserWindowWidth: 1000,
+				filebrowserWindowHeight: 500
+			});
+			CKEDITOR.instances.zataktif_modal_editor.setData(zataktifHtml || '');
+		} else {
+			$('#zataktif_modal_editor').val(zataktifHtml || '');
+		}
+	});
+
+	$('#zataktif_modal_save').on('click', function(e) {
+		e.preventDefault();
+		if (!zataktifModalData || !zataktifModalData.id_barang) {
+			return;
+		}
+		var newText = $('#zataktif_modal_editor').val();
+		if (typeof CKEDITOR !== 'undefined' && CKEDITOR.instances.zataktif_modal_editor) {
+			newText = CKEDITOR.instances.zataktif_modal_editor.getData();
+		}
+		$.ajax({
+			type: 'POST',
+			url: 'modul/mod_barang/aksi_barang.php?module=barang&act=update_zataktif',
+			data: {
+				id_barang: zataktifModalData.id_barang,
+				zataktif: newText
+			},
+			success: function() {
+				zataktifModalData.zataktif = newText;
+				table.row(zataktifModalRow).data(zataktifModalData).invalidate().draw(false);
+				hideZataktifModal();
+			},
+			error: function() {
+				alert('Gagal menyimpan perubahan.');
+			}
+		});
 	});
 });
