@@ -29,8 +29,18 @@ echo "<script type='text/javascript'>alert('Kasir sudah dibuka!');history.go(-1)
 }
 else{
 
-    $stmt = $db->prepare("INSERT INTO waktukerja (petugasbuka, tanggal, waktubuka, shift, saldoawal, status) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->execute([$_POST['petugasbuka'], $_POST['tanggal'], $_POST['waktubuka'], $_POST['shift'], $_POST['saldoawal'], $_POST['status']]);
+    $stmt = $db->prepare("INSERT INTO waktukerja (petugasbuka, petugastutup, tanggal, waktubuka, waktututup, shift, saldoawal, saldoakhir, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->execute([
+        $_POST['petugasbuka'],
+        '',
+        $_POST['tanggal'],
+        $_POST['waktubuka'],
+        '00:00:00',
+        $_POST['shift'],
+        $_POST['saldoawal'],
+        0,
+        $_POST['status']
+    ]);
 										
 	
                                         

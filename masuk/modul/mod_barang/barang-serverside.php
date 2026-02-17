@@ -9,12 +9,11 @@ if ($_GET['action'] == "table_data") {
     $columns = array(
         0 => 'id_barang',
         1 => 'nm_barang',
-        2 => 'stok_barang',
-        3 => 'updated_by',
-        4 => 'hrgjual_barang',
-        5 => 'zataktif',
-        6 => 'indikasi',
-        7 => 'id_barang'
+        2 => 'updated_by',
+        3 => 'hrgjual_barang',
+        4 => 'zataktif',
+        5 => 'indikasi',
+        6 => 'id_barang'
     );
 
     $querycount = $db->query("SELECT count(id_barang) as jumlah FROM barang");
@@ -90,8 +89,8 @@ if ($_GET['action'] == "table_data") {
         $no = $start + 1;
         while ($value = $query->fetch(PDO::FETCH_ASSOC)) {
             $nestedData['no']               = $no;
-            $nestedData['nm_barang']        = $value['nm_barang'] . ' <span style="color: #666;">(' . $value['kd_barang'] . ')</span>';
-            $nestedData['stok_barang']      = $value['stok_barang'] . ' <br><span style="color: #666;">(' . $value['sat_barang'] . ')</span>';
+            $nestedData['nm_barang']        = $value['nm_barang'] . ' <span style="color: #666;">(' . $value['kd_barang'] . ')</span>' .
+                                              ' - ' . $value['stok_barang'] . '<br><span style="color: #666;">(' . $value['sat_barang'] . ')</span>';
             $nestedData['updated_by']       = $value['updated_by'];
             $nestedData['hrgsat_barang']    = $value['hrgsat_barang'];
             $nestedData['hrgjual_barang_reguler']   = $value['hrgjual_barang'];
@@ -118,10 +117,10 @@ if ($_GET['action'] == "table_data") {
         <span class='caret'></span>
     </button>
     <ul class='dropdown-menu' aria-labelledby='dropdownMenuAksi" . $value['id_barang'] . "'>
-        <li style='background-color:yellow;'><a href='?module=barang&act=edit&id=" . $value['id_barang'] . "'>EDIT</a></li>
-        <li style='background-color:aqua;'><a href='?module=barang&act=detail&id=" . $value['id_barang'] . "'>DETAIL</a></li>
-        <li style='background-color:aqua;'><a href='?module=kartustok&act=view&id=" . $value['kd_barang'] . "'>KARTU STOK</a></li>
-        <li style='background-color:red;'><a href=javascript:confirmdelete('" . $aksi . "?module=barang&act=hapus&id=" . $value['id_barang'] . "')>HAPUS</a></li>
+        <li style='background-color:yellow;width:50%'><a href='?module=barang&act=edit&id=" . $value['id_barang'] . "'>EDIT</a></li>
+        <li style='background-color:aqua;width:50%'><a href='?module=barang&act=detail&id=" . $value['id_barang'] . "'>DETAIL</a></li>
+        <li style='background-color:pink;width:50%;'><a href='?module=kartustok&act=view&id=" . $value['kd_barang'] . "'>KARTU STOK</a></li>
+        <li style='background-color:red;width:50%;'><a href=javascript:confirmdelete('" . $aksi . "?module=barang&act=hapus&id=" . $value['id_barang'] . "')>HAPUS</a></li>
     </ul>
 </div>";
             $data[] = $nestedData;

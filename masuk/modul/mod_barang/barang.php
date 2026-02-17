@@ -56,7 +56,6 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 							<tr>
 								<th>No</th>
 								<th>Nama Barang</th>
-								<th style="text-align: right; ">Qty/Stok</th>
 								<th style="text-align: center; ">Nama Editor</th>
 								<th style="text-align: right; ">Harga Jual</th>
 								<th style="text-align: right; ">Zat Aktif</th>
