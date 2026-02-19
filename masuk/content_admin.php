@@ -116,6 +116,11 @@ elseif ($_GET['module'] == 'pio') {
     include "modul/mod_pio/pio.php";
 }
 
+// Bagian pto
+elseif ($_GET['module'] == 'pto') {
+    include "modul/mod_pemantauan_terapi_obat/pto.php";
+}
+
 // Bagian cpp
 elseif ($_GET['module'] == 'cpp') {
     include "modul/mod_cpp/cpp.php";
