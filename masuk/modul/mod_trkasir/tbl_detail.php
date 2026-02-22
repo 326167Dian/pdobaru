@@ -24,6 +24,7 @@ color: white;
 							<tr class="judul-table">
 								<th style="vertical-align: middle; background-color: #008000; text-align: center; ">No</th>
 								<th style="vertical-align: middle; background-color: #008000; text-align: center; ">Jenis</th>
+								<th style="vertical-align: middle; background-color: #008000; text-align: center; ">Resep</th>
 								<th style="vertical-align: middle; background-color: #008000; text-align: left; ">Kode Barang</th>
 								<th style="vertical-align: middle; background-color: #008000; text-align: left; ">Nama Barang</th>
 								<th style="vertical-align: middle; background-color: #008000; text-align: right; ">Qty</th>
@@ -75,6 +76,9 @@ color: white;
 								
 								$hrgjual_dtrkasir = format_rupiah($r['hrgjual_dtrkasir']);
 								$hrgttl_dtrkasir = format_rupiah($r['hrgttl_dtrkasir']);
+								$resep = (isset($r['resep']) && $r['resep'] == 'YA')
+								    ? '<span class="btn btn-xs btn-success">YA</span>'
+								    : '<span class="btn btn-xs btn-default">TIDAK</span>';
                                 if($tipe = ($r['tipe']==1)){ $tipe = '<span class="btn btn-xs btn-primary">Reguler</span>';}
                                 else if($tipe = ($r['tipe']==2)){ $tipe = '<span class="btn btn-xs btn-success">Resep</span>';}
                                 else if($tipe = ($r['tipe']==3)){ $tipe = '<span class="btn btn-xs btn-info">Marketplace</span>';}
@@ -85,6 +89,7 @@ color: white;
                                     echo "<tr style='font-size: 13px;'>
 											<td align=center>$no</td>           
 											<td align=center>$tipe</td>           
+											<td align=center>$resep</td>
 											<td align=left>$r[kd_barang]</td>
 											<td>$r[nmbrg_dtrkasir]</td>
 											<td align=right>$r[qty_dtrkasir]</td>

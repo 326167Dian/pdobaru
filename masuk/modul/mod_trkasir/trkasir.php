@@ -676,20 +676,13 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
                                                 </div>
     										</div>
     										
-									<label class='col-sm-4 control-label'>ETALASE</label>        		
-											<div class='col-sm-7'>
-													<select class='form-control' name='jenisobat' id='jenisobat'>
-													    <option></option>
-													    ";
-                $tampil_jenisobat = $db->prepare("SELECT * FROM jenis_obat ORDER BY idjenis ");
-                $tampil_jenisobat->execute();
-                while ($rj = $tampil_jenisobat->fetch(PDO::FETCH_ASSOC)) {
-                    echo "<option value='$rj[jenisobat]'>$rj[jenisobat]</option>";
-                }
-
-                echo "
-													</select>
-											</div>
+                                    <label class='col-sm-4 control-label'>Resep</label>        		
+                                            <div class='col-sm-7'>
+                                                    <select class='form-control' name='resep' id='resep'>
+                                                        <option value='TIDAK'>TIDAK</option>
+                                                        <option value='YA'>YA</option>
+                                                    </select>
+                                            </div>
 											
 														
 									<label class='col-sm-4 control-label'>Qty</label>        		
@@ -898,19 +891,11 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 													<input type=text name='nmbrg_dtrkasir' id='nmbrg_dtrkasir' class='form-control' autocomplete='off'>
 											</div>
 									
-									<label class='col-sm-4 control-label'>ETALASE</label>        		
+									<label class='col-sm-4 control-label'>Resep</label>        		
 											<div class='col-sm-7'>
-													<select class='form-control' name='jenisobat' id='jenisobat'>
-													    <option></option>
-													    ";
-
-                                        $tampil_jenisobat = $db->prepare("SELECT * FROM jenis_obat ORDER BY idjenis ");
-                                        $tampil_jenisobat->execute();
-                                        while ($rj = $tampil_jenisobat->fetch(PDO::FETCH_ASSOC)) {
-                                            echo "<option value='$rj[jenisobat]'>$rj[jenisobat]</option>";
-                                        }
-
-                                        echo "
+													<select class='form-control' name='resep' id='resep'>
+													    <option value='TIDAK'>TIDAK</option>
+													    <option value='YA'>YA</option>
 													</select>
 											</div>
 											
@@ -1224,19 +1209,13 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 													<input type=text name='nmbrg_dtrkasir' id='nmbrg_dtrkasir' class='form-control' autocomplete='off'>
 											</div>
 									
-									<label class='col-sm-4 control-label'>ETALASE</label>        		
-											<div class='col-sm-7'>
-													<select class='form-control' name='jenisobat' id='jenisobat'>
-													    <option></option>
-													    ";
-
-                                    while ($rj = $tampil_jenisobat->fetch(PDO::FETCH_ASSOC)) {
-                                        echo "<option value='$rj[jenisobat]'>$rj[jenisobat]</option>";
-                                    }
-
-                                    echo "
-													</select>
-											</div>
+                                    <label class='col-sm-4 control-label'>Resep</label>        		
+                                            <div class='col-sm-7'>
+                                                    <select class='form-control' name='resep' id='resep'>
+                                                        <option value='TIDAK'>TIDAK</option>
+                                                        <option value='YA'>YA</option>
+                                                    </select>
+                                            </div>
 											
 									
 									<label class='col-sm-4 control-label'>Qty</label>        		
@@ -1368,7 +1347,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
                             // 		 	 data-nm_barang='$rd[nm_barang]'
                             // 		 	 data-stok_barang='$rd[stok_barang]'
                             // 		 	 data-sat_barang='$rd[sat_barang]'
-                            // 		 	 data-jenisobat ='$rd[jenisobat]'
+                            // 		 	 data-resep ='TIDAK'
                             // 		 	 data-indikasi='$rd[indikasi]'
                             // 		 	 data-hrgjual_barang='$rd[hrgjual_barang]'
                             // 		 	 data-hrgjual_barang1='$rd[hrgjual_barang1]'
@@ -1794,7 +1773,6 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
         // var hrgjual_barang1 = $(this).data('hrgjual_barang1');
         // var hrgjual_barang2 = $(this).data('hrgjual_barang2');
         // var hrgjual_barang3 = $(this).data('hrgjual_barang3');
-        var jenisobat       = $(this).data('jenisobat');
         var komisi_dtrkasir = $(this).data('komisi');
         var qty_default = "1";
         let jns_transaksi = $('select[name="jns_transaksi"]').val();
@@ -1820,7 +1798,6 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
             document.getElementById('hrgjual_dtrkasir').value = hrgjual_barang;
         }
         document.getElementById('komisi_dtrkasir').value = komisi_dtrkasir;
-        $('#jenisobat').val(jenisobat).change();
 
         //hilangkan modal
         $(".close").click();
@@ -1841,7 +1818,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
         let disc = document.getElementById('disc').value;
         let no_batch = document.getElementById('batch').value;
         let exp_date = document.getElementById('exp_date').value;
-        let jenisobat = document.getElementById('jenisobat').value;
+        let resep = document.getElementById('resep').value;
         let komisi_dtrkasir = document.getElementById('komisi_dtrkasir').value;
         let id_admin = document.getElementById('id_admin').value;
         var jns_transaksi = $('select[name="jns_transaksi"]').val();
@@ -1857,8 +1834,8 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
         else if (parseInt(disc) > 100) {
             alert('Input Diskon lebih kecil dari 100');
         }    
-        else if (level == "petugas" && jenisobat == "OKT") {
-  			alert('Obat ini hanya bisa di proses Apoteker');
+        else if (level == "petugas" && resep == "YA") {
+    			alert('Transaksi resep hanya bisa di proses Apoteker');
     //     } 
     //     else if (no_batch == "" && exp_date == "") {
   		// 	alert('No. batch tidak boleh kosong');
@@ -1877,7 +1854,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
                     'disc': disc,
                     'no_batch': no_batch,
                     'exp_date': exp_date,
-                    'jenisobat': jenisobat,
+                    'resep': resep,
                     'komisi_dtrkasir': komisi_dtrkasir,
                     'id_admin': id_admin,
                     'tipe': jns_transaksi,
@@ -1895,7 +1872,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
                     document.getElementById("exp_date").value = "";
                     document.getElementById("komisi_dtrkasir").value = "";
 
-                    // $('#jenisobat').val().change();
+                    document.getElementById("resep").value = "TIDAK";
                     
 
                     // let displayStok = stok_barang - qty_dtrkasir;

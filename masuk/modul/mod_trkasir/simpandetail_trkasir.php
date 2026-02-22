@@ -2,15 +2,30 @@
 session_start();
 include "../../../configurasi/koneksi.php";
 
-$kd_trkasir         = $_POST['kd_trkasir'];
-$id_dtrkasir        = $_POST['id_dtrkasir'];
-$id_barang          = $_POST['id_barang'];
-$kd_barang          = $_POST['kd_barang'];
-$nmbrg_dtrkasir     = $_POST['nmbrg_dtrkasir'];
-$qty_dtrkasir       = $_POST['qty_dtrkasir'];
-$sat_dtrkasir       = $_POST['sat_dtrkasir'];
-$hrgjual_dtrkasir   = $_POST['hrgjual_dtrkasir'];
-$indikasi           = $_POST['indikasi'];
+try {
+    $cekKolomResep = $db->prepare("SHOW COLUMNS FROM trkasir_detail LIKE 'resep'");
+    $cekKolomResep->execute();
+    if ($cekKolomResep->rowCount() == 0) {
+        $db->exec("ALTER TABLE trkasir_detail ADD COLUMN resep ENUM('TIDAK','YA') NOT NULL DEFAULT 'TIDAK' AFTER disc");
+    }
+
+    $cekKolomResepHist = $db->prepare("SHOW COLUMNS FROM trkasir_detail_hist LIKE 'resep'");
+    $cekKolomResepHist->execute();
+    if ($cekKolomResepHist->rowCount() == 0) {
+        $db->exec("ALTER TABLE trkasir_detail_hist ADD COLUMN resep ENUM('TIDAK','YA') NOT NULL DEFAULT 'TIDAK' AFTER disc");
+    }
+} catch (Exception $e) {
+}
+
+$kd_trkasir         = isset($_POST['kd_trkasir']) ? $_POST['kd_trkasir'] : '';
+$id_dtrkasir        = isset($_POST['id_dtrkasir']) ? $_POST['id_dtrkasir'] : '';
+$id_barang          = isset($_POST['id_barang']) ? $_POST['id_barang'] : '';
+$kd_barang          = isset($_POST['kd_barang']) ? $_POST['kd_barang'] : '';
+$nmbrg_dtrkasir     = isset($_POST['nmbrg_dtrkasir']) ? $_POST['nmbrg_dtrkasir'] : '';
+$qty_dtrkasir       = isset($_POST['qty_dtrkasir']) ? $_POST['qty_dtrkasir'] : '';
+$sat_dtrkasir       = isset($_POST['sat_dtrkasir']) ? $_POST['sat_dtrkasir'] : '';
+$hrgjual_dtrkasir   = isset($_POST['hrgjual_dtrkasir']) ? $_POST['hrgjual_dtrkasir'] : 0;
+$indikasi           = isset($_POST['indikasi']) ? $_POST['indikasi'] : '';
 
 if ($_SESSION['komisi'] == 'Y') {
     $tarik = $db->prepare("select komisi from barang where id_barang='$id_barang' ");
@@ -27,10 +42,11 @@ $currentdate = date('Y-m-d',time());
 $id_admin = $_POST['id_admin'];
 
 $disc = (empty($_POST['disc']))?0:$_POST['disc'];
-$no_batch = $_POST['no_batch'];
-$exp_date = $_POST['exp_date'];
+$resep = isset($_POST['resep']) && $_POST['resep'] !== '' ? strtoupper($_POST['resep']) : 'TIDAK';
+$no_batch = isset($_POST['no_batch']) ? $_POST['no_batch'] : '';
+$exp_date = isset($_POST['exp_date']) ? $_POST['exp_date'] : '';
 $hrgdisc = $hrgjual_dtrkasir * (1-($disc/100));
-$tipe = $_POST['tipe'];
+$tipe = isset($_POST['tipe']) ? $_POST['tipe'] : 1;
 $datetime = date('Y-m-d H:i:s', time());
 
 if($qty_dtrkasir == ""){
@@ -62,12 +78,13 @@ if($id_dtrkasir == "" || $id_dtrkasir == null){
     
         $stmt_update = $db->prepare("UPDATE trkasir_detail SET qty_dtrkasir = ?,
     										hrgjual_dtrkasir = ?,
+                                            resep = ?,
                                             modal = ?,
     										profit = ?,
     										hrgttl_dtrkasir = ?,
                                             komisi = ?
     										WHERE id_dtrkasir = ? and kd_barang=?");
-    	$stmt_update->execute([$ttlqty, $hrgjual_dtrkasir, $modal, $profit, $ttlharga, $komisi, $id_dtrkasir, $kd_barang]);									
+        $stmt_update->execute([$ttlqty, $hrgjual_dtrkasir, $resep, $modal, $profit, $ttlharga, $komisi, $id_dtrkasir, $kd_barang]);									
         //update stok
         //cek tambah stok
         $tambahstok = $db->prepare("select id_dtrkasir, kd_trkasir, qty_dtrkasir 
@@ -148,6 +165,7 @@ if($id_dtrkasir == "" || $id_dtrkasir == null){
     										sat_dtrkasir,
     										hrgjual_dtrkasir,
     										disc,
+                                            resep,
                                             modal,
     										profit,
     										no_batch,
@@ -156,9 +174,9 @@ if($id_dtrkasir == "" || $id_dtrkasir == null){
     										tipe,
                                             komisi,
                                             idadmin)
-    								  VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+	    							  VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
         $stmt_insert_trkasirdetail->execute([$kd_trkasir, $id_barang, $kd_barang, $nmbrg_dtrkasir, $qty_dtrkasir, $sat_dtrkasir, $hrgjual_dtrkasir, 
-                                $disc, $modal, $profit, $no_batch, $exp_date, $ttlharga, $tipe, $komisi, $id_admin]);
+                                $disc, $resep, $modal, $profit, $no_batch, $exp_date, $ttlharga, $tipe, $komisi, $id_admin]);
     
         $insertid_dtrkasir = $db->lastInsertId();
         
@@ -265,6 +283,7 @@ if($id_dtrkasir == "" || $id_dtrkasir == null){
     
     $update_trkasir = $db->prepare("UPDATE trkasir_detail SET qty_dtrkasir = '$qtybaru',
     										hrgjual_dtrkasir = '$hrgjual_dtrkasir',
+                                        resep = '$resep',
     										hrgttl_dtrkasir = '$ttlharga'
     										WHERE id_dtrkasir = '$id_dtrkasir'");
     $update_trkasir->execute();
