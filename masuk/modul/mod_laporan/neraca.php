@@ -138,11 +138,9 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
             // JOIN trkasir ON trkasir.kd_trkasir=trkasir_detail.kd_trkasir WHERE trkasir.id_carabayar = '3' AND trkasir.tgl_trkasir BETWEEN '" . $awal . "' AND '" . $akhir . "'");
 
             $query4 = $db->prepare("SELECT SUM(trbmasuk.ttl_trbmasuk) AS hutang FROM trbmasuk 
-                        WHERE trbmasuk.carabayar = 'KREDIT' AND trbmasuk.tgl_trbmasuk BETWEEN '" . $awal . "' AND '" . $akhir . "'");
+                        WHERE trbmasuk.carabayar = 'KREDIT' ");
             $query4->execute();
-            // $query4 = mysqli_query($GLOBALS["___mysqli_ston"], "SELECT SUM(trbmasuk_detail.hrgttl_dtrbmasuk) AS hutang FROM trbmasuk_detail 
-            // JOIN trbmasuk ON trbmasuk.kd_trbmasuk=trbmasuk_detail.kd_trbmasuk WHERE trbmasuk.carabayar = 'KREDIT' AND trbmasuk.tgl_trbmasuk BETWEEN '" . $awal . "' AND '" . $akhir . "'");
-
+            
             $query5 = $db->prepare("SELECT SUM(trbmasuk.ttl_trbmasuk) AS pembelian_cash FROM trbmasuk 
                         WHERE trbmasuk.carabayar = 'LUNAS' AND trbmasuk.tgl_trbmasuk BETWEEN '" . $awal . "' AND '" . $akhir . "'");
             $query5->execute();
