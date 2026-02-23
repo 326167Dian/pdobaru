@@ -322,16 +322,17 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
                                         WHERE trkasir_detail.kd_barang = ? AND (tgl_trkasir BETWEEN ? and ?)");
                         $pass->execute([$t30, $tgl_akhir, $tgl_awal]);
                         $pass1 = $pass->fetch(PDO::FETCH_ASSOC);
-                        $pass2 = $pass1['t30'];
-                        $pass3 = $pass1['q30'];
+                        $pass2 = (int)($pass1['t30'] ?? 0);
+                        $pass3 = (int)($pass1['q30'] ?? 0);
+                        $kd_barang_pass = $pass1['kd_barang'] ?? $t30;
 
                         $bln = $db->prepare("SELECT count(trkasir.kd_trkasir) as t60 FROM trkasir JOIN trkasir_detail
                                         ON (trkasir.kd_trkasir=trkasir_detail.kd_trkasir)
                                         WHERE trkasir_detail.kd_barang = ? AND (tgl_trkasir BETWEEN ? and ?)");
-                        $bln->execute([$pass1['kd_barang'], $tgl_akhir2, $tgl_awal2]);
+                        $bln->execute([$kd_barang_pass, $tgl_akhir2, $tgl_awal2]);
                         $bln2 = $bln->fetch(PDO::FETCH_ASSOC);
-                        $bln3 = $bln2['t60'];
-                        $gr =  intval(round(($pass3/$bln3*100)));
+                        $bln3 = (int)($bln2['t60'] ?? 0);
+                        $gr = ($bln3 > 0) ? intval(round(($pass3 / $bln3) * 100)) : 0;
 
 
                         $db->prepare("UPDATE barang SET

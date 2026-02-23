@@ -1,4 +1,5 @@
 <?php
+session_start();
 include_once '../../../configurasi/koneksi.php';
 
       
@@ -80,9 +81,33 @@ if ($_GET['action'] == "table_data") {
             $nestedData['kodetx'] = $value['kodetx'];
             $nestedData['nm_carabayar'] = $value['nm_carabayar'];
             $nestedData['ttl_trkasir'] = $value['ttl_trkasir'];
-            $nestedData['pilih'] = "<a href='?module=trkasir&act=ubah&id=$value[id_trkasir]' title='EDIT' class='glyphicon glyphicon-pencil'>&nbsp</a>
-            <a class='glyphicon glyphicon-print' onclick='window.open(\"modul/mod_laporan/struk.php?kd_trkasir=$value[kd_trkasir]\",\"nama window\",\"width=500,height=600,toolbar=no,location=no,directories=no,status=no,menubar=no, scrollbars=no,resizable=yes,copyhistory=no\")'>&nbsp</a>
-            <a href='javascript:confirmdelete(\"$aksi?module=trkasir&act=hapus&id=$value[id_trkasir]\")' title='HAPUS' class='glyphicon glyphicon-remove'>&nbsp</a>";
+                        if($_SESSION['level'] == 'pemilik'){
+                                $nestedData['pilih'] = '<div class="dropdown">
+                                                                                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" >
+                                                                                        Action
+                                                                                        <i class="fa fa-caret-down"></i>
+                                                                                    </button>
+                                                                                    <div class="dropdown-menu">
+                                                                                        <a href="?module=trkasir&act=ubah&id='.$value['id_trkasir'].'" title="EDIT" class="btn btn-info btn-xs" style="width:50%; margin:0 5 5 5">EDIT</a>
+                                                                                        <a href=javascript:confirmdelete("'.$aksi.'?module=trkasir&act=hapus&id='.$value['id_trkasir'].'") title="HAPUS" class="btn btn-danger btn-xs" style="width:50%; margin:0 3 3 3">HAPUS</a>
+                                                                                        <a class="btn btn-primary btn-xs" onclick="window.open(\'modul/mod_laporan/struk.php?kd_trkasir='.$value['kd_trkasir'].'\',\'nama window\',\'width=500,height=600,toolbar=no,location=no,directories=no,status=no,menubar=no, scrollbars=no,resizable=yes,copyhistory=no\')" style="width:50%; margin:0 5 5 5">PRINT</a>
+                                                                                        <a href="modul/mod_laporan/kwitansi.php?kd_trkasir='.$value['kd_trkasir'].'" target="_blank" title="KWITANSI" class="btn btn-warning btn-xs" style="width:50%; margin:0 3 3 3">KWITANSI</a>
+                                                                                        <a href="modul/mod_laporan/invoice.php?kd_trkasir='.$value['kd_trkasir'].'" target="_blank" title="INVOICE" class="btn btn-primary btn-xs" style="width:50%; margin:0 3 3 3">INVOICE</a>
+                                                                                    </div>
+                                                                                </div>';
+                        } else {
+                                $nestedData['pilih'] = '<div class="dropdown">
+                                                                                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" >
+                                                                                        Action
+                                                                                        <i class="fa fa-caret-down"></i>
+                                                                                    </button>
+                                                                                    <div class="dropdown-menu">
+                                                                                        <a class="btn btn-primary btn-xs" onclick="window.open(\'modul/mod_laporan/struk.php?kd_trkasir='.$value['kd_trkasir'].'\',\'nama window\',\'width=500,height=600,toolbar=no,location=no,directories=no,status=no,menubar=no, scrollbars=no,resizable=yes,copyhistory=no\')" style="width:50%; margin:0 5 5 5">PRINT</a>
+                                                                                        <a href="modul/mod_laporan/kwitansi.php?kd_trkasir='.$value['kd_trkasir'].'" target="_blank" title="KWITANSI" class="btn btn-warning btn-xs" style="width:50%; margin:0 5 5 5">KWITANSI</a>
+                                                                                        <a href="modul/mod_laporan/invoice.php?kd_trkasir='.$value['kd_trkasir'].'" target="_blank" title="INVOICE" class="btn btn-primary btn-xs" style="width:50%; margin:0 3 3 3">INVOICE</a>
+                                                                                    </div>
+                                                                                </div>';
+                        }
             
             $data[] = $nestedData;
             $no++;

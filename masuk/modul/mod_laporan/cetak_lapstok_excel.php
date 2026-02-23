@@ -38,6 +38,7 @@ echo $tgl_awal; ?>
     // menampilkan data barang
     $data = $db->query("select * from barang");
     $no = 1;
+    $total = [];
     while ($d = $data->fetch(PDO::FETCH_ASSOC)) {
         $nb = round(($d['stok_barang'] * $d['hrgsat_barang']),0);
         $hrgbeli = round($d['hrgsat_barang'],0);
@@ -48,10 +49,10 @@ echo $tgl_awal; ?>
             <td><?php echo $d['kd_barang']; ?></td>
             <td><?php echo $d['nm_barang']; ?></td>
             <td><?php echo $d['stok_barang']; ?></td>
-            <td><?php echo $d['t30']; ?></td>
-            <td><?php echo $d['t60']; ?></td>
-            <td><?php echo $d['gr']; ?></td>
-            <td><?php echo $d['q30']; ?></td>
+            <td><?php echo $d['t30'] ?? 0; ?></td>
+            <td><?php echo $d['t60'] ?? 0; ?></td>
+            <td><?php echo $d['gr'] ?? 0; ?></td>
+            <td><?php echo $d['q30'] ?? 0; ?></td>
             <td><?php echo $d['sat_barang']; ?></td>
             <td><?php echo $hrgbeli; ?></td>
             <td><?php echo $nb; ?></td>
