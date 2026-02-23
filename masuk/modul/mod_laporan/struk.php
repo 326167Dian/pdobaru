@@ -112,12 +112,19 @@ $query = $db->prepare("SELECT * FROM trkasir_detail WHERE kd_trkasir='$_GET[kd_t
 	                    ORDER BY id_dtrkasir ASC");
 $query->execute();
 
+$st = [];
+$totalresep = 0;
+$adaResep = false;
+
 while ($r2 = $query->fetch(PDO::FETCH_ASSOC)) {
     $st[] = $r2['hrgttl_dtrkasir'];
-    $gt = array_sum($st);
-    $disc = (($gt - $r1['ttl_trkasir']) / $gt) * 100;
-    $tagihan = format_rupiah($r1['ttl_trkasir']);
-    $subtotal = format_rupiah($gt);
+
+    if (isset($r2['resep']) && $r2['resep'] === 'YA') {
+        $adaResep = true;
+        $totalresep += $r2['hrgjual_dtrkasir'];
+        continue;
+    }
+
     $pdf->SetX(0.2);
 
     $pdf->Cell(5.7, 0.4, $r2['nmbrg_dtrkasir'], 0, 1, 'L');
@@ -128,6 +135,22 @@ while ($r2 = $query->fetch(PDO::FETCH_ASSOC)) {
 
     $no++;
 }
+
+if ($adaResep) {
+    $pdf->SetX(0.2);
+    $pdf->Cell(5.7, 0.4, 'Resep ' . $r1['kd_trkasir'], 0, 1, 'L');
+    $pdf->Cell(1, 0.4, '1', 0, 0, 'R');
+    $pdf->Cell(1, 0.4, '', 0, 0, 'C');
+    $pdf->Cell(1, 0.4, format_rupiah($totalresep), 0, 0, 'R');
+    $pdf->Cell(1.5, 0.4, format_rupiah($totalresep), 0, 1, 'R');
+}
+
+$gt = array_sum($st);
+$disc = $gt > 0 ? (($gt - $r1['ttl_trkasir']) / $gt) * 100 : 0;
+$disc_tampil = number_format($disc, 2, ',', '.') . '%';
+$tagihan = format_rupiah($r1['ttl_trkasir']);
+$subtotal = format_rupiah($gt);
+
 $pdf->SetFont('Arial','U');
 $pdf->Cell(4.8, 0.3,'_____________________________', 0, 0, 'L');
 
@@ -146,7 +169,7 @@ $pdf->SetX(0.2);
 $pdf->SetFont('Arial', 'B', 8);
 $pdf->Cell(2, 0.4, $r1['nm_carabayar'], 0, 0, 'L');
 $pdf->Cell(1.5, 0.4, 'Diskon (%) : ', 0, 0, 'R');
-$pdf->Cell(1.2, 0.4, $disc, 0, 1, 'R');
+$pdf->Cell(1.2, 0.4, $disc_tampil, 0, 1, 'R');
 $pdf->SetX(0.2);
 $pdf->SetFont('Arial', 'B', 8);
 $pdf->Cell(3.5, 0.4, 'Tagihan : ', 0, 0, 'R');
