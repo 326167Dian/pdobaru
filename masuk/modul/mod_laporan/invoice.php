@@ -256,7 +256,11 @@ $pdf->SetFont('Arial','',9);
 $pdf->Cell(9.8, 0.3, '', 0, 0, 'R');
 $pdf->Cell(2.2, 0.3,  '', 0, 1, 'R');
 
-if(terbilang($gt) > 66){
+$terbilang_text = trim(terbilang($gt));
+$terbilang1 = substr($terbilang_text, 0, 66);
+$terbilang2 = trim(substr($terbilang_text, 66, 130));
+
+if(strlen($terbilang_text) > 66){
     $pdf->SetX(0.6);
     $pdf->SetFont('Arial','I',9);
     $pdf->Cell(8, 0.4, $terbilang1, 0, 0, 'L');
@@ -272,7 +276,7 @@ if(terbilang($gt) > 66){
 } else {
     $pdf->SetX(0.6);
     $pdf->SetFont('Arial','IB',11);
-    $pdf->Cell(8, 0.4, terbilang($gt).' Rupiah.', 0, 0, 'L');
+    $pdf->Cell(8, 0.4, $terbilang_text.' Rupiah.', 0, 0, 'L');
 
     $pdf->SetFont('Arial','B',9);
     $pdf->Cell(9.8, 0.4, 'Total Pembayaran : ', 0, 0, 'R');

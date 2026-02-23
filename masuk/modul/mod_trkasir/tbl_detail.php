@@ -105,12 +105,7 @@ color: white;
 											<td align=right>$r[disc]</td>
 											<td align=right>$hrgttl_dtrkasir</td>
 											<td align=center>
-											<button class='btn btn-xs btn-primary simpan-inline-detail' 
-												data-id_dtrkasir='$r[id_dtrkasir]'>
-												<i class='glyphicon glyphicon-floppy-disk'></i>
-											</button>
-											<br><small class='inline-status text-muted' style='display:block;margin-top:3px;'></small>
-											&nbsp;
+											<small class='inline-status text-muted' style='display:block;margin-top:3px;'></small>
 											
 											<button class='btn btn-xs btn-danger' id='hapusdetail' 
 												data-id_dtrkasir='$r[id_dtrkasir]' data-id_barang='$r[id_barang]'>
@@ -451,10 +446,6 @@ $(document).ready(function () {
 			delete inlineSaveTimers[id_dtrkasir];
 		}, delayMs || 400);
 	}
-
-	$(document).on('click', '.simpan-inline-detail', function() {
-		simpanInlineDetail($(this).closest('tr'));
-	});
 
 	$(document).on('change', '.inline-resep', function() {
 		scheduleInlineSave($(this).closest('tr'), 350);

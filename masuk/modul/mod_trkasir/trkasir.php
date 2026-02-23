@@ -1414,23 +1414,108 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 </script>
 
 <script>
+    var AUTOCOMPLETE_LIMIT = 8;
+
+    function parseJsonSafe(data) {
+        if (typeof data === 'string') {
+            try {
+                return $.parseJSON(data);
+            } catch (e) {
+                return [];
+            }
+        }
+        return data || [];
+    }
+
+    function normalizeAutocompleteItems(data) {
+        var items = parseJsonSafe(data);
+        if (!$.isArray(items)) {
+            return [];
+        }
+        return items.slice(0, AUTOCOMPLETE_LIMIT);
+    }
+
+    function initAutocompleteSafe(selector, endpoint, method) {
+        var $input = $(selector);
+        if (!$input.length || $input.data('ac-initialized')) {
+            return;
+        }
+
+        if ($.fn.typeahead) {
+            $input.typeahead({
+                source: function(query, process) {
+                    query = $.trim(query || '');
+                    if (query.length === 0) {
+                        return process([]);
+                    }
+
+                    var payload = {
+                        query: query
+                    };
+                    var handler = function(data) {
+                        return process(normalizeAutocompleteItems(data));
+                    };
+
+                    if (method === 'get') {
+                        return $.get(endpoint, payload, handler);
+                    }
+                    return $.post(endpoint, payload, handler);
+                }
+            });
+            $input.data('ac-initialized', true);
+            return;
+        }
+
+        if ($.ui && $.ui.autocomplete) {
+            $input.autocomplete({
+                minLength: 1,
+                source: function(request, response) {
+                    var term = $.trim(request.term || '');
+                    if (term.length === 0) {
+                        response([]);
+                        return;
+                    }
+
+                    var payload = {
+                        query: term
+                    };
+
+                    $.ajax({
+                        url: endpoint,
+                        type: method || 'post',
+                        data: payload,
+                        success: function(data) {
+                            response(normalizeAutocompleteItems(data));
+                        },
+                        error: function() {
+                            response([]);
+                        }
+                    });
+                }
+            });
+            $input.data('ac-initialized', true);
+            return;
+        }
+
+        console.warn('Plugin autocomplete/typeahead tidak ditemukan untuk', selector);
+    }
+
+    function closeAutocompleteSuggestions(selector) {
+        var $input = $(selector);
+
+        if ($.ui && $.ui.autocomplete && $input.data('ui-autocomplete')) {
+            $input.autocomplete('close');
+        }
+
+        $('.tt-menu, .ui-autocomplete, .dropdown-menu.typeahead, ul.typeahead.dropdown-menu').hide();
+
+        $input.focus();
+    }
+
     $(document).ready(function() {
         tabel_detail();
         $("#example").DataTable();
-
-        // Autocomplete nama obat
-        $('#nmbrg_dtrkasir').typeahead({
-            source: function(query, process) {
-                return $.post('modul/mod_trkasir/autonamabarang.php', {
-                    query: query
-                }, function(data) {
-                    if (typeof data === 'string') {
-                        data = $.parseJSON(data);
-                    }
-                    return process(data);
-                });
-            }
-        });
+        initAutocompleteSafe('#nmbrg_dtrkasir', 'modul/mod_trkasir/autonamabarang.php', 'post');
     });
 
     $('select[name="jns_transaksi"]').on('change', function() {
@@ -1443,12 +1528,11 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
             $.ajax({
                 url: 'modul/mod_trkasir/autonamabarang_enter.php',
                 type: 'post',
+                dataType: 'json',
                 data: {
                     'nm_barang': nm_barang
                 },
-            }).success(function(response) {
-                let data = $.parseJSON(response);
-                // let data = JSON.parse(response)
+            }).done(function(data) {
                 let qty_default = "1";
 
                 for (let i = 0; i < data.length; i++) {
@@ -1506,40 +1590,30 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
                     }
                 }
 
+            }).fail(function(xhr) {
+                console.log('Gagal load data barang:', xhr.responseText);
             });
         }
     });
 
-    // Autocomplete nama obat
-    $('#nmbrg_dtrkasir').typeahead({
-        source: function(query, process) {
-            return $.post('modul/mod_trkasir/autonamabarang.php', {
-                query: query
-            }, function(data) {
-
-                data = $.parseJSON(data);
-                return process(data);
-
-            });
-        }
-    });
+    initAutocompleteSafe('#nmbrg_dtrkasir', 'modul/mod_trkasir/autonamabarang.php', 'post');
 
     // event enter nama obat
     $(document).ready(function() {
         $('#nmbrg_dtrkasir').on('keydown', function(e) {
             if (e.which == 13) {
+                e.preventDefault();
                 let nm_barang = $('#nmbrg_dtrkasir').val();
                 let jns_transaksi = $('select[name="jns_transaksi"]').val();
 
                 $.ajax({
                     url: 'modul/mod_trkasir/autonamabarang_enter.php',
                     type: 'post',
+                    dataType: 'json',
                     data: {
                         'nm_barang': nm_barang
                     },
-                }).success(function(response) {
-                    let data = $.parseJSON(response);
-                    // let data = JSON.parse(response)
+                }).done(function(data) {
                     let qty_default = "1";
                     for (let i = 0; i < data.length; i++) {
                         data = data[i];
@@ -1597,6 +1671,10 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
                         }
                     }
 
+                }).fail(function(xhr) {
+                    console.log('Gagal load data barang:', xhr.responseText);
+                }).always(function() {
+                    closeAutocompleteSuggestions('#nmbrg_dtrkasir');
                 });
             }
         })
@@ -1609,12 +1687,11 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
         $.ajax({
             url: 'modul/mod_trkasir/autonamabarang_enter.php',
             type: 'post',
+            dataType: 'json',
             data: {
                 'nm_barang': nm_barang
             },
-        }).success(function(response) {
-            let data = $.parseJSON(response);
-            // let data = JSON.parse(response)
+        }).done(function(data) {
             let qty_default = "1";
 
             for (let i = 0; i < data.length; i++) {
@@ -1672,6 +1749,10 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 
             }
 
+        }).fail(function(xhr) {
+            console.log('Gagal load data barang:', xhr.responseText);
+        }).always(function() {
+            closeAutocompleteSuggestions('#nmbrg_dtrkasir');
         });
     })
 
@@ -1935,18 +2016,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
     }
 
     //auto pelanggan
-    $('#nm_pelanggan').typeahead({
-        source: function(query, process) {
-            return $.get('modul/mod_trkasir/autopelanggan.php', {
-                query: query
-            }, function(data) {
-
-                data = $.parseJSON(data);
-                return process(data);
-
-            });
-        }
-    });
+    initAutocompleteSafe('#nm_pelanggan', 'modul/mod_trkasir/autopelanggan.php', 'get');
 
 
     //enter pelanggan

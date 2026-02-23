@@ -9,7 +9,7 @@ $stmt->execute(['%'.$key.'%']);
 
 $json = [];
 while($re = $stmt->fetch(PDO::FETCH_ASSOC)){
-    $json[] = $re['nm_barang'].' ('.$re['stok_barang'].'  '.$re['sat_barang'].')';
+    $json[] = $re['nm_barang'];
 }
 echo json_encode($json);
 ?>
