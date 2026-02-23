@@ -61,6 +61,284 @@ if ($_GET['module'] == 'home') {
             </div>
 
 
+            <div class="col-md-12">
+                <div class="box box-primary" style="margin:20px;">
+                    <div class="box-header with-border">
+                        <h3 class="box-title" id="sales-chart-title">Grafik Penjualan Bulan <?php echo date('F Y'); ?></h3>
+                        <div class="box-tools pull-right">
+                            <select id="sales-filter-month" class="form-control input-sm" style="display:inline-block; width:auto; margin-right:6px;">
+                                <?php for ($m = 1; $m <= 12; $m++) { ?>
+                                    <option value="<?php echo $m; ?>" <?php echo ((int)date('n') == $m) ? 'selected' : ''; ?>><?php echo str_pad($m, 2, '0', STR_PAD_LEFT); ?></option>
+                                <?php } ?>
+                            </select>
+                            <select id="sales-filter-year" class="form-control input-sm" style="display:inline-block; width:auto; margin-right:8px;">
+                                <?php
+                                $tahunSekarang = (int)date('Y');
+                                for ($y = $tahunSekarang; $y >= $tahunSekarang - 5; $y--) {
+                                ?>
+                                    <option value="<?php echo $y; ?>" <?php echo ($tahunSekarang == $y) ? 'selected' : ''; ?>><?php echo $y; ?></option>
+                                <?php } ?>
+                            </select>
+                            <small id="sales-chart-updated" class="text-muted">Memuat data...</small>
+                        </div>
+                    </div>
+                    <div class="box-body">
+                        <div class="row" style="margin-bottom:10px;">
+                            <div class="col-sm-4">
+                                <div class="small-box bg-aqua" style="margin-bottom:10px;">
+                                    <div class="inner">
+                                        <p style="margin:0;">Total Bulan Dipilih</p>
+                                        <h4 id="sales-total-current" style="margin:4px 0 0 0;">0</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="small-box bg-yellow" style="margin-bottom:10px;">
+                                    <div class="inner">
+                                        <p style="margin:0;">Total Bulan Lalu</p>
+                                        <h4 id="sales-total-previous" style="margin:4px 0 0 0;">0</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="small-box bg-green" style="margin-bottom:10px;">
+                                    <div class="inner">
+                                        <p style="margin:0;">Perubahan</p>
+                                        <h4 id="sales-total-growth" style="margin:4px 0 0 0;">0%</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="sales-chart" style="width:100%;height:320px;"></div>
+                    </div>
+                </div>
+            </div>
+
+
+            <script type="text/javascript">
+                var salesChartItems = [];
+                var salesChartPreviousItems = [];
+                var salesChartPreviousLabel = 'Bulan Lalu';
+                var salesChartResizeTimer = null;
+
+                function formatRupiahChart(angka) {
+                    var nilai = parseFloat(angka || 0).toFixed(0).toString();
+                    return nilai.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                }
+
+                function updateSalesSummary(currentItems, previousItems) {
+                    var totalCurrent = 0;
+                    var totalPrevious = 0;
+
+                    for (var i = 0; i < currentItems.length; i++) {
+                        totalCurrent += parseFloat(currentItems[i].total_penjualan || 0);
+                    }
+
+                    for (var j = 0; j < previousItems.length; j++) {
+                        totalPrevious += parseFloat(previousItems[j].total_penjualan || 0);
+                    }
+
+                    var growth = 0;
+                    if (totalPrevious > 0) {
+                        growth = ((totalCurrent - totalPrevious) / totalPrevious) * 100;
+                    } else if (totalCurrent > 0) {
+                        growth = 100;
+                    }
+
+                    var growthLabel = (growth >= 0 ? '+' : '') + growth.toFixed(2) + '%';
+                    var growthClass = 'bg-green';
+                    if (growth < 0) {
+                        growthClass = 'bg-red';
+                    } else if (growth === 0) {
+                        growthClass = 'bg-yellow';
+                    }
+
+                    $('#sales-total-current').text(formatRupiahChart(totalCurrent));
+                    $('#sales-total-previous').text(formatRupiahChart(totalPrevious));
+                    $('#sales-total-growth').text(growthLabel);
+                    $('#sales-total-growth').closest('.small-box').removeClass('bg-green bg-red bg-yellow').addClass(growthClass);
+                }
+
+                function renderSalesChart(items, previousItems, previousLabel) {
+                    if (!items || items.length === 0) {
+                        $('#sales-chart').html('<div class="text-warning">Belum ada data penjualan pada tabel trkasir.</div>');
+                        return;
+                    }
+
+                    var isMobileWidth = $(window).width() < 992;
+
+                    var chartData = [];
+                    var chartDataPrevious = [];
+                    var ticks = [];
+
+                    for (var i = 0; i < items.length; i++) {
+                        var total = parseFloat(items[i].total_penjualan || 0);
+                        var totalPrevious = 0;
+                        if (previousItems && previousItems[i]) {
+                            totalPrevious = parseFloat(previousItems[i].total_penjualan || 0);
+                        }
+
+                        var tanggalPenuh = items[i].tgl_trkasir || '';
+                        var labelHari = tanggalPenuh;
+
+                        if (tanggalPenuh.indexOf('-') > -1) {
+                            var bagianTanggal = tanggalPenuh.split('-');
+                            if (bagianTanggal.length === 3) {
+                                labelHari = bagianTanggal[2];
+                            }
+                        }
+
+                        chartData.push([i, total]);
+                        chartDataPrevious.push([i, totalPrevious]);
+                        ticks.push([i, labelHari]);
+                    }
+
+                    var plot = $.plot('#sales-chart', [{
+                        label: 'Bulan Dipilih',
+                        data: chartData,
+                        lines: {
+                            show: true,
+                            lineWidth: 2,
+                            fill: 0.15
+                        },
+                        points: {
+                            show: true,
+                            radius: 3
+                        },
+                        color: '#3c8dbc'
+                    }, {
+                        label: previousLabel || 'Bulan Lalu',
+                        data: chartDataPrevious,
+                        lines: {
+                            show: true,
+                            lineWidth: 2,
+                            fill: false
+                        },
+                        points: {
+                            show: true,
+                            radius: 2
+                        },
+                        color: '#f39c12'
+                    }], {
+                        legend: {
+                            show: true,
+                            position: 'ne'
+                        },
+                        grid: {
+                            hoverable: true,
+                            borderWidth: 1,
+                            borderColor: '#e5e5e5'
+                        },
+                        xaxis: {
+                            ticks: ticks,
+                            tickLength: 0
+                        },
+                        yaxis: {
+                            min: 0,
+                            tickFormatter: function(value) {
+                                return formatRupiahChart(value);
+                            }
+                        }
+                    });
+
+                    var $chart = $('#sales-chart');
+                    $chart.css('position', 'relative');
+                    $chart.find('.point-value-label').remove();
+
+                    if (isMobileWidth) {
+                        return;
+                    }
+
+                    for (var j = 0; j < chartData.length; j++) {
+                        var point = chartData[j];
+                        var offset = plot.pointOffset({ x: point[0], y: point[1] });
+                        var labelHtml = '<div class="point-value-label" style="position:absolute;left:' + (offset.left - 18) + 'px;top:' + (offset.top - 22) + 'px;font-size:11px;color:#333;background:#fff;padding:1px 4px;border:1px solid #d2d6de;border-radius:3px;white-space:nowrap;">' + formatRupiahChart(point[1]) + '</div>';
+                        $chart.append(labelHtml);
+                    }
+                }
+
+                function loadSalesChart() {
+                    if (typeof $.plot !== 'function') {
+                        $('#sales-chart').html('<div class="text-warning">Library grafik belum termuat.</div>');
+                        return;
+                    }
+
+                    var selectedMonth = $('#sales-filter-month').val();
+                    var selectedYear = $('#sales-filter-year').val();
+
+                    $.ajax({
+                        url: 'ajax_penjualan_realtime.php',
+                        method: 'GET',
+                        data: {
+                            bulan: selectedMonth,
+                            tahun: selectedYear
+                        },
+                        dataType: 'json',
+                        cache: false,
+                        success: function(response) {
+                            if (!response.status) {
+                                $('#sales-chart').html('<div class="text-danger">Data penjualan tidak tersedia.</div>');
+                                $('#sales-chart-updated').text(response.message || 'Gagal membaca data');
+                                return;
+                            }
+
+                            salesChartItems = response.data || [];
+                            salesChartPreviousItems = response.data_bulan_lalu || [];
+                            salesChartPreviousLabel = response.periode_sebelumnya_label || 'Bulan Lalu';
+                            renderSalesChart(salesChartItems, salesChartPreviousItems, salesChartPreviousLabel);
+                            updateSalesSummary(salesChartItems, salesChartPreviousItems);
+                            if (response.periode_label) {
+                                var title = 'Grafik Penjualan Bulan ' + response.periode_label;
+                                if (response.periode_sebelumnya_label) {
+                                    title += ' vs ' + response.periode_sebelumnya_label;
+                                }
+                                $('#sales-chart-title').text(title);
+                            }
+                            $('#sales-chart-updated').text('Update terakhir: ' + (response.updated_at || '-'));
+                        },
+                        error: function() {
+                            $('#sales-chart').html('<div class="text-danger">Gagal memuat data grafik.</div>');
+                            $('#sales-total-current').text('0');
+                            $('#sales-total-previous').text('0');
+                            $('#sales-total-growth').text('0%');
+                        }
+                    });
+                }
+
+                function bindSalesChartResize() {
+                    $(window).off('resize.salesChart').on('resize.salesChart', function() {
+                        clearTimeout(salesChartResizeTimer);
+                        salesChartResizeTimer = setTimeout(function() {
+                            if (salesChartItems && salesChartItems.length > 0) {
+                                renderSalesChart(salesChartItems, salesChartPreviousItems, salesChartPreviousLabel);
+                            }
+                        }, 200);
+                    });
+                }
+
+                $(function() {
+                    bindSalesChartResize();
+
+                    $('#sales-filter-month, #sales-filter-year').on('change', function() {
+                        loadSalesChart();
+                    });
+
+                    if (typeof $.plot === 'function') {
+                        loadSalesChart();
+                        return;
+                    }
+
+                    $.getScript('plugins/flot/jquery.flot.min.js')
+                        .done(function() {
+                            loadSalesChart();
+                        })
+                        .fail(function() {
+                            $('#sales-chart').html('<div class="text-danger">Gagal memuat library grafik (Flot).</div>');
+                        });
+                });
+            </script>
+
+
 
         </div>
 
