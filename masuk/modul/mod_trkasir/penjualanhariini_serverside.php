@@ -341,6 +341,7 @@ if ($_GET['action'] == "table_data") {
                                             <a class="btn btn-primary btn-xs" onclick="window.open(\'modul/mod_laporan/struk.php?kd_trkasir='.$value['kd_trkasir'].'\',\'nama window\',\'width=500,height=600,toolbar=no,location=no,directories=no,status=no,menubar=no, scrollbars=no,resizable=yes,copyhistory=no\')" style="width:50%; margin:0 5 5 5">PRINT</a>
                                             <a href="modul/mod_laporan/kwitansi.php?kd_trkasir='.$value['kd_trkasir'].'" target="_blank" title="KWITANSI" class="btn btn-warning btn-xs" style="width:50%; margin:0 3 3 3">KWITANSI</a>
                                             <a href="modul/mod_laporan/invoice.php?kd_trkasir='.$value['kd_trkasir'].'" target="_blank" title="INVOICE" class="btn btn-primary btn-xs" style="width:50%; margin:0 3 3 3">INVOICE</a>
+                                                                                        <a href="modul/mod_etiket/etiket.php?module=trkasir&kd_trkasir='.$value['kd_trkasir'].'" target="_blank" title="ETIKET" class="btn btn-success btn-xs" style="width:50%; margin:0 3 3 3">ETIKET</a>
                                             
                                             
                                           </div>
@@ -355,6 +356,7 @@ if ($_GET['action'] == "table_data") {
                                             <a class="btn btn-primary btn-xs" onclick="window.open(\'modul/mod_laporan/struk.php?kd_trkasir='.$value['kd_trkasir'].'\',\'nama window\',\'width=500,height=600,toolbar=no,location=no,directories=no,status=no,menubar=no, scrollbars=no,resizable=yes,copyhistory=no\')" style="width:50%; margin:0 5 5 5">PRINT</a>
                                             <a href="modul/mod_laporan/kwitansi.php?kd_trkasir='.$value['kd_trkasir'].'" target="_blank" title="KWITANSI" class="btn btn-warning btn-xs" style="width:50%; margin:0 5 5 5">KWITANSI</a>
                                             <a href="modul/mod_laporan/invoice.php?kd_trkasir='.$value['kd_trkasir'].'" target="_blank" title="INVOICE" class="btn btn-primary btn-xs" style="width:50%; margin:0 3 3 3">INVOICE</a>
+                                                                                        <a href="modul/mod_etiket/etiket.php?module=trkasir&kd_trkasir='.$value['kd_trkasir'].'" target="_blank" title="ETIKET" class="btn btn-success btn-xs" style="width:50%; margin:0 3 3 3">ETIKET</a>
                                             
                                             
                                           </div>

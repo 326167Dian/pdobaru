@@ -660,6 +660,9 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 										<div class='input-group-addon'>
 											<button type=button data-toggle='modal' data-target='#ModalItem' href='#' id='kode'><span class='glyphicon glyphicon-search'></span></button>
 										</div>
+                                        <div class='input-group-addon'>
+                                            <button type=button data-toggle='modal' data-target='#ModalScanBarcode' href='#' id='btnScanBarcode'><span class='glyphicon glyphicon-camera'></span></button>
+                                        </div>
 										</div>
 									 </div>
 									 
@@ -1371,6 +1374,26 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 </div>
 <!-- end modal item -->
 
+<!-- modal scan barcode -->
+<div id="ModalScanBarcode" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">SCAN BARCODE (KAMERA HP)</h4>
+            </div>
+            <div class="modal-body">
+                <video id="barcodeScannerPreview" autoplay playsinline muted style="width:100%; max-height:320px; background:#000;"></video>
+                <p id="barcodeScannerStatus" style="margin-top:10px; margin-bottom:0; font-size:12px; color:#666;">Arahkan kamera ke barcode item.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end modal scan barcode -->
+
 <!-- modal batch -->
 <div id="ModalBatch" class="modal fade" role="dialog">
     <div class="modal-lg modal-dialog">
@@ -1512,10 +1535,139 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
         $input.focus();
     }
 
+    var scannerStream = null;
+    var scannerInterval = null;
+    var barcodeDetectorInstance = null;
+
+    function setScannerStatus(message, isError) {
+        var statusEl = document.getElementById('barcodeScannerStatus');
+        if (!statusEl) {
+            return;
+        }
+        statusEl.innerText = message;
+        statusEl.style.color = isError ? '#b90000' : '#666';
+    }
+
+    function stopBarcodeScanner() {
+        if (scannerInterval) {
+            clearInterval(scannerInterval);
+            scannerInterval = null;
+        }
+
+        if (scannerStream) {
+            scannerStream.getTracks().forEach(function(track) {
+                track.stop();
+            });
+            scannerStream = null;
+        }
+
+        var video = document.getElementById('barcodeScannerPreview');
+        if (video) {
+            video.srcObject = null;
+        }
+    }
+
+    function triggerBarangByKode(kd_brg) {
+        if (!kd_brg) {
+            return;
+        }
+
+        $('#kd_barang').val(kd_brg);
+
+        $.ajax({
+            url: 'modul/mod_trkasir/autobarang.php',
+            type: 'post',
+            data: {
+                'kd_brg': kd_brg
+            },
+        }).success(function(data) {
+
+            var json = data;
+            var res1 = json.replace("[", "");
+            var res2 = res1.replace("]", "");
+            datab = JSON.parse(res2);
+            document.getElementById('id_barang').value = datab.id_barang;
+            document.getElementById('nmbrg_dtrkasir').value = datab.nm_barang;
+            document.getElementById('stok_barang').value = datab.stok_barang;
+            document.getElementById('qty_dtrkasir').value = "1";
+            document.getElementById('sat_dtrkasir').value = datab.sat_barang;
+            document.getElementById('hrgjual_dtrkasir').value = datab.hrgjual_barang;
+
+        });
+    }
+
+    async function startBarcodeScanner() {
+        if (!window.BarcodeDetector) {
+            setScannerStatus('Browser belum mendukung BarcodeDetector. Gunakan Chrome Android versi terbaru.', true);
+            return;
+        }
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            setScannerStatus('Kamera tidak tersedia di browser ini.', true);
+            return;
+        }
+
+        try {
+            barcodeDetectorInstance = new BarcodeDetector({
+                formats: ['code_128', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'codabar', 'qr_code']
+            });
+        } catch (e) {
+            setScannerStatus('Format barcode tidak didukung browser.', true);
+            return;
+        }
+
+        try {
+            scannerStream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: {
+                        ideal: 'environment'
+                    }
+                },
+                audio: false
+            });
+
+            var video = document.getElementById('barcodeScannerPreview');
+            video.srcObject = scannerStream;
+            await video.play();
+
+            setScannerStatus('Arahkan kamera ke barcode item.', false);
+
+            scannerInterval = setInterval(async function() {
+                try {
+                    if (!video || video.readyState < 2 || !barcodeDetectorInstance) {
+                        return;
+                    }
+
+                    var detected = await barcodeDetectorInstance.detect(video);
+                    if (detected && detected.length > 0 && detected[0].rawValue) {
+                        var hasilScan = $.trim(detected[0].rawValue);
+                        setScannerStatus('Barcode terdeteksi: ' + hasilScan, false);
+                        stopBarcodeScanner();
+                        $('#ModalScanBarcode').modal('hide');
+                        triggerBarangByKode(hasilScan);
+                    }
+                } catch (scanErr) {
+                    setScannerStatus('Gagal membaca barcode. Coba arahkan ulang kamera.', true);
+                }
+            }, 350);
+
+        } catch (err) {
+            setScannerStatus('Tidak bisa mengakses kamera. Pastikan izin kamera diaktifkan.', true);
+        }
+    }
+
     $(document).ready(function() {
         tabel_detail();
         $("#example").DataTable();
         initAutocompleteSafe('#nmbrg_dtrkasir', 'modul/mod_trkasir/autonamabarang.php', 'post');
+    });
+
+    $('#ModalScanBarcode').on('shown.bs.modal', function() {
+        startBarcodeScanner();
+    });
+
+    $('#ModalScanBarcode').on('hidden.bs.modal', function() {
+        stopBarcodeScanner();
     });
 
     $('select[name="jns_transaksi"]').on('change', function() {
@@ -2050,31 +2202,9 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
     $('#kd_barang').keydown(function(e) {
         if (e.which == 13) { // e.which == 13 merupakan kode yang mendeteksi ketika anda   // menekan tombol enter di keyboard
             //letakan fungsi anda disini
-
+            e.preventDefault();
             var kd_brg = $("#kd_barang").val();
-            $.ajax({
-                url: 'modul/mod_trkasir/autobarang.php',
-                type: 'post',
-                data: {
-                    'kd_brg': kd_brg
-                },
-            }).success(function(data) {
-
-                var json = data;
-                //replace array [] menjadi ''
-                var res1 = json.replace("[", "");
-                var res2 = res1.replace("]", "");
-                //INI CONTOH ARRAY JASON const json = '{"result":true, "count":42}';
-                datab = JSON.parse(res2);
-                document.getElementById('id_barang').value = datab.id_barang;
-                document.getElementById('nmbrg_dtrkasir').value = datab.nm_barang;
-                document.getElementById('stok_barang').value = datab.stok_barang;
-                document.getElementById('qty_dtrkasir').value = "1";
-                document.getElementById('sat_dtrkasir').value = datab.sat_barang;
-                document.getElementById('hrgjual_dtrkasir').value = datab.hrgjual_barang;
-                // document.getElementById('indikasi').value = datab.indikasi;
-
-            });
+            triggerBarangByKode(kd_brg);
 
         }
     });
