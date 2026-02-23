@@ -10,14 +10,78 @@ else{
     include "../../../configurasi/fungsi_thumb.php";
     include "../../../configurasi/library.php";
 
+    function normalize_catatan_html($html)
+    {
+        $html = trim((string)$html);
+        if ($html === '') {
+            return '';
+        }
+
+        if (function_exists('tidy_repair_string')) {
+            $config = [
+                'show-body-only' => true,
+                'clean' => true,
+                'output-html' => true,
+                'wrap' => 0,
+                'char-encoding' => 'utf8',
+            ];
+            $html = tidy_repair_string($html, $config, 'utf8');
+        }
+
+        if (class_exists('DOMDocument')) {
+            $internalErrors = libxml_use_internal_errors(true);
+            $dom = new DOMDocument('1.0', 'UTF-8');
+
+            $flags = 0;
+            if (defined('LIBXML_HTML_NOIMPLIED')) {
+                $flags |= LIBXML_HTML_NOIMPLIED;
+            }
+            if (defined('LIBXML_HTML_NODEFDTD')) {
+                $flags |= LIBXML_HTML_NODEFDTD;
+            }
+
+            $loaded = $dom->loadHTML('<?xml encoding="utf-8" ?><div id="catatan-root">' . $html . '</div>', $flags);
+            if ($loaded) {
+                foreach (['script', 'iframe', 'object'] as $tag) {
+                    $nodes = $dom->getElementsByTagName($tag);
+                    while ($nodes->length > 0) {
+                        $node = $nodes->item(0);
+                        $node->parentNode->removeChild($node);
+                    }
+                }
+
+                $root = $dom->getElementById('catatan-root');
+                if ($root) {
+                    $normalized = '';
+                    foreach ($root->childNodes as $childNode) {
+                        $normalized .= $dom->saveHTML($childNode);
+                    }
+                    $normalized = trim($normalized);
+                    libxml_clear_errors();
+                    libxml_use_internal_errors($internalErrors);
+
+                    if ($normalized !== '') {
+                        return $normalized;
+                    }
+                }
+            }
+
+            libxml_clear_errors();
+            libxml_use_internal_errors($internalErrors);
+        }
+
+        return nl2br(htmlspecialchars($html, ENT_QUOTES, 'UTF-8'));
+    }
+
     $module=$_GET['module'];
     $act=$_GET['act'];
     
 // Input admin
     if ($module=='catatan' AND $act=='input_catatan'){
+        $deskripsi = normalize_catatan_html($_POST['deskripsi'] ?? '');
         
         $cekganda = $db->prepare("SELECT deskripsi FROM catatan WHERE deskripsi = ?");
-        $cekganda->execute([$_POST['deskripsi']]);
+        $cekganda->execute([$deskripsi]);
         $ada = $cekganda->rowCount();
         
         if ($ada > 0){
@@ -26,7 +90,7 @@ else{
 
             $db->prepare("INSERT INTO catatan (
                             tgl,shift,petugas,deskripsi)
-							VALUES(?,?,?,?)")->execute([$_POST['tgl'], $_POST['shift'], $_POST['petugas'], $_POST['deskripsi']]);
+							VALUES(?,?,?,?)")->execute([$_POST['tgl'], $_POST['shift'], $_POST['petugas'], $deskripsi]);
 
             //echo "<script type='text/javascript'>alert('Data berhasil ditambahkan !');window.location='../../media_admin.php?module=".$module."'</script>";
             header('location:../../media_admin.php?module='.$module);
@@ -35,10 +99,11 @@ else{
     }
     //update catatan
     elseif ($module=='catatan' AND $act=='update_catatan'){
+        $deskripsi = normalize_catatan_html($_POST['deskripsi'] ?? '');
 
         $db->prepare("UPDATE catatan SET   
                                 deskripsi = ?
-									WHERE id_catatan = ?")->execute([$_POST['deskripsi'], $_POST['id']]);
+									WHERE id_catatan = ?")->execute([$deskripsi, $_POST['id']]);
 
         //echo "<script type='text/javascript'>alert('Data berhasil diubah !');window.location='../../media_admin.php?module=".$module."'</script>";
         header('location:../../media_admin.php?module='.$module);

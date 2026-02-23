@@ -9,6 +9,99 @@ else{
 
 $aksi="modul/mod_catatan/aksi_catatan.php";
 
+function normalize_catatan_html_read($html)
+{
+	$html = trim((string)$html);
+	if ($html === '') {
+		return '';
+	}
+
+	if (function_exists('tidy_repair_string')) {
+		$config = [
+			'show-body-only' => true,
+			'clean' => true,
+			'output-html' => true,
+			'wrap' => 0,
+			'char-encoding' => 'utf8',
+		];
+		$html = tidy_repair_string($html, $config, 'utf8');
+	}
+
+	if (class_exists('DOMDocument')) {
+		$internalErrors = libxml_use_internal_errors(true);
+		$dom = new DOMDocument('1.0', 'UTF-8');
+
+		$flags = 0;
+		if (defined('LIBXML_HTML_NOIMPLIED')) {
+			$flags |= LIBXML_HTML_NOIMPLIED;
+		}
+		if (defined('LIBXML_HTML_NODEFDTD')) {
+			$flags |= LIBXML_HTML_NODEFDTD;
+		}
+
+		$loaded = $dom->loadHTML('<?xml encoding="utf-8" ?><div id="catatan-root">' . $html . '</div>', $flags);
+		if ($loaded) {
+			foreach (['script', 'iframe', 'object'] as $tag) {
+				$nodes = $dom->getElementsByTagName($tag);
+				while ($nodes->length > 0) {
+					$node = $nodes->item(0);
+					$node->parentNode->removeChild($node);
+				}
+			}
+
+			$root = $dom->getElementById('catatan-root');
+			if ($root) {
+				$normalized = '';
+				foreach ($root->childNodes as $childNode) {
+					$normalized .= $dom->saveHTML($childNode);
+				}
+				$normalized = trim($normalized);
+
+				libxml_clear_errors();
+				libxml_use_internal_errors($internalErrors);
+				if ($normalized !== '') {
+					return $normalized;
+				}
+			}
+		}
+
+		libxml_clear_errors();
+		libxml_use_internal_errors($internalErrors);
+	}
+
+	return nl2br(htmlspecialchars($html, ENT_QUOTES, 'UTF-8'));
+}
+
+function catatan_preview_text($html, $maxLength = 120)
+{
+	$safeHtml = normalize_catatan_html_read($html);
+	$text = html_entity_decode(strip_tags($safeHtml), ENT_QUOTES, 'UTF-8');
+	$text = trim(preg_replace('/\s+/u', ' ', $text));
+	if ($text === '') {
+		return '-';
+	}
+
+	if (function_exists('mb_strlen') && function_exists('mb_substr')) {
+		if (mb_strlen($text, 'UTF-8') > $maxLength) {
+			return mb_substr($text, 0, $maxLength, 'UTF-8') . '...';
+		}
+		return $text;
+	}
+
+	if (strlen($text) > $maxLength) {
+		return substr($text, 0, $maxLength) . '...';
+	}
+	return $text;
+}
+
+function catatan_plain_text($html)
+{
+	$safeHtml = normalize_catatan_html_read($html);
+	$text = html_entity_decode(strip_tags($safeHtml), ENT_QUOTES, 'UTF-8');
+	$text = trim(preg_replace('/\s+/u', ' ', $text));
+	return $text === '' ? '-' : $text;
+}
+
 switch($_GET['act']){
   // tampil catatan
   default:
@@ -45,12 +138,16 @@ switch($_GET['act']){
 								$tampil_catatan = $db->prepare("SELECT * FROM catatan ORDER BY tgl DESC");
                                 $tampil_catatan->execute();
 								while ($r = $tampil_catatan->fetch(PDO::FETCH_ASSOC)){
+									$preview = catatan_preview_text($r['deskripsi']);
+									$previewFull = catatan_plain_text($r['deskripsi']);
+									$previewEsc = htmlspecialchars($preview, ENT_QUOTES, 'UTF-8');
+									$previewFullEsc = htmlspecialchars($previewFull, ENT_QUOTES, 'UTF-8');
 									echo "<tr class='warnabaris' >
 											<td>$no</td>           
 											 <td>$r[tgl]</td>
 											 <td>$r[shift]</td>
 											 <td>$r[petugas]</td>
-											 <td>$r[deskripsi]</td>
+													 <td title='$previewFullEsc' data-toggle='tooltip' data-placement='top'>$previewEsc</td>
 											 <td>
 											 <a href='?module=catatan&act=edit&id=$r[id_catatan]' title='EDIT' class='btn btn-warning btn-xs'>EDIT</a> 
 											 <a href='?module=catatan&act=tampil&id=$r[id_catatan]' title='EDIT' class='btn btn-primary btn-xs'>TAMPIL</a> 
@@ -180,8 +277,18 @@ switch($_GET['act']){
         $edit = $db->prepare("SELECT * FROM catatan WHERE id_catatan = ?");
         $edit->execute([$_GET['id']]);
         $r = $edit->fetch(PDO::FETCH_ASSOC);
-        echo "$r[deskripsi]
-        <input class='btn btn-primary' type=button value=KEMBALI onclick=self.history.back()>";
+		$safeDeskripsi = normalize_catatan_html_read($r['deskripsi'] ?? '');
+		echo "
+		<div class='box box-primary box-solid'>
+			<div class='box-header with-border'>
+				<h3 class='box-title'>DETAIL CATATAN</h3>
+			</div>
+			<div class='box-body'>
+				<div class='catatan-content'>$safeDeskripsi</div>
+				<br>
+				<input class='btn btn-primary' type='button' value='KEMBALI' onclick='self.history.back()'>
+			</div>
+		</div>";
     break ;
 
 }
@@ -194,6 +301,16 @@ switch($_GET['act']){
         filebrowserWindowWidth: 1000,
         filebrowserWindowHeight: 500
     });
+
+	if (window.jQuery) {
+		jQuery(document).on('submit', 'form', function() {
+			for (var instance in CKEDITOR.instances) {
+				if (Object.prototype.hasOwnProperty.call(CKEDITOR.instances, instance)) {
+					CKEDITOR.instances[instance].updateElement();
+				}
+			}
+		});
+	}
 </script>
 <script type="text/javascript">
  $(function(){
@@ -202,5 +319,9 @@ switch($_GET['act']){
       autoclose: true,
       todayHighlight: true,
   });
+
+	if ($.fn.tooltip) {
+			$('[data-toggle="tooltip"]').tooltip();
+	}
  });
 </script>
