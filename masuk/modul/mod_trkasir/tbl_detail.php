@@ -76,9 +76,7 @@ color: white;
 								
 								$hrgjual_dtrkasir = format_rupiah($r['hrgjual_dtrkasir']);
 								$hrgttl_dtrkasir = format_rupiah($r['hrgttl_dtrkasir']);
-								$resep = (isset($r['resep']) && $r['resep'] == 'YA')
-								    ? '<span class="btn btn-xs btn-success">YA</span>'
-								    : '<span class="btn btn-xs btn-default">TIDAK</span>';
+								$resep_val = (isset($r['resep']) && $r['resep'] == 'YA') ? 'YA' : 'TIDAK';
                                 if($tipe = ($r['tipe']==1)){ $tipe = '<span class="btn btn-xs btn-primary">Reguler</span>';}
                                 else if($tipe = ($r['tipe']==2)){ $tipe = '<span class="btn btn-xs btn-success">Resep</span>';}
                                 else if($tipe = ($r['tipe']==3)){ $tipe = '<span class="btn btn-xs btn-info">Marketplace</span>';}
@@ -86,13 +84,20 @@ color: white;
                                 else if($tipe = ($r['tipe']==5)){ $tipe = '<span class="btn btn-xs btn-warning">Lazada</span>';}
                                 else if($tipe = ($r['tipe']==6)){ $tipe = '<span class="btn btn-xs btn-warning">Shopee</span>';}
 
-                                    echo "<tr style='font-size: 13px;'>
+                                $resep_inline = "<select class='form-control input-sm inline-resep'>
+                                                    <option value='TIDAK' " . ($resep_val == 'TIDAK' ? 'selected' : '') . ">TIDAK</option>
+                                                    <option value='YA' " . ($resep_val == 'YA' ? 'selected' : '') . ">YA</option>
+                                                 </select>";
+
+                                $qty_inline = "<input type='number' min='1' class='form-control input-sm inline-qty text-right' value='".$r['qty_dtrkasir']."'>";
+
+                                    echo "<tr style='font-size: 13px;' data-id_dtrkasir='$r[id_dtrkasir]'>
 											<td align=center>$no</td>           
 											<td align=center>$tipe</td>           
-											<td align=center>$resep</td>
+											<td align=center>$resep_inline</td>
 											<td align=left>$r[kd_barang]</td>
 											<td>$r[nmbrg_dtrkasir]</td>
-											<td align=right>$r[qty_dtrkasir]</td>
+											<td align=right>$qty_inline</td>
 											<td align=center>$r[sat_dtrkasir]</td>
 											<td align=center>$r[no_batch]</td>
 											<td align=center>$r[exp_date]</td>
@@ -100,6 +105,12 @@ color: white;
 											<td align=right>$r[disc]</td>
 											<td align=right>$hrgttl_dtrkasir</td>
 											<td align=center>
+											<button class='btn btn-xs btn-primary simpan-inline-detail' 
+												data-id_dtrkasir='$r[id_dtrkasir]'>
+												<i class='glyphicon glyphicon-floppy-disk'></i>
+											</button>
+											<br><small class='inline-status text-muted' style='display:block;margin-top:3px;'></small>
+											&nbsp;
 											
 											<button class='btn btn-xs btn-danger' id='hapusdetail' 
 												data-id_dtrkasir='$r[id_dtrkasir]' data-id_barang='$r[id_barang]'>
@@ -384,5 +395,80 @@ $(document).ready(function () {
 
 
 	}
+
+	function simpanInlineDetail(row) {
+		var id_dtrkasir = row.data('id_dtrkasir');
+		var qty = row.find('.inline-qty').val();
+		var resep = row.find('.inline-resep').val();
+		var statusEl = row.find('.inline-status');
+
+		if (qty == '' || parseInt(qty) < 1) {
+			statusEl.removeClass('text-success text-muted').addClass('text-danger').text('Qty minimal 1');
+			alert('Qty minimal 1');
+			return;
+		}
+
+		statusEl.removeClass('text-success text-danger').addClass('text-muted').text('Menyimpan...');
+
+		$.ajax({
+			type: 'post',
+			url: 'modul/mod_trkasir/update_detail_inline.php',
+			dataType: 'json',
+			data: {
+				id_dtrkasir: id_dtrkasir,
+				qty_dtrkasir: qty,
+				resep: resep
+			},
+			success: function(response) {
+				if (response && response.status == 'success') {
+					statusEl.removeClass('text-danger text-muted').addClass('text-success').text('Tersimpan');
+					tabel_detail();
+				} else {
+					statusEl.removeClass('text-success text-muted').addClass('text-danger').text('Gagal simpan');
+					alert(response.message ? response.message : 'Gagal update detail');
+				}
+			},
+			error: function() {
+				statusEl.removeClass('text-success text-muted').addClass('text-danger').text('Gagal simpan');
+				alert('Gagal update detail');
+			}
+		});
+	}
+
+	var inlineSaveTimers = {};
+	function scheduleInlineSave(row, delayMs) {
+		var id_dtrkasir = row.data('id_dtrkasir');
+		if (!id_dtrkasir) {
+			return;
+		}
+
+		if (inlineSaveTimers[id_dtrkasir]) {
+			clearTimeout(inlineSaveTimers[id_dtrkasir]);
+		}
+
+		inlineSaveTimers[id_dtrkasir] = setTimeout(function() {
+			simpanInlineDetail(row);
+			delete inlineSaveTimers[id_dtrkasir];
+		}, delayMs || 400);
+	}
+
+	$(document).on('click', '.simpan-inline-detail', function() {
+		simpanInlineDetail($(this).closest('tr'));
+	});
+
+	$(document).on('change', '.inline-resep', function() {
+		scheduleInlineSave($(this).closest('tr'), 350);
+	});
+
+	$(document).on('blur', '.inline-qty', function() {
+		scheduleInlineSave($(this).closest('tr'), 350);
+	});
+
+	$(document).on('keydown', '.inline-qty', function(e) {
+		if (e.which == 13) {
+			e.preventDefault();
+			scheduleInlineSave($(this).closest('tr'), 0);
+		}
+	});
 	
 </script>

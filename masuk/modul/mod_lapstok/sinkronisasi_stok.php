@@ -11,39 +11,32 @@ else{
     include "../../../configurasi/fungsi_thumb.php";
     include "../../../configurasi/library.php";
 
-    $tampil_barang = $db->prepare("SELECT * FROM barang ORDER BY barang.id_barang ");
-    $tampil_barang->execute();
-    $no=1;
+    try {
+        $db->beginTransaction();
 
-    while ($r = $tampil_barang->fetch(PDO::FETCH_ASSOC)) {
+        $sinkron = $db->prepare("UPDATE barang b
+                                LEFT JOIN (
+                                    SELECT kd_barang, SUM(qty_dtrbmasuk) AS totalbeli
+                                    FROM trbmasuk_detail
+                                    GROUP BY kd_barang
+                                ) beli ON beli.kd_barang = b.kd_barang
+                                LEFT JOIN (
+                                    SELECT kd_barang, SUM(qty_dtrkasir) AS totaljual
+                                    FROM trkasir_detail
+                                    GROUP BY kd_barang
+                                ) jual ON jual.kd_barang = b.kd_barang
+                                SET b.stok_barang = (COALESCE(beli.totalbeli, 0) - COALESCE(jual.totaljual, 0))
+                                WHERE b.stok_barang <> (COALESCE(beli.totalbeli, 0) - COALESCE(jual.totaljual, 0))
+                                AND (COALESCE(beli.totalbeli, 0) - COALESCE(jual.totaljual, 0)) >= 0");
+        $sinkron->execute();
 
-        $beli = "SELECT trbmasuk.tgl_trbmasuk,                                           
-                                           SUM(trbmasuk_detail.qty_dtrbmasuk) AS totalbeli                                            
-                                           FROM trbmasuk_detail join trbmasuk 
-                                           on (trbmasuk_detail.kd_trbmasuk=trbmasuk.kd_trbmasuk)
-                                           WHERE kd_barang = ?";
-        $buy = $db->prepare($beli);
-        $buy->execute([$r['kd_barang']]);
-        $buy2 = $buy->fetch(PDO::FETCH_ASSOC);
-        $jual = "SELECT trkasir.tgl_trkasir,                                
-                                            sum(trkasir_detail.qty_dtrkasir) AS totaljual
-                                            FROM trkasir_detail join trkasir 
-                                            on (trkasir_detail.kd_trkasir=trkasir.kd_trkasir)
-                                            WHERE kd_barang = ?";
-        $jokul = $db->prepare($jual);
-        $jokul->execute([$r['kd_barang']]);
-        $sell = $jokul->fetch(PDO::FETCH_ASSOC);
-        $selisih = $buy2['totalbeli'] - $sell['totaljual'];
-        $stokbarang = $r['stok_barang'];
-
-        if($stokbarang != $selisih)
-        {
-            $db->prepare("UPDATE barang SET stok_barang = ? 
-                            WHERE kd_barang = ? 
-                            AND ($selisih>=0)")->execute([$selisih, $r['kd_barang']]);
+        $db->commit();
+    } catch (Exception $e) {
+        if ($db->inTransaction()) {
+            $db->rollBack();
         }
-    
     }
+
     header('location:../../media_admin.php?module=trkasir');
 }
 ?>
