@@ -1383,7 +1383,8 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
                 <h4 class="modal-title">SCAN BARCODE (KAMERA HP)</h4>
             </div>
             <div class="modal-body">
-                <video id="barcodeScannerPreview" autoplay playsinline muted style="width:100%; max-height:320px; background:#000;"></video>
+                <div id="barcodeScannerReader" style="width:100%; min-height:260px; max-height:320px; background:#000;"></div>
+                <video id="barcodeScannerPreview" autoplay playsinline muted style="display:none; width:100%; max-height:320px; background:#000;"></video>
                 <p id="barcodeScannerStatus" style="margin-top:10px; margin-bottom:0; font-size:12px; color:#666;">Arahkan kamera ke barcode item.</p>
             </div>
             <div class="modal-footer">
@@ -1435,6 +1436,8 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
         });
     });
 </script>
+
+<script src="assets/js/html5-qrcode.min.js" type="text/javascript"></script>
 
 <script>
     var AUTOCOMPLETE_LIMIT = 8;
@@ -1538,6 +1541,11 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
     var scannerStream = null;
     var scannerInterval = null;
     var barcodeDetectorInstance = null;
+    var html5QrScanner = null;
+    var html5QrScannerActive = false;
+    var barcodeScanLocked = false;
+    var scannerMode = null;
+    var html5QrScriptPromise = null;
 
     function setScannerStatus(message, isError) {
         var statusEl = document.getElementById('barcodeScannerStatus');
@@ -1549,10 +1557,26 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
     }
 
     function stopBarcodeScanner() {
+        barcodeScanLocked = false;
+
         if (scannerInterval) {
             clearInterval(scannerInterval);
             scannerInterval = null;
         }
+
+        if (html5QrScanner && html5QrScannerActive) {
+            try {
+                html5QrScanner.stop().then(function() {
+                    html5QrScanner.clear();
+                }).catch(function() {
+                    try {
+                        html5QrScanner.clear();
+                    } catch (e) {}
+                });
+            } catch (e) {}
+        }
+        html5QrScannerActive = false;
+        scannerMode = null;
 
         if (scannerStream) {
             scannerStream.getTracks().forEach(function(track) {
@@ -1564,6 +1588,12 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
         var video = document.getElementById('barcodeScannerPreview');
         if (video) {
             video.srcObject = null;
+            video.style.display = 'none';
+        }
+
+        var reader = document.getElementById('barcodeScannerReader');
+        if (reader) {
+            reader.style.display = 'block';
         }
     }
 
@@ -1596,15 +1626,111 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
         });
     }
 
-    async function startBarcodeScanner() {
+    function loadHtml5QrcodeScript() {
+        if (window.Html5Qrcode) {
+            return Promise.resolve();
+        }
+
+        if (html5QrScriptPromise) {
+            return html5QrScriptPromise;
+        }
+
+        html5QrScriptPromise = new Promise(function(resolve, reject) {
+            var script = document.createElement('script');
+            script.src = 'assets/js/html5-qrcode.min.js';
+            script.async = true;
+            script.onload = function() {
+                resolve();
+            };
+            script.onerror = function() {
+                reject(new Error('Gagal memuat html5-qrcode'));
+            };
+            document.head.appendChild(script);
+        });
+
+        return html5QrScriptPromise;
+    }
+
+    async function startHtml5QrcodeScanner() {
+        if (!window.Html5Qrcode) {
+            throw new Error('html5-qrcode belum tersedia');
+        }
+
+        var video = document.getElementById('barcodeScannerPreview');
+        var reader = document.getElementById('barcodeScannerReader');
+        if (video) {
+            video.style.display = 'none';
+        }
+        if (reader) {
+            reader.style.display = 'block';
+        }
+
+        html5QrScanner = new Html5Qrcode('barcodeScannerReader');
+        var config = {
+            fps: 10,
+            qrbox: {
+                width: 260,
+                height: 120
+            },
+            aspectRatio: 1.7778,
+            formatsToSupport: [
+                Html5QrcodeSupportedFormats.CODE_128,
+                Html5QrcodeSupportedFormats.EAN_13,
+                Html5QrcodeSupportedFormats.EAN_8,
+                Html5QrcodeSupportedFormats.UPC_A,
+                Html5QrcodeSupportedFormats.UPC_E,
+                Html5QrcodeSupportedFormats.CODABAR,
+                Html5QrcodeSupportedFormats.CODE_39,
+                Html5QrcodeSupportedFormats.CODE_93,
+                Html5QrcodeSupportedFormats.ITF,
+                Html5QrcodeSupportedFormats.QR_CODE
+            ],
+            experimentalFeatures: {
+                useBarCodeDetectorIfSupported: true
+            }
+        };
+
+        await html5QrScanner.start({
+            facingMode: {
+                ideal: 'environment'
+            }
+        }, config, function(decodedText) {
+            if (barcodeScanLocked) {
+                return;
+            }
+
+            barcodeScanLocked = true;
+            var hasilScan = $.trim(decodedText || '');
+            if (!hasilScan) {
+                barcodeScanLocked = false;
+                return;
+            }
+
+            setScannerStatus('Barcode terdeteksi: ' + hasilScan, false);
+            triggerBarangByKode(hasilScan);
+            $('#ModalScanBarcode').modal('hide');
+        }, function() {
+            // ignore per-frame decode error
+        });
+
+        html5QrScannerActive = true;
+        scannerMode = 'html5-qrcode';
+        setScannerStatus('Scanner aktif. Arahkan barcode ke area kamera.', false);
+    }
+
+    async function startBarcodeDetectorScanner() {
         if (!window.BarcodeDetector) {
-            setScannerStatus('Browser belum mendukung BarcodeDetector. Gunakan Chrome Android versi terbaru.', true);
+            setScannerStatus('Scanner tidak didukung browser ini. Coba Chrome Android terbaru.', true);
             return;
         }
 
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            setScannerStatus('Kamera tidak tersedia di browser ini.', true);
-            return;
+        var video = document.getElementById('barcodeScannerPreview');
+        var reader = document.getElementById('barcodeScannerReader');
+        if (reader) {
+            reader.style.display = 'none';
+        }
+        if (video) {
+            video.style.display = 'block';
         }
 
         try {
@@ -1613,6 +1739,11 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
             });
         } catch (e) {
             setScannerStatus('Format barcode tidak didukung browser.', true);
+            return;
+        }
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            setScannerStatus('Kamera tidak tersedia di browser ini.', true);
             return;
         }
 
@@ -1626,12 +1757,11 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
                 audio: false
             });
 
-            var video = document.getElementById('barcodeScannerPreview');
             video.srcObject = scannerStream;
             await video.play();
-
             setScannerStatus('Arahkan kamera ke barcode item.', false);
 
+            scannerMode = 'barcode-detector';
             scannerInterval = setInterval(async function() {
                 try {
                     if (!video || video.readyState < 2 || !barcodeDetectorInstance) {
@@ -1640,9 +1770,13 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 
                     var detected = await barcodeDetectorInstance.detect(video);
                     if (detected && detected.length > 0 && detected[0].rawValue) {
+                        if (barcodeScanLocked) {
+                            return;
+                        }
+
+                        barcodeScanLocked = true;
                         var hasilScan = $.trim(detected[0].rawValue);
                         setScannerStatus('Barcode terdeteksi: ' + hasilScan, false);
-                        stopBarcodeScanner();
                         $('#ModalScanBarcode').modal('hide');
                         triggerBarangByKode(hasilScan);
                     }
@@ -1653,6 +1787,19 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 
         } catch (err) {
             setScannerStatus('Tidak bisa mengakses kamera. Pastikan izin kamera diaktifkan.', true);
+        }
+    }
+
+    async function startBarcodeScanner() {
+        stopBarcodeScanner();
+        setScannerStatus('Menyiapkan scanner kamera...', false);
+
+        try {
+            await loadHtml5QrcodeScript();
+            await startHtml5QrcodeScanner();
+        } catch (err) {
+            setScannerStatus('Fallback ke mode scanner bawaan browser...', false);
+            await startBarcodeDetectorScanner();
         }
     }
 
