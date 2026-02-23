@@ -233,7 +233,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 							  </div>
 							  
 							  <div class='form-group'>
-									<label class='col-sm-4 control-label'>Harga Jual Resep</label>        		
+									<label class='col-sm-4 control-label'>Harga Jual Member</label>        		
 									 <div class='col-sm-8'>
 										<input type='number' min='0' name='hrgjual_barang1' class='form-control' required='required' autocomplete='off'>
 									 </div>

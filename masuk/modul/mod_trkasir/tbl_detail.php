@@ -76,7 +76,7 @@ color: white;
 								$hrgjual_dtrkasir = format_rupiah($r['hrgjual_dtrkasir']);
 								$hrgttl_dtrkasir = format_rupiah($r['hrgttl_dtrkasir']);
                                 if($tipe = ($r['tipe']==1)){ $tipe = '<span class="btn btn-xs btn-primary">Reguler</span>';}
-                                else if($tipe = ($r['tipe']==2)){ $tipe = '<span class="btn btn-xs btn-success">Resep</span>';}
+                                else if($tipe = ($r['tipe']==2)){ $tipe = '<span class="btn btn-xs btn-success">Member</span>';}
                                 else if($tipe = ($r['tipe']==3)){ $tipe = '<span class="btn btn-xs btn-info">Marketplace</span>';}
                                 else if($tipe = ($r['tipe']==4)){ $tipe = '<span class="btn btn-xs btn-warning">Market Place</span>';}
                                 else if($tipe = ($r['tipe']==5)){ $tipe = '<span class="btn btn-xs btn-warning">Lazada</span>';}
@@ -124,7 +124,7 @@ color: white;
 											<p>
 											<div class='buttons'>
 												<button type='button' class='btn btn-success right-block' onclick='cetakstruk();'>CETAK STRUK</button>
-												<button type='button' class='btn btn-success right-block' onclick='cetakstrukresep();'>CETAK STRUK RESEP</button>
+												&nbsp
 												<a href=javascript:confirmdelete('$aksi?module=trkasir&act=hapus&id=$rf[id_trkasir]') title='HAPUS' class='btn btn-danger right-block'>HAPUS</a> 
 											</div>
 											";

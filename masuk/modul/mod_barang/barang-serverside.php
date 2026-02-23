@@ -99,10 +99,10 @@ if ($_GET['action'] == "table_data") {
                                                 <td><b>(R)</b> </td><td>'.format_rupiah($value['hrgjual_barang']).'</td>
                                             </tr>
                                             <tr>
-                                                <td><b>(Re)</b> </td><td>'.format_rupiah($value['hrgjual_barang1']).'</td>
+                                                <td><b>(Me)</b> </td><td>'.format_rupiah($value['hrgjual_barang1']).'</td>
                                             </tr>
                                             <tr>
-                                                <td><b>(Mp)</b> </td><td>'.format_rupiah($value['hrgjual_barang2']).'</td>
+                                                <td><b>(MP)</b> </td><td>'.format_rupiah($value['hrgjual_barang2']).'</td>
                                             </tr></table>';
             
             // Menampilkan zataktif dengan nama admin di dalam kurung
