@@ -64,7 +64,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 								<?php
 								$lupa = $_SESSION['level'];
 								if ($lupa == 'pemilik') {
-									echo "<th>Aksi</th> ";
+									echo "<th style='white-space:nowrap; width:95px; min-width:95px;'>Aksi</th> ";
 								} else {
 								}
 								?>

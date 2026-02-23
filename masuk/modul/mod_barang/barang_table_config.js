@@ -75,8 +75,21 @@ $(document).ready(function() {
 		},
 		{
 			"data": "aksi",
+			"className": "text-left",
+			"width": "95px",
+			"orderable": false,
+			"searchable": false,
+			"defaultContent": "",
 			"visible": (typeof userLevel !== 'undefined' && userLevel == 'pemilik')
 		}]
+	});
+
+	table.on('draw', function() {
+		$('#tes th:last-child, #tes td:last-child').css({
+			'white-space': 'nowrap',
+			'min-width': '95px',
+			'text-align': 'left'
+		});
 	});
 
 	$(window).on('resize', function() {
@@ -98,6 +111,31 @@ $(document).ready(function() {
 		var start = info ? info.start : 0;
 		var separator = href.indexOf('?') !== -1 ? '&' : '?';
 		$(this).attr('href', href + separator + 'start=' + start);
+	});
+
+	$('#tes tbody').on('click', '.btn-print-barcode', function(e) {
+		e.preventDefault();
+		var idBarang = $(this).data('id');
+		if (!idBarang) {
+			return;
+		}
+
+		var qtyInput = window.prompt('Jumlah barcode yang akan di-print?', '1');
+		if (qtyInput === null) {
+			return;
+		}
+
+		var qty = parseInt(qtyInput, 10);
+		if (isNaN(qty) || qty < 1) {
+			alert('Jumlah barcode harus angka minimal 1.');
+			return;
+		}
+
+		if (qty > 500) {
+			qty = 500;
+		}
+
+		window.open('modul/mod_barang/print_barcode.php?id=' + idBarang + '&qty=' + qty, '_blank');
 	});
 
 	var indikasiModalRow = null;

@@ -112,16 +112,17 @@ if ($_GET['action'] == "table_data") {
             }
             $nestedData['zataktif']         = $zataktif_display;
             $nestedData['indikasi']         = $value['indikasi'];
-                        $nestedData['aksi']             = "<div class='dropdown'>
-    <button class='btn btn-default dropdown-toggle' type='button' id='dropdownMenuAksi" . $value['id_barang'] . "' data-toggle='dropdown' aria-haspopup='true' aria-expanded='true'>
+                        $nestedData['aksi']             = "<div class='dropdown' style='white-space:nowrap; display:inline-block;'>
+    <button class='btn btn-default dropdown-toggle' type='button' id='dropdownMenuAksi" . $value['id_barang'] . "' data-toggle='dropdown' aria-haspopup='true' aria-expanded='true' style='white-space:nowrap;'>
         action
         <span class='caret'></span>
     </button>
-    <ul class='dropdown-menu' aria-labelledby='dropdownMenuAksi" . $value['id_barang'] . "'>
-        <li style='background-color:yellow;width:50%'><a href='?module=barang&act=edit&id=" . $value['id_barang'] . "'>EDIT</a></li>
-        <li style='background-color:aqua;width:50%'><a href='?module=barang&act=detail&id=" . $value['id_barang'] . "'>DETAIL</a></li>
-        <li style='background-color:pink;width:50%;'><a href='?module=kartustok&act=view&id=" . $value['kd_barang'] . "'>KARTU STOK</a></li>
-        <li style='background-color:red;width:50%;'><a href=javascript:confirmdelete('" . $aksi . "?module=barang&act=hapus&id=" . $value['id_barang'] . "')>HAPUS</a></li>
+                <ul class='dropdown-menu' aria-labelledby='dropdownMenuAksi" . $value['id_barang'] . "' style='min-width:165px; padding:6px 6px; left:0; right:auto;'>
+                    <li style='margin:0 0 4px 0; background:transparent; text-align:left;'><a href='?module=barang&act=edit&id=" . $value['id_barang'] . "' style='display:block; width:70%; margin:0; box-sizing:border-box; padding:4px 8px; background-color:yellow; color:#555; white-space:nowrap;'>EDIT</a></li>
+                    <li style='margin:0 0 4px 0; background:transparent; text-align:left;'><a href='?module=barang&act=detail&id=" . $value['id_barang'] . "' style='display:block; width:70%; margin:0; box-sizing:border-box; padding:4px 8px; background-color:aqua; color:#555; white-space:nowrap;'>DETAIL</a></li>
+                    <li style='margin:0 0 4px 0; background:transparent; text-align:left;'><a href='#' class='btn-print-barcode' data-id='" . $value['id_barang'] . "' style='display:block; width:70%; margin:0; box-sizing:border-box; padding:4px 8px; background-color:#d9edf7; color:#555; white-space:nowrap;'>PRINT BARCODE</a></li>
+                    <li style='margin:0 0 4px 0; background:transparent; text-align:left;'><a href='?module=kartustok&act=view&id=" . $value['kd_barang'] . "' style='display:block; width:70%; margin:0; box-sizing:border-box; padding:4px 8px; background-color:pink; color:#555; white-space:nowrap;'>KARTU STOK</a></li>
+                    <li style='margin:0; background:transparent; text-align:left;'><a href=javascript:confirmdelete('" . $aksi . "?module=barang&act=hapus&id=" . $value['id_barang'] . "') style='display:block; width:70%; margin:0; box-sizing:border-box; padding:4px 8px; background-color:red; color:#fff; white-space:nowrap;'>HAPUS</a></li>
     </ul>
 </div>";
             $data[] = $nestedData;
