@@ -13,13 +13,6 @@ switch($_GET[act]){
   default:
 
   
-      $stmt = $db->prepare("SELECT * FROM trbmasuk 
-	  WHERE id_resto = 'pusat'
-	  ORDER BY trbmasuk.id_trbmasuk DESC");
-	  $stmt->execute();
-	  $tampil_trbmasuk = $stmt;
-
-
 	  ?>
 			
 			
@@ -37,7 +30,7 @@ switch($_GET[act]){
 					<br><br>
 					
 					
-					<table id="example1" class="table table-bordered table-striped" >
+					<table id="byrkredit_table" class="table table-bordered table-striped" >
 						<thead>
 							<tr>
 								<th>No</th>
@@ -51,45 +44,8 @@ switch($_GET[act]){
 								<th width="70">Aksi</th>
 							</tr>
 						</thead>
-						<tbody>
-						<?php 
-								$no=1;
-								while ($r = $stmt->fetch(PDO::FETCH_ASSOC)){
-								$ttl_trbmasuknya = format_rupiah($r['ttl_trbmasuk']);
-								$dp_bayar = format_rupiah($r['dp_bayar']);
-								$sisa_bayar = format_rupiah($r['sisa_bayar']);
-
-									echo "<tr class='warnabaris' >";
-									
-									if($r['carabayar'] == "LUNAS"){
-											echo"
-												<td>$no</td>           
-												<td>$r[kd_trbmasuk]</td>
-											";
-										}else{
-										
-											echo"
-												<td style='background-color:#ffbf00;'>$no</td>           
-												<td style='background-color:#ffbf00;'>$r[kd_trbmasuk]</td>
-											";
-										
-										}
-										echo"               
-											 <td>$r[petugas]</td>											
-											 <td>$r[tgl_trbmasuk]</td>											
-											 <td>$r[nm_supplier]</td>
-											 <td>$r[ket_trbmasuk]</td>											
-											<td align=right>$sisa_bayar</td>											 
-											<td align=center>$r[carabayar]</td>											 
-											 <td><a href='?module=byrkredit&act=ubah&id=$r[id_trbmasuk]' title='EDIT' class='btn btn-warning btn-xs'>EDIT</a> 
-											 <a href=javascript:confirmdelete('$aksi?module=trbmasuk&act=hapus&id=$r[id_trbmasuk]') title='HAPUS' class='btn btn-danger btn-xs'>HAPUS</a>
-											 
-											</td>
-										</tr>";
-								$no++;
-								}
-						echo "</tbody></table>";
-					?>
+						<tbody></tbody>
+					</table>
 				</div>
 			</div>	
              
@@ -569,6 +525,31 @@ switch($_GET[act]){
     $(document).ready(function () {
         tabel_detail();
         $("#example").DataTable();
+
+		if ($('#byrkredit_table').length) {
+			$('#byrkredit_table').DataTable({
+				processing: true,
+				serverSide: true,
+				searchDelay: 500,
+				order: [[3, 'desc'], [1, 'desc']],
+				ajax: {
+					url: 'modul/mod_trbmasukpbf/byrkredit-serverside.php?action=table_data',
+					type: 'POST'
+				},
+				pageLength: 25,
+				columns: [
+					{ orderable: true, searchable: false },
+					{ orderable: true, searchable: true },
+					{ orderable: true, searchable: true },
+					{ orderable: true, searchable: true },
+					{ orderable: true, searchable: true },
+					{ orderable: true, searchable: true },
+					{ orderable: true, searchable: true },
+					{ orderable: true, searchable: true },
+					{ orderable: false, searchable: false }
+				]
+			});
+		}
     });
 
     // Autocomplete nama obat

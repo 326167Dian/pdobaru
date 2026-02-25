@@ -8,6 +8,7 @@ Jalankan file sesuai urutan nama (timestamp di awal nama file):
 
 1. `20260223_add_indexes_sinkronisasi_stok.sql`
 2. `20260225_add_indexes_laporan_laba_penjualan.sql`
+3. `20260225_add_indexes_byrkredit_serverside.sql`
 
 ## Cara menjalankan
 
@@ -35,6 +36,14 @@ mysql -u USERNAME -p NAMA_DATABASE < database/migrations/20260223_add_indexes_si
 - `idx_trkasir_detail_kdtrkasir_nmbrg` pada tabel `trkasir_detail(kd_trkasir, nmbrg_dtrkasir)`
 - `idx_trkasir_detail_id_barang` pada tabel `trkasir_detail(id_barang)`
 
+`20260225_add_indexes_byrkredit_serverside.sql` menambahkan index performa untuk tabel byrkredit server-side:
+
+- `idx_trbmasuk_idresto_id` pada tabel `trbmasuk(id_resto, id_trbmasuk)`
+- `idx_trbmasuk_idresto_kd` pada tabel `trbmasuk(id_resto, kd_trbmasuk)`
+- `idx_trbmasuk_idresto_tgl` pada tabel `trbmasuk(id_resto, tgl_trbmasuk)`
+- `idx_trbmasuk_idresto_supplier` pada tabel `trbmasuk(id_resto, nm_supplier)`
+- `idx_trbmasuk_idresto_carabayar` pada tabel `trbmasuk(id_resto, carabayar)`
+
 Migrasi bersifat **idempotent** (aman dijalankan ulang). Jika index sudah ada, script akan skip.
 
 ## Verifikasi setelah eksekusi
@@ -46,6 +55,7 @@ SHOW INDEX FROM trbmasuk_detail;
 SHOW INDEX FROM trkasir_detail;
 SHOW INDEX FROM barang;
 SHOW INDEX FROM trkasir;
+SHOW INDEX FROM trbmasuk;
 ```
 
 Pastikan nama index di atas sudah muncul.
