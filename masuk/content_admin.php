@@ -64,7 +64,7 @@ if ($_GET['module'] == 'home') {
             <div class="col-md-12">
                 <div class="box box-primary" style="margin:20px;">
                     <div class="box-header with-border">
-                        <h3 class="box-title" id="sales-chart-title">Grafik Penjualan Bulan <?php echo date('F Y'); ?></h3>
+                        <h3 class="box-title" id="sales-chart-title">Penjualan <?php echo date('F Y'); ?></h3>
                         <div class="box-tools pull-right">
                             <select id="sales-filter-month" class="form-control input-sm" style="display:inline-block; width:auto; margin-right:6px;">
                                 <?php for ($m = 1; $m <= 12; $m++) { ?>
@@ -288,7 +288,7 @@ if ($_GET['module'] == 'home') {
                             renderSalesChart(salesChartItems, salesChartPreviousItems, salesChartPreviousLabel);
                             updateSalesSummary(salesChartItems, salesChartPreviousItems);
                             if (response.periode_label) {
-                                var title = 'Grafik Penjualan Bulan ' + response.periode_label;
+                                var title = 'Penjualan ' + response.periode_label;
                                 if (response.periode_sebelumnya_label) {
                                     title += ' vs ' + response.periode_sebelumnya_label;
                                 }
