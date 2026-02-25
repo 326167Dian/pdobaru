@@ -56,33 +56,27 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 					<br><br>
 
                         <?php
+						$tgl_awal = date('Y-m-d');
+						$tgl_akhir = date('Y-m-d', strtotime('-30 days', strtotime($tgl_awal)));
 
-                        $query1 = $db->prepare("SELECT * FROM barang LEFT JOIN trbmasuk_detail ON(barang.id_barang=trbmasuk_detail.id_barang) 
-                                  WHERE trbmasuk_detail.kd_trbmasuk IS NOT NULL GROUP BY barang.id_barang order BY barang.nm_barang ASC");
-                        while($r= $query1->fetch(PDO::FETCH_ASSOC))
-                        {
-                            $t30 = $r['id_barang'];
-                            $tgl_awal = date('Y-m-d');
-                            $tgl_akhir = date('Y-m-d', strtotime('-30 days', strtotime( $tgl_awal)));
-
-                            $pass = mysqli_query($GLOBALS["___mysqli_ston"], "SELECT * FROM trkasir JOIN trkasir_detail
-                                        ON (trkasir.kd_trkasir=trkasir_detail.kd_trkasir)
-                                        WHERE trkasir_detail.id_barang = '$t30' AND (tgl_trkasir BETWEEN '$tgl_akhir' and '$tgl_awal')");
-                            $pass1 = mysqli_num_rows($pass);
-                            $pass2 = mysqli_fetch_array($pass);
-                            $tot =mysqli_query($GLOBALS["___mysqli_ston"], "SELECT SUM(trkasir_detail.qty_dtrkasir) as pw from trkasir_detail
-                                  join trkasir ON (trkasir_detail.kd_trkasir=trkasir.kd_trkasir)
-                                        WHERE id_barang = '$pass2[id_barang]' AND (tgl_trkasir BETWEEN '$tgl_akhir' and '$tgl_awal')") ;
-                            $t2 = mysqli_fetch_array($tot);
-                            $q30 = $t2['pw'];
-//                            $sfc = $pass1 - $r['stok_barang'];
-//                            $qfc = $q30 - $r['stok_barang'];
-                            mysqli_query($GLOBALS["___mysqli_ston"], "UPDATE barang SET
-                                    t30 = '$pass1',
-									q30 = '$q30'									
-									WHERE id_barang = '$r[id_barang]'");    
-                            
-                        }
+						$updateAnalisa = $db->prepare("UPDATE barang b
+							JOIN (
+								SELECT DISTINCT kd_barang
+								FROM trbmasuk_detail
+								WHERE kd_trbmasuk IS NOT NULL
+							) bm ON bm.kd_barang = b.kd_barang
+							LEFT JOIN (
+								SELECT td.kd_barang,
+									   COUNT(*) AS t30,
+									   COALESCE(SUM(td.qty_dtrkasir), 0) AS q30
+								FROM trkasir_detail td
+								JOIN trkasir t ON t.kd_trkasir = td.kd_trkasir
+								WHERE t.tgl_trkasir BETWEEN ? AND ?
+								GROUP BY td.kd_barang
+							) s ON s.kd_barang = b.kd_barang
+							SET b.t30 = COALESCE(s.t30, 0),
+								b.q30 = COALESCE(s.q30, 0)");
+						$updateAnalisa->execute(array($tgl_akhir, $tgl_awal));
                        // header('location:../../media_admin.php?module=stok_kritis&act=tampil30');
                         echo '<script>window.location.href = "?module=stok_kritis&act=tampil30";</script>';
 

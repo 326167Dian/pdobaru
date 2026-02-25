@@ -9,6 +9,7 @@ Jalankan file sesuai urutan nama (timestamp di awal nama file):
 1. `20260223_add_indexes_sinkronisasi_stok.sql`
 2. `20260225_add_indexes_laporan_laba_penjualan.sql`
 3. `20260225_add_indexes_byrkredit_serverside.sql`
+4. `20260225_add_indexes_stok_kritis_analisa.sql`
 
 ## Cara menjalankan
 
@@ -43,6 +44,11 @@ mysql -u USERNAME -p NAMA_DATABASE < database/migrations/20260223_add_indexes_si
 - `idx_trbmasuk_idresto_tgl` pada tabel `trbmasuk(id_resto, tgl_trbmasuk)`
 - `idx_trbmasuk_idresto_supplier` pada tabel `trbmasuk(id_resto, nm_supplier)`
 - `idx_trbmasuk_idresto_carabayar` pada tabel `trbmasuk(id_resto, carabayar)`
+
+`20260225_add_indexes_stok_kritis_analisa.sql` menambahkan index performa untuk proses analisa stok kritis 30 hari:
+
+- `idx_trkasir_tgl_kd` pada tabel `trkasir(tgl_trkasir, kd_trkasir)`
+- `idx_trkasir_detail_kdtrkasir_kdbarang` pada tabel `trkasir_detail(kd_trkasir, kd_barang)`
 
 Migrasi bersifat **idempotent** (aman dijalankan ulang). Jika index sudah ada, script akan skip.
 
