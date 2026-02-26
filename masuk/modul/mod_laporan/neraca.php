@@ -122,9 +122,29 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
             $awal = date("Y-m-d", strtotime($de[0]));
             $akhir = date("Y-m-d", strtotime($de[1]));
 
-            $query1 = $db->prepare("SELECT SUM(ttl_trkasir) AS penjualan FROM trkasir 
-                        WHERE tgl_trkasir BETWEEN '" . $awal . "' AND '" . $akhir . "'");
+            // Query total penjualan dari trkasir_detail
+            $query1 = $db->prepare("SELECT SUM(trkasir_detail.hrgttl_dtrkasir) AS penjualan FROM trkasir_detail 
+                        JOIN trkasir ON trkasir_detail.kd_trkasir = trkasir.kd_trkasir
+                        WHERE trkasir.tgl_trkasir BETWEEN '" . $awal . "' AND '" . $akhir . "'");
             $query1->execute();
+
+            // Query untuk penjualan Reguler (tipe = 1)
+            $query_reguler = $db->prepare("SELECT SUM(trkasir_detail.hrgttl_dtrkasir) AS reguler FROM trkasir_detail 
+                        JOIN trkasir ON trkasir_detail.kd_trkasir = trkasir.kd_trkasir
+                        WHERE trkasir.tgl_trkasir BETWEEN '" . $awal . "' AND '" . $akhir . "' AND trkasir_detail.tipe = '1'");
+            $query_reguler->execute();
+
+            // Query untuk penjualan Member (tipe = 2)
+            $query_member = $db->prepare("SELECT SUM(trkasir_detail.hrgttl_dtrkasir) AS member FROM trkasir_detail 
+                        JOIN trkasir ON trkasir_detail.kd_trkasir = trkasir.kd_trkasir
+                        WHERE trkasir.tgl_trkasir BETWEEN '" . $awal . "' AND '" . $akhir . "' AND trkasir_detail.tipe = '2'");
+            $query_member->execute();
+
+            // Query untuk penjualan Marketplace (tipe = 3)
+            $query_marketplace = $db->prepare("SELECT SUM(trkasir_detail.hrgttl_dtrkasir) AS marketplace FROM trkasir_detail 
+                        JOIN trkasir ON trkasir_detail.kd_trkasir = trkasir.kd_trkasir
+                        WHERE trkasir.tgl_trkasir BETWEEN '" . $awal . "' AND '" . $akhir . "' AND trkasir_detail.tipe = '3'");
+            $query_marketplace->execute();
             // $query1 = mysqli_query($GLOBALS["___mysqli_ston"], "SELECT SUM(trkasir_detail.hrgttl_dtrkasir) AS penjualan FROM trkasir_detail 
             // JOIN trkasir ON trkasir_detail.kd_trkasir = trkasir.kd_trkasir WHERE trkasir.tgl_trkasir BETWEEN '" . $awal . "' AND '" . $akhir . "'");
 
@@ -148,6 +168,9 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
             // JOIN trbmasuk ON trbmasuk.kd_trbmasuk=trbmasuk_detail.kd_trbmasuk WHERE trbmasuk.carabayar = 'LUNAS' AND trbmasuk.tgl_trbmasuk BETWEEN '" . $awal . "' AND '" . $akhir . "'");
 
             $p = $query1->fetch(PDO::FETCH_ASSOC);
+            $a = $query_reguler->fetch(PDO::FETCH_ASSOC);
+            $b = $query_member->fetch(PDO::FETCH_ASSOC);
+            $c = $query_marketplace->fetch(PDO::FETCH_ASSOC);
             $o = $query5->fetch(PDO::FETCH_ASSOC);
             $x = $query3->fetch(PDO::FETCH_ASSOC);
             $y = $query4->fetch(PDO::FETCH_ASSOC);
@@ -215,8 +238,18 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
                                 <tbody>
                                     <tr>
                                         <td class="text-center" width="50px">1.</td>
-                                        <td width="250px">Penjualan</td>
-                                        <td><?= "Rp " . format_rupiah($p['penjualan']); ?></td>
+                                        <td width="250px">Penjualan<br>
+                                        Penjualan Reguler <br>
+                                        Penjualan Member <br>
+                                        Penjualan Marketplace <br>
+                                        </td>
+                                        
+                                        <td><?= "Rp " . format_rupiah($p['penjualan']); ?>
+                                            <br>
+                                            <?= "Rp " . format_rupiah($a['reguler']); ?><br>
+                                            <?= "Rp " . format_rupiah($b['member']); ?><br>
+                                            <?= "Rp " . format_rupiah($c['marketplace']); ?>
+                                    </td>
                                     </tr>
                                     <tr>
                                         <td class="text-center" width="50px">2.</td>
