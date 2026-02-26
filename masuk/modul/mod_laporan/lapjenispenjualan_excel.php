@@ -24,7 +24,7 @@ else {
 }
 
 $tipeting = $db->query("select * from jenispenjualan where id_penjualan=$tipe ");
-$tipx = $tipeting->fetch_array();
+$tipx = $tipeting->fetch(PDO::FETCH_ASSOC);
 $tip = $tipx['nm_penjualan'];
 
 $sheet->setCellValue('A1', 'LAPORAN JENIS PENJUALAN : ' . $tip);
@@ -56,7 +56,7 @@ $sheet->getStyle('H4')->getAlignment()->setHorizontal('center');
 
 
 $no = 1;
-$query = mysqli_query($GLOBALS["___mysqli_ston"], "SELECT                 
+$query = $db->prepare("SELECT                 
                 trkasir_detail.kd_trkasir,
                 trkasir_detail.tipe,
                 trkasir.kd_trkasir,
@@ -67,17 +67,18 @@ $query = mysqli_query($GLOBALS["___mysqli_ston"], "SELECT
                 trkasir.ttl_trkasir
                 FROM trkasir_detail 
                 JOIN trkasir ON trkasir_detail.kd_trkasir = trkasir.kd_trkasir
-                WHERE trkasir.tgl_trkasir BETWEEN '$tgl_awal' AND '$tgl_akhir' AND tipe in($tipex)
+                WHERE trkasir.tgl_trkasir BETWEEN :tgl_awal AND :tgl_akhir AND tipe in($tipex)
                 GROUP BY trkasir_detail.kd_trkasir");
+$query->execute([':tgl_awal' => $tgl_awal, ':tgl_akhir' => $tgl_akhir]);
 
 
 $row = 5;
-$count = mysqli_num_rows($query);
+$count = $query->rowCount();
 $rows = $row + $count;
-while ($lihat = mysqli_fetch_array($query)) {
+while ($lihat = $query->fetch(PDO::FETCH_ASSOC)) {
 
 $tipx = $db->query("select * from jenispenjualan where id_penjualan='$lihat[tipe]' ");
-$tipy = $tipx->fetch_array();
+$tipy = $tipx->fetch(PDO::FETCH_ASSOC);
 
     $sheet->setCellValue('A' . $row, $no++);
     $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal('center');
@@ -112,7 +113,7 @@ $toti = $db->query("select SUM(hrgttl_dtrkasir) as totalsemua
  								from trkasir_detail join trkasir
 								on(trkasir.kd_trkasir=trkasir_detail.kd_trkasir)
 								where trkasir_detail.tipe in($tipex) and tgl_trkasir between '$tgl_awal' and '$tgl_akhir' ");
-$totu = $toti->fetch_array();
+$totu = $toti->fetch(PDO::FETCH_ASSOC);
 $total = $totu['totalsemua'];
 
 $sheet->setCellValue('A' . $row, 'Total Penjualan : ' . $total);
