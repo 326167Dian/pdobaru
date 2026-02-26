@@ -75,12 +75,14 @@ else {
     //                                             hrgjual_barang1 = '$hrgjual_barang1',
     //                                             hrgjual_barang3 = '$hrgjual_barang3'
     //                                             WHERE id_barang = '$odt[id_barang]'");
+    // UPDATE STOK ATOMIC - Menambah stok barang (barang baru)
+    // Menggunakan single UPDATE statement untuk menghindari race condition
     $stmt_update_barang = $db->prepare("UPDATE barang SET 
-                                                stok_barang     = ?,
+                                                stok_barang     = stok_barang + ?,
                                                 hrgsat_barang   = ?,
                                                 hrgjual_barang  = ?
                                                 WHERE id_barang = ?");
-    $stmt_update_barang->execute([$stokakhir, $harga_satuan, $hrgjual_barang, $odt['id_barang']]);
+    $stmt_update_barang->execute([$qty_dtrbmasuk, $harga_satuan, $hrgjual_barang, $odt['id_barang']]);
 
     // Update order karena barang sudah masuk
     $stmt_update_orders = $db->prepare("UPDATE ordersdetail SET 

@@ -66,24 +66,24 @@ if ($ketemucekdetail > 0){
 										exp_date = '$exp_date'
 										WHERE id_dtrbmasuk = '$id_dtrbmasuk'");
 
-    //update stok
-    $cekstok=mysqli_query($GLOBALS["___mysqli_ston"], "SELECT * FROM barang 
-        WHERE id_barang='$id_barang'");
-    $rst=mysqli_fetch_array($cekstok);
-
-    $stok_barang = $rst['stok_barang'];
-    $stokakhir = (($stok_barang - $qtylama) + $ttlqty);
-
+    // UPDATE STOK ATOMIC - Menambah stok barang (barang sudah ada di detail)
+    // Menggunakan single UPDATE statement untuk menghindari race condition
     $hrgjual_barang=round($hrgjual_dtrbmasuk) ;
     
-    
-
-    mysqli_query($GLOBALS["___mysqli_ston"], "UPDATE barang SET 
-                                          stok_barang = '$stokakhir', 
-                                          hna = '$hnasat_dtrbmasuk',
-                                          hrgsat_barang = '$hrgsat_dtrbmasuk',
-                                          hrgjual_barang='$hrgjual_barang'
-                                          WHERE id_barang = '$id_barang'");
+    $stmt_update = $pdo->prepare("UPDATE barang SET 
+                                          stok_barang = stok_barang - :qtylama + :ttlqty, 
+                                          hna = :hnasat,
+                                          hrgsat_barang = :hrgsat,
+                                          hrgjual_barang=:hrgjual
+                                          WHERE id_barang = :id_barang");
+    $stmt_update->execute([
+        ':qtylama' => $qtylama,
+        ':ttlqty' => $ttlqty,
+        ':hnasat' => $hnasat_dtrbmasuk,
+        ':hrgsat' => $hrgsat_dtrbmasuk,
+        ':hrgjual' => $hrgjual_barang,
+        ':id_barang' => $id_barang
+    ]);
 
 }else{
     $faktordiskon = (1-($diskon/100));
@@ -134,56 +134,28 @@ if ($ketemucekdetail > 0){
 										'$tipe'										
 										)");
 
-    // mysqli_query($GLOBALS["___mysqli_ston"], "INSERT INTO ordersdetail(
-    //                                     kd_trbmasuk,
-				// 						id_barang,
-				// 						kd_barang,
-				// 						nmbrg_dtrbmasuk,
-				// 						qty_dtrbmasuk,
-				// 						qtygrosir_dtrbmasuk,
-				// 						sat_dtrbmasuk,
-				// 						satgrosir_dtrbmasuk,
-				// 						konversi,
-				// 						hnasat_dtrbmasuk,
-				// 						diskon,
-				// 						hrgsat_dtrbmasuk,										
-				// 						hrgjual_dtrbmasuk,										
-				// 						hrgttl_dtrbmasuk,
-				// 						no_batch,
-				// 						exp_date)
-				// 				  VALUES('$kd_orders',
-				// 						'$id_barang',
-				// 						'$kd_barang',
-				// 						'$nmbrg_dtrbmasuk',
-				// 						'$qty_retail',
-				// 						'$qty_dtrbmasuk',
-				// 						'$rst[sat_barang]',
-				// 						'$rst[sat_grosir]',
-				// 						'$konversi',
-				// 						'$hnasat_dtrbmasuk',
-				// 						'$diskon',
-				// 						'$hrgsat_dtrbmasuk',
-				// 						'$hrgjual_dtrbmasuk',
-				// 						'$ttlharga',
-				// 						'$no_batch',
-				// 						'$exp_date'									
-				// 						)");
-//update stok,hna,hrgbrg+ppn
-   
-
-    $stok_barang = $rst['stok_barang'];
-    $stokakhir = $stok_barang + ($qty_dtrbmasuk*$konversi);
+    // UPDATE STOK ATOMIC - Menambah stok barang (barang baru)
+    // Menggunakan single UPDATE statement untuk menghindari race condition
+    $stokakhir = ($qty_dtrbmasuk*$konversi);
     $hrgjual_barang=round($hrgjual_dtrbmasuk) ;
     
-
-    mysqli_query($GLOBALS["___mysqli_ston"], "UPDATE barang SET 
-                                                stok_barang = '$stokakhir',
-                                                hna = '$hnasat_dtrbmasuk',
-                                                konversi = '$konversi',
-                                                sat_grosir = '$sat_dtrbmasuk',
-                                                hrgsat_barang = '$hrgsat_dtrbmasuk',
-                                                hrgjual_barang='$hrgjual_barang'
-                                                WHERE id_barang = '$id_barang'");
+    $stmt_update = $pdo->prepare("UPDATE barang SET 
+                                                stok_barang = stok_barang + :stokakhir,
+                                                hna = :hnasat,
+                                                konversi = :konversi,
+                                                sat_grosir = :satgrosir,
+                                                hrgsat_barang = :hrgsat,
+                                                hrgjual_barang=:hrgjual
+                                                WHERE id_barang = :id_barang");
+    $stmt_update->execute([
+        ':stokakhir' => $stokakhir,
+        ':hnasat' => $hnasat_dtrbmasuk,
+        ':konversi' => $konversi,
+        ':satgrosir' => $sat_dtrbmasuk,
+        ':hrgsat' => $hrgsat_dtrbmasuk,
+        ':hrgjual' => $hrgjual_barang,
+        ':id_barang' => $id_barang
+    ]);
 
 }
 

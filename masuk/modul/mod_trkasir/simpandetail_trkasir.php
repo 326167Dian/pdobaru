@@ -85,31 +85,22 @@ if($id_dtrkasir == "" || $id_dtrkasir == null){
                                             komisi = ?
     										WHERE id_dtrkasir = ? and kd_barang=?");
         $stmt_update->execute([$ttlqty, $hrgjual_dtrkasir, $resep, $modal, $profit, $ttlharga, $komisi, $id_dtrkasir, $kd_barang]);									
-        //update stok
-        //cek tambah stok
-        $tambahstok = $db->prepare("select id_dtrkasir, kd_trkasir, qty_dtrkasir 
-                                    from trkasir_detail 
-                                    where kd_trkasir =? 
-                                    and kd_barang =?");
-        $tambahstok->execute([$kd_trkasir, $kd_barang]);
-        $ketemutambahstok = $tambahstok->fetch(PDO::FETCH_ASSOC);
-        $angka = $ketemutambahstok[$qty_dtrkasir];
-        // if($angka==$ttlqty) {
-    
-            $cekstok = $db->prepare("SELECT * FROM barang 
-                                        WHERE id_barang=?");
-            $cekstok->execute([$id_barang]);
-            $rst = $cekstok->fetch(PDO::FETCH_ASSOC);
-    
-            $stok_barang = $rst['stok_barang'];
-            $stokakhir = (($stok_barang + $qtylama) - $ttlqty);
-    
-            $update_barang = $db->prepare("UPDATE barang SET 
-                                            stok_barang = ?
-                                            WHERE id_barang = ?");
-            $update_barang->execute([$stokakhir, $id_barang]);
-        //                  }
-        // else{}
+            
+        // UPDATE STOK ATOMIC - Kurangi stok berdasarkan quantity yang ditambahkan
+        // Menggunakan single UPDATE statement untuk menghindari race condition
+        $update_barang = $db->prepare("UPDATE barang SET 
+                                        stok_barang = stok_barang - :qty_dikurangi
+                                        WHERE id_barang = :id_barang");
+        $update_barang->execute([
+            ':qty_dikurangi' => $qty_dtrkasir, 
+            ':id_barang' => $id_barang
+        ]);
+        
+        // Verifikasi update berhasil
+        if($update_barang->rowCount() == 0) {
+            // Log error jika update gagal
+            error_log("Warning: Stock update failed for id_barang: " . $id_barang);
+        }
     
         if($_SESSION['komisi']=='Y'){
             if($_SESSION['penjualansebelum']=='Y'){
@@ -203,17 +194,10 @@ if($id_dtrkasir == "" || $id_dtrkasir == null){
         $cekmasuk->execute([$kd_trkasir]);
         $ketemucekmasuk = $cekmasuk->rowCount();
         if($ketemucekmasuk > 0 ) {
-        //update stok
+            // UPDATE STOK ATOMIC - Kurangi stok langsung di database
+            // Menggunakan single UPDATE statement untuk menghindari race condition
             
-            $cekstok = $db->prepare("SELECT * FROM barang 
-                                    WHERE id_barang =?");
-            $cekstok->execute([$id_barang]);
-            $rst = $cekstok->fetch(PDO::FETCH_ASSOC);
-        
-            $stok_barang = $rst['stok_barang'];
-            $stokakhir = $stok_barang - $qty_dtrkasir;
-            
-        //update harga jual hanya sementara hanya untuk pemakai awal, setelah itu harga jual tidak bisa diupdate lewat kasir
+            //update harga jual hanya sementara hanya untuk pemakai awal, setelah itu harga jual tidak bisa diupdate lewat kasir
             $lst_trx = $db->prepare("SELECT * FROM trkasir 
                                         ORDER BY id_trkasir ASC
                                         LIMIT 1");
@@ -229,27 +213,43 @@ if($id_dtrkasir == "" || $id_dtrkasir == null){
                 $tgl_last  = date('Y-m-d', time());
             }
             
+            // Gunakan UPDATE atomic untuk stok
             if($tgl_last > $tgl_first){
-                $set_query = "stok_barang = '$stokakhir'";
+                // Hanya update stok (sudah > 1 bulan)
+                $stmt_updatebarang = $db->prepare("UPDATE barang SET 
+                                                    stok_barang = stok_barang - :qty_dikurangi
+                                                    WHERE id_barang = :id_barang");
             } else {
                 if($_POST['tipe'] == '1'){
-                    $set_query = "hrgjual_barang = '$hrgjual_dtrkasir',
-                    stok_barang = '$stokakhir'";
+                    $stmt_updatebarang = $db->prepare("UPDATE barang SET 
+                                                        hrgjual_barang = :hrgjual,
+                                                        stok_barang = stok_barang - :qty_dikurangi
+                                                        WHERE id_barang = :id_barang");
                 } 
                 elseif($_POST['tipe'] == '2'){
-                    $set_query = "hrgjual_barang1 = '$hrgjual_dtrkasir',
-                    stok_barang = '$stokakhir'";
+                    $stmt_updatebarang = $db->prepare("UPDATE barang SET 
+                                                        hrgjual_barang1 = :hrgjual,
+                                                        stok_barang = stok_barang - :qty_dikurangi
+                                                        WHERE id_barang = :id_barang");
                 }
                 elseif($_POST['tipe'] == '3'){
-                    $set_query = "hrgjual_barang2 = '$hrgjual_dtrkasir',
-                    stok_barang = '$stokakhir'";
+                    $stmt_updatebarang = $db->prepare("UPDATE barang SET 
+                                                        hrgjual_barang2 = :hrgjual,
+                                                        stok_barang = stok_barang - :qty_dikurangi
+                                                        WHERE id_barang = :id_barang");
                 }
             }
             
-            $stmt_updatebarang = $db->prepare("UPDATE barang SET 
-                                                $set_query
-                                                WHERE id_barang = '$id_barang'");
-            $stmt_updatebarang->execute();
+            $stmt_updatebarang->execute([
+                ':qty_dikurangi' => $qty_dtrkasir, 
+                ':id_barang' => $id_barang,
+                ':hrgjual' => $hrgjual_dtrkasir
+            ]);
+            
+            // Verifikasi update berhasil
+            if($stmt_updatebarang->rowCount() == 0) {
+                error_log("Warning: Stock update failed for id_barang: " . $id_barang);
+            }
                 
             if($_SESSION['komisi']=='Y'){
                 if($_SESSION['penjualansebelum']=='Y'){
@@ -288,27 +288,20 @@ if($id_dtrkasir == "" || $id_dtrkasir == null){
     										WHERE id_dtrkasir = '$id_dtrkasir'");
     $update_trkasir->execute();
 										
-    //update stok
-    //cek untuk update
-    // $cekmasuk22 = $db->prepare("SELECT * FROM trkasir_detail 
-    //                         WHERE id_dtrkasir='$id_dtrkasir'");
-    // $cekmasuk22->execute();
-    // $ceklagi = $cekmasuk2[$qty_dtrkasir];
-    // if($ceklagi == $qtybaru) {
-        $cekstok = $db->prepare("SELECT * FROM barang 
-                                WHERE id_barang='$id_barang'");
-        $cekstok->execute();
-        $rst = $cekstok->fetch(PDO::FETCH_ASSOC);
-
-        $stok_barang = $rst['stok_barang'];
-        $stokakhir = (($stok_barang + $qtylama) - $qty_dtrkasir);
-
-        $updatebarang = $db->prepare("UPDATE barang SET 
-                                    stok_barang = '$stokakhir'
-                                    WHERE id_barang = '$id_barang'");
-        $updatebarang->execute();
-    // }
-    // else{}
+    // UPDATE STOK ATOMIC - Kurangi stok berdasarkan quantity yang ditambahkan
+    // Menggunakan single UPDATE statement untuk menghindari race condition
+    $updatebarang = $db->prepare("UPDATE barang SET 
+                                    stok_barang = stok_barang - :qty_dikurangi
+                                    WHERE id_barang = :id_barang");
+    $updatebarang->execute([
+        ':qty_dikurangi' => $qty_dtrkasir, 
+        ':id_barang' => $id_barang
+    ]);
+    
+    // Verifikasi update berhasil
+    if($updatebarang->rowCount() == 0) {
+        error_log("Warning: Stock update failed for id_barang: " . $id_barang);
+    }
     
     if($_SESSION['komisi']=='Y'){
         if($_SESSION['penjualansebelum']=='Y'){

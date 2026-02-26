@@ -15,20 +15,21 @@ $qty_dtrkasir   = $r['qty_dtrkasir'];
 $kd_trbmasuk    = $r['kd_trkasir'];
 $no_batch       = $r['no_batch'];
 
-//update stok
+// UPDATE STOK ATOMIC - Tambah stok kembali saat hapus detail
+// Menggunakan single UPDATE statement untuk menghindari race condition
+$stmt_update_barang = $db->prepare("UPDATE barang SET 
+                                    stok_barang = stok_barang + :qty_dikembalikan
+                                    WHERE id_barang = :id_barang");
+$stmt_update_barang->execute([
+    ':qty_dikembalikan' => $qty_dtrkasir, 
+    ':id_barang' => $id_barang
+]);
 
-$cekstok = $db->prepare("SELECT id_barang, stok_barang FROM barang 
-                        WHERE id_barang =?");
+// Ambil stok terbaru untuk ditampilkan
+$cekstok = $db->prepare("SELECT stok_barang FROM barang WHERE id_barang =?");
 $cekstok->execute([$id_barang]);
 $rst = $cekstok->fetch(PDO::FETCH_ASSOC);
-
-$stok_barang = $rst['stok_barang'];
-$stokakhir = $stok_barang + $qty_dtrkasir;
-
-// Update stok barang
-$stmt_update_barang = $db->prepare("UPDATE barang SET stok_barang =? 
-                                    WHERE id_barang =?");
-$stmt_update_barang->execute([$stokakhir, $id_barang]);
+$stokakhir = $rst['stok_barang'];
 
 // Insert into history
 $stmt_insert_hist = $db->prepare("INSERT INTO trkasir_detail_hist (

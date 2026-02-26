@@ -54,21 +54,21 @@ if ($ketemucekdetail > 0) {
             										WHERE id_dtrbmasuk = ?");
     $stmt_update_trbmasukdetail->execute([$ttlqty, $hrgsat_dtrbmasuk, $hrgjual_dtrbmasuk, $ttlharga, $no_batch, $exp_date, $id_dtrbmasuk]);
 
-	//update stok
-	$cekstok = $db->prepare("SELECT * FROM barang WHERE id_barang=?");
-    $cekstok->execute([$id_barang]);
-    $rst = $cekstok->fetch(PDO::FETCH_ASSOC);
-
-	$stok_barang = $rst['stok_barang'];
-	$stokakhir = (($stok_barang - $qtylama) + $ttlqty);
-
+	// UPDATE STOK ATOMIC - Menambah stok barang (barang sudah ada di detail)
+	// Menggunakan single UPDATE statement untuk menghindari race condition
 	$stmt_update_barang2 = $db->prepare("UPDATE barang SET 
-                                		stok_barang     = ?,
-                                		sat_barang      = ?,
-                                        hrgsat_barang   = ?
-                                		WHERE id_barang = ?");
+                                		stok_barang     = stok_barang - :qtylama + :ttlqty,
+                                		sat_barang      = :sat_barang,
+                                        hrgsat_barang   = :hrgsat_barang
+                                		WHERE id_barang = :id_barang");
                                 
-    $stmt_update_barang2->execute([$stokakhir, $sat_dtrbmasuk, $hrgsat_dtrbmasuk, $id_barang]);
+    $stmt_update_barang2->execute([
+        ':qtylama' => $qtylama,
+        ':ttlqty' => $ttlqty,
+        ':sat_barang' => $sat_dtrbmasuk,
+        ':hrgsat_barang' => $hrgsat_dtrbmasuk,
+        ':id_barang' => $id_barang
+    ]);
     
 	//cek apakah barang dengan no batch yang dimaksud sudah ada
     $cekbatchdetail = $db->prepare("SELECT no_batch, kd_transaksi,qty
@@ -121,26 +121,31 @@ if ($ketemucekdetail > 0) {
 	$stmt_insert_trbmasukdetail->execute([$kd_trbmasuk, $id_barang, $kd_barang, $nmbrg_dtrbmasuk, $qty_dtrbmasuk, $sat_dtrbmasuk,
 	                                        $hrgsat_dtrbmasuk, $hrgjual_dtrbmasuk, $ttlharga, $rst['hna'], $no_batch, $exp_date]);									
 								
-	//update stok
-	$stok_barang = $rst['stok_barang'];
-	$stokakhir = $stok_barang + $qty_dtrbmasuk;
-	
+	// UPDATE STOK ATOMIC - Menambah stok barang (barang baru)
+	// Menggunakan single UPDATE statement untuk menghindari race condition
     $hrgjual_barang=round($hrgjual_dtrbmasuk) ;
     $hrgjual_barang_resep=round($hrgjual_dtrbmasuk_resep) ;
     $hrgjual_barang_nakes=round($hrgjual_dtrbmasuk_nakes) ;
     
 
 	$stmt_update_barang2 = $db->prepare("UPDATE barang SET 
-                                		stok_barang     = ?,
-                                		sat_barang      = ?,
-                                        hrgsat_barang   = ?,
-                                        hrgjual_barang  = ?,
-                                        hrgjual_barang1 = ?,
-                                        hrgjual_barang2 = ?
-                                		WHERE id_barang = ?");
+                                		stok_barang     = stok_barang + :qty_dtrbmasuk,
+                                		sat_barang      = :sat_barang,
+                                        hrgsat_barang   = :hrgsat_barang,
+                                        hrgjual_barang  = :hrgjual_barang,
+                                        hrgjual_barang1 = :hrgjual_barang1,
+                                        hrgjual_barang2 = :hrgjual_barang2
+                                		WHERE id_barang = :id_barang");
                                 
-    $stmt_update_barang2->execute([$stokakhir, $sat_dtrbmasuk, $hrgsat_dtrbmasuk, $hrgjual_barang, $hrgjual_barang_resep, 
-                                    $hrgjual_barang_nakes, $id_barang]);
+    $stmt_update_barang2->execute([
+        ':qty_dtrbmasuk' => $qty_dtrbmasuk,
+        ':sat_barang' => $sat_dtrbmasuk,
+        ':hrgsat_barang' => $hrgsat_dtrbmasuk,
+        ':hrgjual_barang' => $hrgjual_barang,
+        ':hrgjual_barang1' => $hrgjual_barang_resep,
+        ':hrgjual_barang2' => $hrgjual_barang_nakes,
+        ':id_barang' => $id_barang
+    ]);
 		
 	$stmt_insert_batch = $db->prepare("INSERT INTO batch(
 	                                    tgl_transaksi,
