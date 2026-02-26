@@ -45,7 +45,8 @@ if ($_GET['action'] == "table_data") {
         //                         INNER JOIN ordersdetail ON ordersdetail.kd_trbmasuk = orders.kd_trbmasuk
         //                         WHERE orders.id_resto = 'pesan'
         //                         ORDER BY $order DESC LIMIT $limit OFFSET $start");
-        $query = $db->prepare("SELECT * FROM orders
+        $query = $db->prepare("SELECT orders.* 
+                                FROM orders
                                 WHERE orders.id_resto = 'pesan'
                                 ORDER BY $order DESC LIMIT $limit OFFSET $start");
                     
@@ -86,7 +87,8 @@ if ($_GET['action'] == "table_data") {
         //                         OR orders.dp_bayar     LIKE '%$search%'
         //                         OR orders.sisa_bayar   LIKE '%$search%')
         //                         ORDER BY $order DESC LIMIT $limit OFFSET $start");
-        $query = $db->prepare("SELECT * FROM orders
+        $query = $db->prepare("SELECT orders.* 
+                                FROM orders
                                 WHERE orders.id_resto = 'pesan'
                                 AND (orders.kd_trbmasuk LIKE '%$search%'
                                 OR orders.tgl_trbmasuk LIKE '%$search%'
@@ -108,7 +110,7 @@ if ($_GET['action'] == "table_data") {
         //                         OR orders.ttl_trbmasuk LIKE '%$search%'
         //                         OR orders.dp_bayar     LIKE '%$search%'
         //                         OR orders.sisa_bayar   LIKE '%$search%')");
-        $querycount = $db->prepare("SELECT count(id_trbmasuk) as jumlah FROM orders
+        $querycount = $db->prepare("SELECT count(orders.id_trbmasuk) as jumlah FROM orders
                                 WHERE orders.id_resto = 'pesan'
                                 AND (orders.kd_trbmasuk LIKE '%$search%'
                                 OR orders.tgl_trbmasuk LIKE '%$search%'
