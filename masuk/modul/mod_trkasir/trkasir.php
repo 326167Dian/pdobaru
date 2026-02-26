@@ -646,7 +646,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 									 <div class='col-sm-7'>									    
 										    <select name='jns_transaksi' id='jns_transaksi' class='form-control'>
 										        <option value='1'>Reguler</option>
-										        <option value='2'>Resep</option>
+										        <option value='2'>Member</option>
 										        <option value='3'>Marketplace</option>
 										       
 										        
@@ -872,7 +872,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 									 <div class='col-sm-7'>									    
 										    <select name='jns_transaksi' id='jns_transaksi' class='form-control'>
 										        <option value='1'>Reguler</option>
-										        <option value='2'>Resep</option>
+										        <option value='2'>Member</option>
 										        <option value='3'>Marketplace</option>
 										       
 										        

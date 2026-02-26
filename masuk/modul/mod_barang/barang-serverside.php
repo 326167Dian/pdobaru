@@ -99,7 +99,7 @@ if ($_GET['action'] == "table_data") {
                                                 <td><b>(R)</b> </td><td>'.format_rupiah($value['hrgjual_barang']).'</td>
                                             </tr>
                                             <tr>
-                                                <td><b>(Re)</b> </td><td>'.format_rupiah($value['hrgjual_barang1']).'</td>
+                                                <td><b>(M)</b> </td><td>'.format_rupiah($value['hrgjual_barang1']).'</td>
                                             </tr>
                                             <tr>
                                                 <td><b>(Mp)</b> </td><td>'.format_rupiah($value['hrgjual_barang2']).'</td>
