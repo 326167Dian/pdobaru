@@ -39,7 +39,22 @@ if ($cari > 0) {
     //                                             WHERE id_barang = '$detail[id_barang]'");
     $db->prepare("UPDATE barang SET hrgsat_barang = ?, stok_barang = ?, hrgsat_grosir = ? WHERE id_barang = ?")->execute([$harga_satuan, $stokakhir, $harga_grosir, $detail['id_barang']]);    
                                                 
-    $db->prepare("UPDATE trbmasuk_detail SET qty_grosir = ?, qty_dtrbmasuk = ?, hrgttl_dtrbmasuk = ? WHERE id_dtrbmasuk = ?")->execute([$qtygrosir_dtrbmasuk, $qty_dtrbmasuk, $total_harga, $id_dtrbmasuk]);									
+    $db->prepare("UPDATE trbmasuk_detail SET qty_grosir = ?, qty_dtrbmasuk = ?, hrgttl_dtrbmasuk = ? WHERE id_dtrbmasuk = ?")->execute([$qtygrosir_dtrbmasuk, $qty_dtrbmasuk, $total_harga, $id_dtrbmasuk]);
+    
+    if(!empty($detail['no_batch'])){
+        // Update batch
+    	$datetime = date('Y-m-d H:i:s', time());
+    	$stmt_batch = $db->prepare("SELECT * FROM batch 
+                                WHERE no_batch=? AND kd_barang=? AND kd_transaksi=?");
+        $stmt_batch->execute([$detail['no_batch'],$kd_barang, $kd_trbmasuk]);
+        $ketemubatch = $stmt_batch->rowCount();
+        if($ketemubatch > 0){
+            $btc = $stmt_batch->fetch(PDO::FETCH_ASSOC);
+            $db->prepare("UPDATE batch SET qty = ?
+                                        WHERE no_batch = ? AND kd_barang = ?
+                                        AND kd_transaksi = ?")->execute([$qtygrosir_dtrbmasuk,$detail['no_batch'], $kd_barang, $kd_trbmasuk]);
+        }
+    }
 }
 else {
     $order = $db->prepare("SELECT * FROM ordersdetail WHERE kd_barang = ? AND kd_trbmasuk = ?");

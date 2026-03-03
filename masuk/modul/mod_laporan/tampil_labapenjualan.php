@@ -65,7 +65,7 @@ if (!empty($kdTrxList)) {
 							 d.qty_dtrkasir,
 							 d.sat_dtrkasir,
 							 d.hrgjual_dtrkasir,
-							 d.disc,
+							 coalesce(d.disc, 0) as disc,
 							 d.profit,
 							 d.hrgttl_dtrkasir,
 							 coalesce(b.hrgsat_barang, 0) as hrgsat_barang

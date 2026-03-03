@@ -46,7 +46,7 @@ $(document).ready(function() {
 			"data": "nm_barang"
 		},
 		{
-			"data": "updated_by",
+			"data": "stok_barang",
 			"className": 'text-center'
 		},
 		{

@@ -142,11 +142,13 @@ if($id_dtrkasir == "" || $id_dtrkasir == null){
             
         $ttlharga = $qty_dtrkasir * $hrgdisc;
         
-        $mdl = $db->prepare("SELECT hrgsat_barang FROM barang WHERE id_barang =?");
+        $mdl = $db->prepare("SELECT hrgsat_barang, stok_barang FROM barang WHERE id_barang =?");
         $mdl->execute([$id_barang]);
         $mdl1 = $mdl->fetch(PDO::FETCH_ASSOC);
         $modal = $mdl1['hrgsat_barang'];
         $profit = $ttlharga - ($modal * $qty_dtrkasir) ;
+        $stok_brg_lama = $mdl1['stok_barang'];
+        $stok_brg_baru = $stok_brg_lama - $qty_dtrkasir;
         
         $stmt_insert_trkasirdetail = $db->prepare("INSERT INTO trkasir_detail(kd_trkasir,
     										id_barang,
@@ -213,38 +215,48 @@ if($id_dtrkasir == "" || $id_dtrkasir == null){
                 $tgl_last  = date('Y-m-d', time());
             }
             
+            
             // Gunakan UPDATE atomic untuk stok
             if($tgl_last > $tgl_first){
                 // Hanya update stok (sudah > 1 bulan)
                 $stmt_updatebarang = $db->prepare("UPDATE barang SET 
                                                     stok_barang = stok_barang - :qty_dikurangi
                                                     WHERE id_barang = :id_barang");
+                $stmt_updatebarang->execute([
+                    ':qty_dikurangi' => $qty_dtrkasir, 
+                    ':id_barang' => $id_barang
+                ]);
             } else {
                 if($_POST['tipe'] == '1'){
                     $stmt_updatebarang = $db->prepare("UPDATE barang SET 
                                                         hrgjual_barang = :hrgjual,
                                                         stok_barang = stok_barang - :qty_dikurangi
                                                         WHERE id_barang = :id_barang");
+                    
                 } 
                 elseif($_POST['tipe'] == '2'){
                     $stmt_updatebarang = $db->prepare("UPDATE barang SET 
                                                         hrgjual_barang1 = :hrgjual,
                                                         stok_barang = stok_barang - :qty_dikurangi
                                                         WHERE id_barang = :id_barang");
+                    
                 }
                 elseif($_POST['tipe'] == '3'){
                     $stmt_updatebarang = $db->prepare("UPDATE barang SET 
                                                         hrgjual_barang2 = :hrgjual,
                                                         stok_barang = stok_barang - :qty_dikurangi
                                                         WHERE id_barang = :id_barang");
+                    
                 }
+                
+                $stmt_updatebarang->execute([
+                    ':qty_dikurangi' => $qty_dtrkasir, 
+                    ':id_barang' => $id_barang,
+                    ':hrgjual' => $hrgjual_dtrkasir
+                ]);
             }
             
-            $stmt_updatebarang->execute([
-                ':qty_dikurangi' => $qty_dtrkasir, 
-                ':id_barang' => $id_barang,
-                ':hrgjual' => $hrgjual_dtrkasir
-            ]);
+            
             
             // Verifikasi update berhasil
             if($stmt_updatebarang->rowCount() == 0) {

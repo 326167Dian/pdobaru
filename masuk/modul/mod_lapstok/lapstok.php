@@ -1709,6 +1709,94 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 
             break;
     
+        case "order":
+            $jokul = $_GET['id'];
+            $k = $db->prepare("SELECT * FROM barang WHERE kd_barang = ?");
+            $k->execute([$jokul]);
+            $k2 = $k->fetch(PDO::FETCH_ASSOC);
+            $w = $k2['nm_barang'];
+            $w2 = $k2['stok_barang'];
+
+            $order = "SELECT    orders.id_trbmasuk,
+                                orders.kd_trbmasuk,
+                                orders.petugas,
+                                ordersdetail.hrgsat_dtrbmasuk,
+                                ordersdetail.hrgjual_dtrbmasuk,
+                                orders.tgl_trbmasuk,
+                                ordersdetail.qty_dtrbmasuk
+            FROM ordersdetail JOIN orders ON (ordersdetail.kd_trbmasuk=orders.kd_trbmasuk)
+            WHERE kd_barang = ? ORDER BY orders.tgl_trbmasuk DESC";
+            $riwayat = $db->prepare($order);
+            $riwayat->execute([$jokul]);
+            
+           
+            $totalmasuk = $db->prepare("SELECT SUM(qty_dtrbmasuk) AS ttl FROM ordersdetail 
+                                    WHERE kd_barang = ? ");
+            $totalmasuk->execute([$k2['kd_barang']]);                        
+            $ttlmsk = $totalmasuk->fetch(PDO::FETCH_ASSOC);
+            $ttl = $ttlmsk['ttl'];
+
+
+        ?>
+
+            <div class='box box-primary box-solid table-responsive'>
+                <div class='box-header with-border'>
+                    <h3 class='box-title'><?php echo "Riwayat Pesanan $w (stok = $w2) dengan Total Pesanan $ttl"; ?></h3>
+                    <div class='box-tools pull-right'>
+                        <button class='btn btn-box-tool' data-widget='collapse'><i class='fa fa-minus'></i></button>
+                    </div><!-- /.box-tools -->
+                </div>
+
+                <div class='box-body'>
+                    <table id="example1" class="table table-condensed table-bordered table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center; ">No Pesanan</th>
+                                <th style="text-align: center; ">Kasir</th>
+                                <th style="text-align: center; ">Harga Beli</th>
+                                <th style="text-align: center; ">Harga Jual</th>
+                                <th style="text-align: center; ">Tanggal</th>
+                                <th style="text-align: center; ">Waktu</th>
+                                <th style="text-align: center; ">Qty</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            while ($r = $riwayat->fetch(PDO::FETCH_ASSOC)) {
+                                $w = $r['nmbrg_dtrbmasuk'];
+                                 $text = $r['kd_trbmasuk'];
+                                 $text1 = substr($text, 10,2);
+                                 $text2 = substr($text, 12,2);
+                                 $text3 = substr($text, 14,2);
+                                 $hargabeli = format_rupiah($r['hrgsat_dtrbmasuk']);
+                                 $hargajual = format_rupiah($r['hrgjual_dtrbmasuk']);
+                                 $idtrbmasuk = $r['id_trbmasuk'];
+                                echo "
+                            <tr>
+                                <td align=center><a href='?module=orders&act=ubah&id=$idtrbmasuk'>$text</a></td>
+                                <td align=left>$r[petugas]</td>
+                                <td align=center>$hargabeli</td> 
+                                <td align=center>$hargajual</td> 
+                                <td align=center>$r[tgl_trbmasuk]</td> 
+                                <td align=center>$text1.$text2.$text3</td>
+                                <td align=center>$r[qty_dtrbmasuk]</td>
+                               
+                            </tr>";
+                            }
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+            
+            
+        <input style="text-align:center;" class='btn btn-success' type='button' value=KEMBALI onclick=self.history.back()>
+<?php
+
+
+            break;
         
     }
 }

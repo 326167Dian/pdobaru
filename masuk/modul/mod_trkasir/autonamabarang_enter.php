@@ -9,11 +9,13 @@ if (!isset($_POST['nm_barang']) || trim($_POST['nm_barang']) === '') {
 }
 
 $key = $_POST['nm_barang'];
-$nmbrg = explode("(", $key);
-$key1 = trim($nmbrg[0]);
-$key1 = preg_replace('/\s+/', ' ', $key1);
-$ubah = $db->prepare("SELECT * FROM barang WHERE LOWER(REPLACE(REPLACE(REPLACE(nm_barang, '  ', ' '), '  ', ' '), '  ', ' ')) = LOWER(?)");
-$ubah->execute([$key1]);
+// $nmbrg = explode("(", $key);
+// $key1 = trim($nmbrg[0]);
+// $key1 = preg_replace('/\s+/', ' ', $key1); echo json_encode($key1); die();
+// $ubah = $db->prepare("SELECT * FROM barang WHERE LOWER(REPLACE(REPLACE(REPLACE(nm_barang, '  ', ' '), '  ', ' '), '  ', ' ')) = LOWER(?)");
+$ubah = $db->prepare("SELECT * FROM barang WHERE nm_barang = ?");
+// $ubah->execute([$key1]);
+$ubah->execute([$key]);
 
 
 $json = [];

@@ -390,7 +390,10 @@ elseif ($module=='trbmasukpbf' AND $act=='input_order_trbmasuk'){
 	
 	$db->prepare("UPDATE kdbm SET stt_kdbm = 'OFF' WHERE id_admin = ? AND id_resto = 'pusat' AND kd_trbmasuk = ?")->execute([$_SESSION['idadmin'], $_POST['kd_trbmasuk1']]);
 										
-	
+	// Update order karena barang sudah masuk
+    $db->prepare("UPDATE orders SET 
+                    masuk = '0'
+                    WHERE kd_trbmasuk = ?")->execute([$_POST['kd_trbmasuk1']]);
 }
 }
 ?>

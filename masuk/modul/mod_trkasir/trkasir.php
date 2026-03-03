@@ -1268,6 +1268,8 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 			</div>";
 
             break;
+            
+
     }
 }
 ?>
@@ -1914,6 +1916,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
                     },
                 }).done(function(data) {
                     let qty_default = "1";
+                    console.log(data);
                     for (let i = 0; i < data.length; i++) {
                         data = data[i];
                         // 1 = Grosir
@@ -2519,6 +2522,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
     }
     
     document.addEventListener('keydown', function(event) {
+        // console.log(event.key);
         if (event.key === 'F1' || event.keyCode === 112) {
             event.preventDefault(); // Mencegah help browser muncul
             simpan_detail();
@@ -2533,6 +2537,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
     });
     
     document.addEventListener('keydown', function(event) {
+        
         if (event.key === 'F3' || event.keyCode === 114) {
             event.preventDefault(); // Mencegah help browser muncul
             // simpan_detail();
