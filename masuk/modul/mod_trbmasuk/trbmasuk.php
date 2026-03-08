@@ -938,6 +938,9 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 			document.getElementById('qty_dtrbmasuk').value = "1";
 			document.getElementById('sat_dtrbmasuk').value = datab.sat_barang;
 			document.getElementById('hrgsat_dtrbmasuk').value = datab.hrgsat_barang;
+			document.getElementById('hrgjual_dtrbmasuk').value = (typeof datab.hrgjual_barang !== 'undefined' && datab.hrgjual_barang !== null) ? datab.hrgjual_barang : '';
+			document.getElementById('hrgjual_dtrbmasuk_resep').value = (typeof datab.hrgjual_barang1 !== 'undefined' && datab.hrgjual_barang1 !== null) ? datab.hrgjual_barang1 : '';
+			document.getElementById('hrgjual_dtrbmasuk_nakes').value = (typeof datab.hrgjual_barang2 !== 'undefined' && datab.hrgjual_barang2 !== null) ? datab.hrgjual_barang2 : '';
 
 		});
 	}
