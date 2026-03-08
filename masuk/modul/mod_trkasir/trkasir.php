@@ -1268,8 +1268,6 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 			</div>";
 
             break;
-            
-
     }
 }
 ?>
@@ -1720,12 +1718,86 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
         setScannerStatus('Scanner aktif. Arahkan barcode ke area kamera.', false);
     }
 
+    // async function startBarcodeDetectorScanner() {
+    //     if (!window.BarcodeDetector) {
+    //         setScannerStatus('Scanner tidak didukung browser ini. Coba Chrome Android terbaru.', true);
+    //         return;
+    //     }
+
+    //     var video = document.getElementById('barcodeScannerPreview');
+    //     var reader = document.getElementById('barcodeScannerReader');
+    //     if (reader) {
+    //         reader.style.display = 'none';
+    //     }
+    //     if (video) {
+    //         video.style.display = 'block';
+    //     }
+
+    //     try {
+    //         barcodeDetectorInstance = new BarcodeDetector({
+    //             formats: ['code_128', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'codabar', 'qr_code']
+    //         });
+    //     } catch (e) {
+    //         setScannerStatus('Format barcode tidak didukung browser.', true);
+    //         return;
+    //     }
+
+    //     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    //         setScannerStatus('Kamera tidak tersedia di browser ini.', true);
+    //         return;
+    //     }
+
+    //     try {
+    //         scannerStream = await navigator.mediaDevices.getUserMedia({
+    //             video: {
+    //                 facingMode: {
+    //                     ideal: 'environment'
+    //                 }
+    //             },
+    //             audio: false
+    //         });
+
+    //         video.srcObject = scannerStream;
+    //         await video.play();
+    //         setScannerStatus('Arahkan kamera ke barcode item.', false);
+
+    //         scannerMode = 'barcode-detector';
+    //         scannerInterval = setInterval(async function() {
+    //             try {
+    //                 if (!video || video.readyState < 2 || !barcodeDetectorInstance) {
+    //                     return;
+    //                 }
+
+    //                 var detected = await barcodeDetectorInstance.detect(video);
+    //                 if (detected && detected.length > 0 && detected[0].rawValue) {
+    //                     if (barcodeScanLocked) {
+    //                         return;
+    //                     }
+
+    //                     barcodeScanLocked = true;
+    //                     var hasilScan = $.trim(detected[0].rawValue);
+    //                     setScannerStatus('Barcode terdeteksi: ' + hasilScan, false);
+    //                     $('#ModalScanBarcode').modal('hide');
+    //                     triggerBarangByKode(hasilScan);
+    //                 }
+    //             } catch (scanErr) {
+    //                 setScannerStatus('Gagal membaca barcode. Coba arahkan ulang kamera.', true);
+    //             }
+    //         }, 350);
+
+    //     } catch (err) {
+    //         setScannerStatus('Tidak bisa mengakses kamera. Pastikan izin kamera diaktifkan.', true);
+    //     }
+    // }
+    
     async function startBarcodeDetectorScanner() {
+
         if (!window.BarcodeDetector) {
-            setScannerStatus('Scanner tidak didukung browser ini. Coba Chrome Android terbaru.', true);
+            setScannerStatus('Browser tidak support BarcodeDetector.', true);
             return;
         }
-
+    
+        //var video = document.getElementById('barcodeScannerPreview');
         var video = document.getElementById('barcodeScannerPreview');
         var reader = document.getElementById('barcodeScannerReader');
         if (reader) {
@@ -1734,62 +1806,51 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
         if (video) {
             video.style.display = 'block';
         }
-
-        try {
-            barcodeDetectorInstance = new BarcodeDetector({
-                formats: ['code_128', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'codabar', 'qr_code']
-            });
-        } catch (e) {
-            setScannerStatus('Format barcode tidak didukung browser.', true);
-            return;
-        }
-
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            setScannerStatus('Kamera tidak tersedia di browser ini.', true);
-            return;
-        }
-
-        try {
-            scannerStream = await navigator.mediaDevices.getUserMedia({
-                video: {
-                    facingMode: {
-                        ideal: 'environment'
-                    }
-                },
-                audio: false
-            });
-
-            video.srcObject = scannerStream;
-            await video.play();
-            setScannerStatus('Arahkan kamera ke barcode item.', false);
-
-            scannerMode = 'barcode-detector';
-            scannerInterval = setInterval(async function() {
-                try {
-                    if (!video || video.readyState < 2 || !barcodeDetectorInstance) {
-                        return;
-                    }
-
-                    var detected = await barcodeDetectorInstance.detect(video);
-                    if (detected && detected.length > 0 && detected[0].rawValue) {
-                        if (barcodeScanLocked) {
-                            return;
-                        }
-
-                        barcodeScanLocked = true;
-                        var hasilScan = $.trim(detected[0].rawValue);
-                        setScannerStatus('Barcode terdeteksi: ' + hasilScan, false);
-                        $('#ModalScanBarcode').modal('hide');
-                        triggerBarangByKode(hasilScan);
-                    }
-                } catch (scanErr) {
-                    setScannerStatus('Gagal membaca barcode. Coba arahkan ulang kamera.', true);
+        barcodeDetectorInstance = new BarcodeDetector({
+            formats: ['code_128','ean_13','ean_8','qr_code']
+        });
+    
+        scannerStream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                facingMode: { ideal: 'environment' },
+                width: { ideal: 720 },
+                height: { ideal: 1280 }
+            }
+        });
+    
+        video.srcObject = scannerStream;
+        await video.play();
+    
+        scannerInterval = setInterval(async function(){
+    
+            if (!video || video.readyState !== video.HAVE_ENOUGH_DATA) {
+                return;
+            }
+    
+            try {
+    
+                const detected = await barcodeDetectorInstance.detect(video);
+    
+                if (detected.length > 0) {
+    
+                    const hasilScan = detected[0].rawValue;
+    
+                    barcodeScanLocked = true;
+                    clearInterval(scannerInterval);
+    
+                    setScannerStatus('Barcode: ' + hasilScan, false);
+    
+                    // $('#ModalScanBarcode').modal('hide');
+                    $('#ModalScanBarcode .close').click();
+                    triggerBarangByKode(hasilScan);
+    
                 }
-            }, 350);
-
-        } catch (err) {
-            setScannerStatus('Tidak bisa mengakses kamera. Pastikan izin kamera diaktifkan.', true);
-        }
+    
+            } catch(err) {
+                console.log("scan error", err);
+            }
+    
+        }, 600);
     }
 
     async function startBarcodeScanner() {
@@ -1916,7 +1977,6 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
                     },
                 }).done(function(data) {
                     let qty_default = "1";
-                    console.log(data);
                     for (let i = 0; i < data.length; i++) {
                         data = data[i];
                         // 1 = Grosir
@@ -2522,7 +2582,6 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
     }
     
     document.addEventListener('keydown', function(event) {
-        // console.log(event.key);
         if (event.key === 'F1' || event.keyCode === 112) {
             event.preventDefault(); // Mencegah help browser muncul
             simpan_detail();
@@ -2537,7 +2596,6 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
     });
     
     document.addEventListener('keydown', function(event) {
-        
         if (event.key === 'F3' || event.keyCode === 114) {
             event.preventDefault(); // Mencegah help browser muncul
             // simpan_detail();
