@@ -1,0 +1,23 @@
+# TODO - Implementasi Scan Barcode HP di trbmasuk.php
+
+- [x] Tambahkan modal `#ModalScanBarcode` di `masuk/modul/mod_trbmasuk/trbmasuk.php`
+- [x] Tambahkan load script `html5-qrcode.min.js`
+- [x] Tambahkan fungsi scanner:
+  - [x] `setScannerStatus`
+  - [x] `stopBarcodeScanner`
+  - [x] `triggerBarangByKode` (endpoint `modul/mod_trbmasuk/autobarang.php`)
+  - [x] `loadHtml5QrcodeScript`
+  - [x] `startHtml5QrcodeScanner`
+  - [x] `startBarcodeDetectorScanner`
+  - [x] `startBarcodeScanner`
+- [x] Tambahkan event modal scan:
+  - [x] `#ModalScanBarcode shown.bs.modal`
+  - [x] `#ModalScanBarcode hidden.bs.modal`
+- [x] Sesuaikan hasil scan untuk isi field form trbmasuk:
+  - [x] `id_barang`
+  - [x] `kd_barang`
+  - [x] `nmbrg_dtrbmasuk`
+  - [x] `stok_barang`
+  - [x] `qty_dtrbmasuk`
+  - [x] `sat_dtrbmasuk`
+  - [x] `hrgsat_dtrbmasuk`

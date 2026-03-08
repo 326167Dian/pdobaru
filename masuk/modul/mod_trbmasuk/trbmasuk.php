@@ -275,6 +275,9 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 													<div class='input-group-addon'>
 														<button type=button data-toggle='modal' data-target='#ModalItem' href='#' id='kode'><span class='glyphicon glyphicon-search'></span></button>
 													</div>
+													<div class='input-group-addon'>
+                                            			<button type=button data-toggle='modal' data-target='#ModalScanBarcode' href='#' id='btnScanBarcode'><span class='glyphicon glyphicon-camera'></span></button>
+                                        			</div>
 											</div>
 										</div>
 									
@@ -817,6 +820,26 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 </div>
 <!-- end modul supplier -->
 
+<!-- modal scan barcode -->
+<div id="ModalScanBarcode" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">SCAN BARCODE (KAMERA HP)</h4>
+			</div>
+			<div class="modal-body">
+				<div id="barcodeScannerReader" style="width:100%; min-height:260px; max-height:320px; background:#000;"></div>
+				<video id="barcodeScannerPreview" autoplay playsinline muted style="display:none; width:100%; max-height:320px; background:#000;"></video>
+				<p id="barcodeScannerStatus" style="margin-top:10px; margin-bottom:0; font-size:12px; color:#666;">Arahkan kamera ke barcode item.</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- end modal scan barcode -->
 
 <script type="text/javascript">
 	$(function() {
@@ -828,9 +851,278 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 	});
 </script>
 
+<script src="assets/js/html5-qrcode.min.js" type="text/javascript"></script>
+
 <script>
+	var scannerStream = null;
+	var scannerInterval = null;
+	var barcodeDetectorInstance = null;
+	var html5QrScanner = null;
+	var html5QrScannerActive = false;
+	var barcodeScanLocked = false;
+	var scannerMode = null;
+	var html5QrScriptPromise = null;
+
+	function setScannerStatus(message, isError) {
+		var statusEl = document.getElementById('barcodeScannerStatus');
+		if (!statusEl) {
+			return;
+		}
+		statusEl.innerText = message;
+		statusEl.style.color = isError ? '#b90000' : '#666';
+	}
+
+	function stopBarcodeScanner() {
+		barcodeScanLocked = false;
+
+		if (scannerInterval) {
+			clearInterval(scannerInterval);
+			scannerInterval = null;
+		}
+
+		if (html5QrScanner && html5QrScannerActive) {
+			try {
+				html5QrScanner.stop().then(function() {
+					html5QrScanner.clear();
+				}).catch(function() {
+					try {
+						html5QrScanner.clear();
+					} catch (e) {}
+				});
+			} catch (e) {}
+		}
+		html5QrScannerActive = false;
+		scannerMode = null;
+
+		if (scannerStream) {
+			scannerStream.getTracks().forEach(function(track) {
+				track.stop();
+			});
+			scannerStream = null;
+		}
+
+		var video = document.getElementById('barcodeScannerPreview');
+		if (video) {
+			video.srcObject = null;
+			video.style.display = 'none';
+		}
+
+		var reader = document.getElementById('barcodeScannerReader');
+		if (reader) {
+			reader.style.display = 'block';
+		}
+	}
+
+	function triggerBarangByKode(kd_brg) {
+		if (!kd_brg) {
+			return;
+		}
+
+		$('#kd_barang').val(kd_brg);
+
+		$.ajax({
+			url: 'modul/mod_trbmasuk/autobarang.php',
+			type: 'post',
+			data: {
+				'kd_brg': kd_brg
+			},
+		}).success(function(data) {
+
+			var json = data;
+			var res1 = json.replace("[", "");
+			var res2 = res1.replace("]", "");
+			datab = JSON.parse(res2);
+			document.getElementById('id_barang').value = datab.id_barang;
+			document.getElementById('nmbrg_dtrbmasuk').value = datab.nm_barang;
+			document.getElementById('stok_barang').value = datab.stok_barang;
+			document.getElementById('qty_dtrbmasuk').value = "1";
+			document.getElementById('sat_dtrbmasuk').value = datab.sat_barang;
+			document.getElementById('hrgsat_dtrbmasuk').value = datab.hrgsat_barang;
+
+		});
+	}
+
+	function loadHtml5QrcodeScript() {
+		if (window.Html5Qrcode) {
+			return Promise.resolve();
+		}
+
+		if (html5QrScriptPromise) {
+			return html5QrScriptPromise;
+		}
+
+		html5QrScriptPromise = new Promise(function(resolve, reject) {
+			var script = document.createElement('script');
+			script.src = 'assets/js/html5-qrcode.min.js';
+			script.async = true;
+			script.onload = function() {
+				resolve();
+			};
+			script.onerror = function() {
+				reject(new Error('Gagal memuat html5-qrcode'));
+			};
+			document.head.appendChild(script);
+		});
+
+		return html5QrScriptPromise;
+	}
+
+	async function startHtml5QrcodeScanner() {
+		if (!window.Html5Qrcode) {
+			throw new Error('html5-qrcode belum tersedia');
+		}
+
+		var video = document.getElementById('barcodeScannerPreview');
+		var reader = document.getElementById('barcodeScannerReader');
+		if (video) {
+			video.style.display = 'none';
+		}
+		if (reader) {
+			reader.style.display = 'block';
+		}
+
+		html5QrScanner = new Html5Qrcode('barcodeScannerReader');
+		var config = {
+			fps: 10,
+			qrbox: {
+				width: 260,
+				height: 120
+			},
+			aspectRatio: 1.7778,
+			formatsToSupport: [
+				Html5QrcodeSupportedFormats.CODE_128,
+				Html5QrcodeSupportedFormats.EAN_13,
+				Html5QrcodeSupportedFormats.EAN_8,
+				Html5QrcodeSupportedFormats.UPC_A,
+				Html5QrcodeSupportedFormats.UPC_E,
+				Html5QrcodeSupportedFormats.CODABAR,
+				Html5QrcodeSupportedFormats.CODE_39,
+				Html5QrcodeSupportedFormats.CODE_93,
+				Html5QrcodeSupportedFormats.ITF,
+				Html5QrcodeSupportedFormats.QR_CODE
+			],
+			experimentalFeatures: {
+				useBarCodeDetectorIfSupported: true
+			}
+		};
+
+		await html5QrScanner.start({
+			facingMode: {
+				ideal: 'environment'
+			}
+		}, config, function(decodedText) {
+			if (barcodeScanLocked) {
+				return;
+			}
+
+			barcodeScanLocked = true;
+			var hasilScan = $.trim(decodedText || '');
+			if (!hasilScan) {
+				barcodeScanLocked = false;
+				return;
+			}
+
+			setScannerStatus('Barcode terdeteksi: ' + hasilScan, false);
+			triggerBarangByKode(hasilScan);
+			$('#ModalScanBarcode').modal('hide');
+		}, function() {
+			// ignore per-frame decode error
+		});
+
+		html5QrScannerActive = true;
+		scannerMode = 'html5-qrcode';
+		setScannerStatus('Scanner aktif. Arahkan barcode ke area kamera.', false);
+	}
+
+	async function startBarcodeDetectorScanner() {
+		if (!window.BarcodeDetector) {
+			setScannerStatus('Browser tidak support BarcodeDetector.', true);
+			return;
+		}
+
+		var video = document.getElementById('barcodeScannerPreview');
+		var reader = document.getElementById('barcodeScannerReader');
+		if (reader) {
+			reader.style.display = 'none';
+		}
+		if (video) {
+			video.style.display = 'block';
+		}
+		barcodeDetectorInstance = new BarcodeDetector({
+			formats: ['code_128', 'ean_13', 'ean_8', 'qr_code']
+		});
+
+		scannerStream = await navigator.mediaDevices.getUserMedia({
+			video: {
+				facingMode: {
+					ideal: 'environment'
+				},
+				width: {
+					ideal: 720
+				},
+				height: {
+					ideal: 1280
+				}
+			}
+		});
+
+		video.srcObject = scannerStream;
+		await video.play();
+
+		scannerInterval = setInterval(async function() {
+
+			if (!video || video.readyState !== video.HAVE_ENOUGH_DATA) {
+				return;
+			}
+
+			try {
+
+				const detected = await barcodeDetectorInstance.detect(video);
+
+				if (detected.length > 0) {
+
+					const hasilScan = detected[0].rawValue;
+
+					barcodeScanLocked = true;
+					clearInterval(scannerInterval);
+
+					setScannerStatus('Barcode: ' + hasilScan, false);
+
+					$('#ModalScanBarcode .close').click();
+					triggerBarangByKode(hasilScan);
+
+				}
+
+			} catch (err) {
+				console.log("scan error", err);
+			}
+
+		}, 600);
+	}
+
+	async function startBarcodeScanner() {
+		stopBarcodeScanner();
+		setScannerStatus('Menyiapkan scanner kamera...', false);
+
+		try {
+			await loadHtml5QrcodeScript();
+			await startHtml5QrcodeScanner();
+		} catch (err) {
+			setScannerStatus('Fallback ke mode scanner bawaan browser...', false);
+			await startBarcodeDetectorScanner();
+		}
+	}
+
 	$(document).ready(function() {
 		tabel_detail();
+	});
+
+	$('#ModalScanBarcode').on('shown.bs.modal', function() {
+		startBarcodeScanner();
+	});
+
+	$('#ModalScanBarcode').on('hidden.bs.modal', function() {
+		stopBarcodeScanner();
 	});
 
     // Autocomplete nama obat
@@ -1138,31 +1430,9 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 
 	$('#kd_barang').keydown(function(e) {
 		if (e.which == 13) { // e.which == 13 merupakan kode yang mendeteksi ketika anda   // menekan tombol enter di keyboard
-			//letakan fungsi anda disini
-
+			e.preventDefault();
 			var kd_brg = $("#kd_barang").val();
-			$.ajax({
-				url: 'modul/mod_trbmasuk/autobarang.php',
-				type: 'post',
-				data: {
-					'kd_brg': kd_brg
-				},
-			}).success(function(data) {
-
-				var json = data;
-				//replace array [] menjadi '' 
-				var res1 = json.replace("[", "");
-				var res2 = res1.replace("]", "");
-				//INI CONTOH ARRAY JASON const json = '{"result":true, "count":42}';
-				datab = JSON.parse(res2);
-				document.getElementById('id_barang').value = datab.id_barang;
-				document.getElementById('nmbrg_dtrbmasuk').value = datab.nm_barang;
-				document.getElementById('stok_barang').value = datab.stok_barang;
-				document.getElementById('qty_dtrbmasuk').value = "1";
-				document.getElementById('sat_dtrbmasuk').value = datab.sat_barang;
-				document.getElementById('hrgsat_dtrbmasuk').value = datab.hrgsat_barang;
-			});
-
+			triggerBarangByKode(kd_brg);
 		}
 	});
 
