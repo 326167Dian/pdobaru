@@ -14,6 +14,8 @@ include "../../../configurasi/koneksi.php";
         			'sat_barang'=> $re['sat_barang'],
         // 			'indikasi'=> $re['indikasi'],
         			'hrgjual_barang'=> $re['hrgjual_barang'],
+        			'hrgjual_barang1'=> $re['hrgjual_barang1'],
+        			'hrgjual_barang2'=> $re['hrgjual_barang2'],
         			'hrgsat_barang'=> $re['hrgsat_barang'],
         			'kd_barang'=> $re['kd_barang']
         		);
