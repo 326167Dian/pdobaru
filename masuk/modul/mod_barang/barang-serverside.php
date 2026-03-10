@@ -9,11 +9,9 @@ if ($_GET['action'] == "table_data") {
     $columns = array(
         0 => 'id_barang',
         1 => 'nm_barang',
-        2 => 'updated_by',
-        3 => 'hrgjual_barang',
-        4 => 'zataktif',
-        5 => 'indikasi',
-        6 => 'id_barang'
+        2 => 'zataktif',
+        3 => 'indikasi',
+        4 => 'id_barang'
     );
 
     $querycount = $db->query("SELECT count(id_barang) as jumlah FROM barang");
@@ -32,13 +30,6 @@ if ($_GET['action'] == "table_data") {
         $query = $db->query("SELECT id_barang,
                                     kd_barang,
                                     nm_barang,
-                                    stok_barang,
-                                    sat_barang,
-                                    jenisobat,
-                                    hrgsat_barang,
-                                    hrgjual_barang,
-                                    hrgjual_barang1,
-                                    hrgjual_barang2,
                                     zataktif,
                                     indikasi,
                                     updated_by
@@ -48,23 +39,12 @@ if ($_GET['action'] == "table_data") {
         $query = $db->query("SELECT id_barang,
                                     kd_barang,
                                     nm_barang,
-                                    stok_barang,
-                                    sat_barang,
-                                    jenisobat,
-                                    hrgsat_barang,
-                                    hrgjual_barang,
-                                    hrgjual_barang1,
-                                    hrgjual_barang2,
                                     zataktif,
                                     indikasi,
                                     updated_by 
             FROM barang WHERE kd_barang LIKE '%$search%' 
                         OR nm_barang LIKE '%$search%'
-                        OR stok_barang LIKE '%$search%'
-                        OR sat_barang LIKE '%$search%'
                         OR updated_by LIKE '%$search%'
-                        OR hrgsat_barang LIKE '%$search%'
-                        OR hrgjual_barang LIKE '%$search%'
                         OR zataktif LIKE '%$search%'
                         OR indikasi LIKE '%$search%' 
             ORDER BY $order $dir LIMIT $limit OFFSET $start");
@@ -72,11 +52,7 @@ if ($_GET['action'] == "table_data") {
         $querycount = $db->query("SELECT count(id_barang) as jumlah 
             FROM barang WHERE kd_barang LIKE '%$search%' 
                         OR nm_barang LIKE '%$search%'
-                        OR stok_barang LIKE '%$search%'
-                        OR sat_barang LIKE '%$search%'
                         OR updated_by LIKE '%$search%'
-                        OR hrgsat_barang LIKE '%$search%'
-                        OR hrgjual_barang LIKE '%$search%'
                         OR zataktif LIKE '%$search%'
                         OR indikasi LIKE '%$search%'");
 
@@ -92,19 +68,6 @@ if ($_GET['action'] == "table_data") {
             $nestedData['id_barang']        = $value['id_barang'];
             $nestedData['nm_barang']        = $value['nm_barang'] . ' <span style="color: #666;">(' . $value['kd_barang'] . ')</span>';
             $nestedData['updated_by']       = $value['updated_by'];
-            $nestedData['stok_barang']      = $value['stok_barang'].' '.$value['sat_barang'];
-            $nestedData['sat_barang']       = $value['sat_barang'];
-            $nestedData['hrgsat_barang']    = $value['hrgsat_barang'];
-            $nestedData['hrgjual_barang_reguler']   = $value['hrgjual_barang'];
-            $nestedData['hrgjual_barang']   = '<table><tr>
-                                                <td><b>(R)</b> </td><td>'.format_rupiah($value['hrgjual_barang']).'</td>
-                                            </tr>
-                                            <tr>
-                                                <td><b>(Re)</b> </td><td>'.format_rupiah($value['hrgjual_barang1']).'</td>
-                                            </tr>
-                                            <tr>
-                                                <td><b>(Mp)</b> </td><td>'.format_rupiah($value['hrgjual_barang2']).'</td>
-                                            </tr></table>';
             
             // Menampilkan zataktif dengan nama admin di dalam kurung
             $zataktif_display = $value['zataktif'];

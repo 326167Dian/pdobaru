@@ -13,7 +13,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 	$aksi = "modul/mod_pelanggan/aksi_pelanggan.php";
 	$aksi_pelanggan = "masuk/modul/mod_pelanggan/aksi_pelanggan.php";
 	switch (isset($_GET['act']) ? $_GET['act'] : '') {
-			// Tampil Siswa
+		// Tampil Siswa
 		default:
 
 			$stmt = $db->query("SELECT * FROM pelanggan ORDER BY id_pelanggan ASC");
@@ -30,67 +30,99 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 					</div><!-- /.box-tools -->
 				</div>
 				<div class="box-body table-responsive">
-					<a class='btn  btn-success btn-flat' href='?module=pelanggan&act=tambah'>TAMBAH</a>
-					<a class='btn btn-primary btn-flat' href='?module=konseling'>KONSELING</a>
-					<a class='btn btn-warning btn-flat' href='?module=meso'>MESO</a>
-					<a class='btn btn-danger btn-flat' href='?module=pio'>PIO</a>
-					<a class='btn btn-default btn-flat' href='?module=pto'>PTO</a>
-					<a class='btn btn-success btn-flat' href='?module=cpp'>CATATAN PENGOBATAN PASIEN (CPP)</a>
-					<a class='btn btn-info btn-flat' href='?module=homecare'>HOME CARE </a>
-					<br><br>
+					<div class="nav-tabs-custom">
+						<ul class="nav nav-tabs">
+							<li class="<?php echo ($_GET['module'] == 'pelanggan' && !isset($_GET['act'])) ? 'active' : ''; ?>">
+								<a href="?module=pelanggan" class="bg-green">TAMBAH</a>
+							</li>
+							<li class="<?php echo ($_GET['module'] == 'konseling') ? 'active' : ''; ?>">
+								<a href="?module=konseling" class="bg-aqua">KONSELING</a>
+							</li>
+							<li class="<?php echo ($_GET['module'] == 'meso') ? 'active' : ''; ?>">
+								<a href="?module=meso" class="bg-yellow">MESO</a>
+							</li>
+							<li class="<?php echo ($_GET['module'] == 'pio') ? 'active' : ''; ?>">
+								<a href="?module=pio" class="bg-red">PIO</a>
+							</li>
+							<li class="<?php echo ($_GET['module'] == 'pto') ? 'active' : ''; ?>">
+								<a href="?module=pto">PTO</a>
+							</li>
+							<li class="<?php echo ($_GET['module'] == 'cpp') ? 'active' : ''; ?>">
+								<a href="?module=cpp" class="bg-green-active">CPP</a>
+							</li>
+							<li class="<?php echo ($_GET['module'] == 'homecare') ? 'active' : ''; ?>">
+								<a href="?module=homecare" class="bg-teal">HOME CARE</a>
+							</li>
+						</ul>
 
+						<div class="tab-content">
+							<div class="tab-pane active" id="tab_tambah">
+								<div class="table-responsive">
+									<a class='btn btn-success btn-flat' href='?module=pelanggan&act=tambah'>TAMBAH DATA PELANGGAN</a>
+									<br><br>
 
-					<table id="tampil" class="table table-bordered table-striped">
-						<thead>
-							<tr>
-								<th>No</th>
-								<th>Nama Pelanggan</th>
-								<th>Telepon</th>
-								<th>Alamat</th>
-								<th>Follow Up</th>
-								<th width="70">Aksi</th>
-							</tr>
-						</thead>
-						<tbody>
-				</tbody></table>
-<!-- DataTables server-side: rows are loaded via ajax -->
+									<table id="tampil" class="table table-bordered table-striped">
+										<thead>
+											<tr>
+												<th>No</th>
+												<th>Nama Pelanggan</th>
+												<th>Telepon</th>
+												<th>Alamat</th>
+												<th>Follow Up</th>
+												<th width="70">Aksi</th>
+											</tr>
+										</thead>
+										<tbody>
+										</tbody>
+									</table>
+									<!-- DataTables server-side: rows are loaded via ajax -->
+								</div>
+							</div>
 
-				<script>
-					$(document).ready(function() {
-						$("#tampil").DataTable({
-							processing: true,
-							serverSide: true,
-							autoWidth: false,
-							ajax: {
-								"url": "modul/mod_pelanggan/pelanggan_serverside.php?action=table_data",
-								"dataType": "JSON",
-								"type": "POST"
-							},
-							columns: [{
-								"data": "no",
-								"className": 'text-center',
-							},
-							{
-								"data": "nm_pelanggan"
-							},
-							{
-								"data": "tlp_pelanggan"
-							},
-							{
-								"data": "alamat_pelanggan"
-							},
-							{
-								"data": "followup"
-							},
-							{
-								"data": "pilih",
-								"className": 'text-center'
-							}
-						]
+							<!-- Konten untuk tab lain (Konseling, MESO, dll.) tidak diperlukan di sini,
+							karena mengklik tab tersebut akan langsung mengarahkan ke modul yang sesuai. -->
+						</div>
+					</div>
+
+					<script>
+						$(document).ready(function() {
+							// Inisialisasi DataTable.
+							// Tidak ada event handler khusus yang diperlukan untuk tab, karena tag <a>
+							// akan secara otomatis mengarahkan ke URL di href-nya.
+							// Skrip sebelumnya yang menangani klik tab dihapus karena salah dan tidak diperlukan.
+							$("#tampil").DataTable({
+								processing: true,
+								serverSide: true,
+								autoWidth: false,
+								ajax: {
+									"url": "modul/mod_pelanggan/pelanggan_serverside.php?action=table_data",
+									"dataType": "JSON",
+									"type": "POST"
+								},
+								columns: [{
+										"data": "no",
+										"className": 'text-center',
+									},
+									{
+										"data": "nm_pelanggan"
+									},
+									{
+										"data": "tlp_pelanggan"
+									},
+									{
+										"data": "alamat_pelanggan"
+									},
+									{
+										"data": "followup"
+									},
+									{
+										"data": "pilih",
+										"className": 'text-center'
+									}
+								]
+							});
 						});
-					});
-				</script>
-	
+					</script>
 				</div>
 			</div>
 
@@ -198,7 +230,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 				</div>
 				<div class='box-body table-responsive'>";
 			// flash message display if exists
-			if (isset($_SESSION['flash'])){
+			if (isset($_SESSION['flash'])) {
 				echo $_SESSION['flash'];
 				unset($_SESSION['flash']);
 			}
@@ -209,7 +241,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 				<div class='form-group'>
 					<label class='col-sm-2 control-label'>Tanggal</label>
 					<div class='col-sm-4'>
-						<input type='date' name='tgl' class='form-control' required='required' value='".date('Y-m-d')."'>
+						<input type='date' name='tgl' class='form-control' required='required' value='" . date('Y-m-d') . "'>
 					</div>
 				</div>
 				<div class='form-group'>
@@ -257,9 +289,9 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 			$stmt->execute([$_GET['id']]);
 			$riwayat = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			$no = 1;
-			foreach($riwayat as $rw){
-				$edit_link = "?module=pelanggan&act=edit_riwayat&id=$_GET[id]&idr=".$rw['id'];
-				$delete_link = $aksi."?module=pelanggan&act=hapus_riwayat&id=".$rw['id']."&token=".$token;
+			foreach ($riwayat as $rw) {
+				$edit_link = "?module=pelanggan&act=edit_riwayat&id=$_GET[id]&idr=" . $rw['id'];
+				$delete_link = $aksi . "?module=pelanggan&act=hapus_riwayat&id=" . $rw['id'] . "&token=" . $token;
 				echo "<tr>
 					<td>$no</td>
 					<td>$rw[tgl]</td>
@@ -268,8 +300,8 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 					<td>$rw[followup]</td>
 					<td>$rw[created_at]</td>
 					<td>
-						<a href='".$edit_link."' title='EDIT' class='btn btn-warning btn-xs'>EDIT</a>
-						<a href=javascript:confirmdelete('".$delete_link."') title='HAPUS' class='btn btn-danger btn-xs'>HAPUS</a>
+						<a href='" . $edit_link . "' title='EDIT' class='btn btn-warning btn-xs'>EDIT</a>
+						<a href=javascript:confirmdelete('" . $delete_link . "') title='HAPUS' class='btn btn-danger btn-xs'>HAPUS</a>
 					</td>
 				</tr>";
 				$no++;
@@ -284,7 +316,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 			$stmt->execute([$idr, $_GET['id']]);
 			if ($stmt->rowCount() < 1) {
 				$_SESSION['flash'] = "<div class='alert alert-danger'>Riwayat tidak ditemukan.</div>";
-				header('location:../../media_admin.php?module=pelanggan&act=riwayat&id='.$_GET['id']);
+				header('location:../../media_admin.php?module=pelanggan&act=riwayat&id=' . $_GET['id']);
 				exit;
 			}
 			$rw = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -300,30 +332,30 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 			<div class='box-body table-responsive'>
 			<form method=POST action='$aksi?module=pelanggan&act=update_riwayat' enctype='multipart/form-data' class='form-horizontal'>
 				<input type=hidden name='id_pelanggan' value='$_GET[id]'>
-				<input type=hidden name='id_riwayat' value='".$rw['id']."'>
-				<input type=hidden name='token' value='".$token."'>
+				<input type=hidden name='id_riwayat' value='" . $rw['id'] . "'>
+				<input type=hidden name='token' value='" . $token . "'>
 				<div class='form-group'>
 					<label class='col-sm-2 control-label'>Tanggal</label>
 					<div class='col-sm-4'>
-						<input type='date' name='tgl' class='form-control' required='required' value='".$rw['tgl']."'>
+						<input type='date' name='tgl' class='form-control' required='required' value='" . $rw['tgl'] . "'>
 					</div>
 				</div>
 				<div class='form-group'>
 					<label class='col-sm-2 control-label'>Diagnosa</label>
 					<div class='col-sm-4'>
-						<textarea name='diagnosa' class='form-control' rows='3'>".htmlspecialchars($rw['diagnosa'])."</textarea>
+						<textarea name='diagnosa' class='form-control' rows='3'>" . htmlspecialchars($rw['diagnosa']) . "</textarea>
 					</div>
 				</div>
 				<div class='form-group'>
 					<label class='col-sm-2 control-label'>Tindakan</label>
 					<div class='col-sm-4'>
-						<textarea name='tindakan' class='form-control' rows='3'>".htmlspecialchars($rw['tindakan'])."</textarea>
+						<textarea name='tindakan' class='form-control' rows='3'>" . htmlspecialchars($rw['tindakan']) . "</textarea>
 					</div>
 				</div>
 				<div class='form-group'>
 					<label class='col-sm-2 control-label'>Followup</label>
 					<div class='col-sm-4'>
-						<textarea name='followup' class='form-control' rows='3'>".htmlspecialchars($rw['followup'])."</textarea>
+						<textarea name='followup' class='form-control' rows='3'>" . htmlspecialchars($rw['followup']) . "</textarea>
 					</div>
 				</div>
 				<div class='form-group'>
@@ -337,7 +369,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 			</div>
 		</div>";
 			break;
-		case "edit": 
+		case "edit":
 			$stmt = $db->prepare("SELECT * FROM pelanggan WHERE id_pelanggan = ?");
 			$stmt->execute([$_GET['id']]);
 			$r = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -417,7 +449,6 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 
 
 			break;
-
 	}
 }
 ?>

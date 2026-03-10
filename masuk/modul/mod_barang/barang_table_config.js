@@ -18,40 +18,12 @@ $(document).ready(function() {
 			"dataType": "JSON",
 			"type": "POST"
 		},
-		"rowCallback": function(row, data, index) {
-			let q = (data['hrgjual_barang_reguler'] - data['hrgsat_barang']) / data['hrgsat_barang'];
-			
-			if(q <= 0.2){
-				$(row).find('td:eq(3)').css('background-color', '#ff003f');
-				$(row).find('td:eq(3)').css('color', '#ffffff');
-			} else if(q > 0.2 && q <= 0.25){
-				$(row).find('td:eq(3)').css('background-color', '#f39c12');
-				$(row).find('td:eq(3)').css('color', '#ffffff');
-				
-			} else if(q > 0.25 && q <= 0.3){
-				$(row).find('td:eq(3)').css('background-color', '#00ff3f');
-				$(row).find('td:eq(3)').css('color', '#ffffff');
-				
-			} else if(q > 0.3){
-				$(row).find('td:eq(3)').css('background-color', '#00bfff');
-				$(row).find('td:eq(3)').css('color', '#ffffff');
-			}
-			
-		},
 		columns: [{
 			"data": "no",
 			"className": 'text-center'
 		},
 		{
 			"data": "nm_barang"
-		},
-		{
-			"data": "stok_barang",
-			"className": 'text-center'
-		},
-		{
-			"data": "hrgjual_barang",
-			"className": 'text-left',
 		},
 		{
 			"data": "zataktif",
@@ -79,8 +51,7 @@ $(document).ready(function() {
 			"width": "95px",
 			"orderable": false,
 			"searchable": false,
-			"defaultContent": "",
-			"visible": (typeof userLevel !== 'undefined' && userLevel == 'pemilik')
+			"defaultContent": ""
 		}]
 	});
 
@@ -281,7 +252,7 @@ $(document).ready(function() {
 		zataktifModalData.id_barang = idBarang;
 		var zataktifHtml = zataktifModalData.zataktif || '';
 		if (!zataktifHtml) {
-			var cellHtml = table.cell(rowEl, 4).data() || '';
+			var cellHtml = table.cell(rowEl, 2).data() || '';
 			var temp = $('<div>').html(cellHtml);
 			temp.find('.btn-edit-zataktif').remove();
 			zataktifHtml = temp.html();
