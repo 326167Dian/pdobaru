@@ -176,6 +176,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 			$stmt = $db->prepare("SELECT * FROM pelanggan WHERE id_pelanggan = ?");
 			$stmt->execute([$_GET['id']]);
 			$p = $stmt->fetch(PDO::FETCH_ASSOC);
+			$has_riwayat_obat_table = ($db->query("SHOW TABLES LIKE 'riwayat_pelanggan_obat'")->rowCount() > 0);
 			// Generate CSRF token for riwayat actions if not set
 			if (!isset($_SESSION['csrf_pelanggan']) || empty($_SESSION['csrf_pelanggan'])) {
 				if (function_exists('random_bytes')) {
@@ -202,6 +203,9 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 				echo $_SESSION['flash'];
 				unset($_SESSION['flash']);
 			}
+			if (!$has_riwayat_obat_table) {
+				echo "<div class='alert alert-warning'>Tabel detail obat belum tersedia. Jalankan migration <b>20260313_add_table_riwayat_pelanggan_obat.sql</b> terlebih dahulu.</div>";
+			}
 			echo "
 			<form method=POST action='$aksi?module=pelanggan&act=input_riwayat' enctype='multipart/form-data' class='form-horizontal'>
 				<input type=hidden name='id_pelanggan' value='$_GET[id]'>
@@ -221,7 +225,23 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 				<div class='form-group'>
 					<label class='col-sm-2 control-label'>Tindakan</label>
 					<div class='col-sm-4'>
-						<textarea name='tindakan' class='form-control' rows='3'></textarea>
+						<div id='obat-wrap'>
+							<div class='row obat-row' style='margin-bottom:8px;'>
+								<div class='col-sm-7' style='padding-left:0;'>
+									<input type='hidden' name='obat_kd[]' class='obat-kd' value=''>
+									<input type='text' name='obat_nama[]' class='form-control obat-nama' placeholder='Nama obat (ketik lalu Enter)'>
+								</div>
+								<div class='col-sm-5' style='padding-right:0;'>
+									<div class='input-group'>
+										<input type='text' name='aturan_pakai[]' class='form-control' placeholder='Aturan pakai'>
+										<span class='input-group-btn'>
+											<button type='button' class='btn btn-danger btn-remove-obat'>x</button>
+										</span>
+									</div>
+								</div>
+							</div>
+						</div>
+						<button type='button' id='btn-tambah-obat' class='btn btn-default btn-sm'>+Tambah Obat</button>
 					</div>
 				</div>
 				<div class='form-group'>
@@ -256,15 +276,33 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 			$stmt = $db->prepare("SELECT * FROM riwayat_pelanggan WHERE id_pelanggan = ? ORDER BY tgl DESC");
 			$stmt->execute([$_GET['id']]);
 			$riwayat = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$riwayat_ids = array_map(function($x){ return (int)$x['id']; }, $riwayat);
+			$obat_map = [];
+			if ($has_riwayat_obat_table && count($riwayat_ids) > 0) {
+				$in_placeholders = implode(',', array_fill(0, count($riwayat_ids), '?'));
+				$obat_stmt = $db->prepare("SELECT id_riwayat, kd_barang, nm_barang, aturan_pakai FROM riwayat_pelanggan_obat WHERE id_riwayat IN ($in_placeholders) ORDER BY id ASC");
+				$obat_stmt->execute($riwayat_ids);
+				while ($ob = $obat_stmt->fetch(PDO::FETCH_ASSOC)) {
+					$txt = htmlspecialchars($ob['nm_barang']);
+					if (!empty($ob['kd_barang'])) {
+						$txt .= " (" . htmlspecialchars($ob['kd_barang']) . ")";
+					}
+					if (!empty($ob['aturan_pakai'])) {
+						$txt .= " - " . htmlspecialchars($ob['aturan_pakai']);
+					}
+					$obat_map[$ob['id_riwayat']][] = $txt;
+				}
+			}
 			$no = 1;
 			foreach($riwayat as $rw){
 				$edit_link = "?module=pelanggan&act=edit_riwayat&id=$_GET[id]&idr=".$rw['id'];
 				$delete_link = $aksi."?module=pelanggan&act=hapus_riwayat&id=".$rw['id']."&token=".$token;
+				$obat_tindakan = isset($obat_map[$rw['id']]) ? implode("<br>", $obat_map[$rw['id']]) : htmlspecialchars($rw['tindakan']);
 				echo "<tr>
 					<td>$no</td>
 					<td>$rw[tgl]</td>
 					<td>$rw[diagnosa]</td>
-					<td>$rw[tindakan]</td>
+					<td>$obat_tindakan</td>
 					<td>$rw[followup]</td>
 					<td>$rw[created_at]</td>
 					<td>
@@ -289,6 +327,13 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 			}
 			$rw = $stmt->fetch(PDO::FETCH_ASSOC);
 			$token = isset($_SESSION['csrf_pelanggan']) ? $_SESSION['csrf_pelanggan'] : '';
+			$has_riwayat_obat_table = ($db->query("SHOW TABLES LIKE 'riwayat_pelanggan_obat'")->rowCount() > 0);
+			$riwayat_obat = [];
+			if ($has_riwayat_obat_table) {
+				$riwayat_obat_stmt = $db->prepare("SELECT kd_barang, nm_barang, aturan_pakai FROM riwayat_pelanggan_obat WHERE id_riwayat = ? ORDER BY id ASC");
+				$riwayat_obat_stmt->execute([$rw['id']]);
+				$riwayat_obat = $riwayat_obat_stmt->fetchAll(PDO::FETCH_ASSOC);
+			}
 			echo "
 		  <div class='box box-primary box-solid'>
 			<div class='box-header with-border'>
@@ -298,6 +343,11 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 				</div>
 			</div>
 			<div class='box-body table-responsive'>
+			";
+			if (!$has_riwayat_obat_table) {
+				echo "<div class='alert alert-warning'>Tabel detail obat belum tersedia. Jalankan migration <b>20260313_add_table_riwayat_pelanggan_obat.sql</b> terlebih dahulu.</div>";
+			}
+			echo "
 			<form method=POST action='$aksi?module=pelanggan&act=update_riwayat' enctype='multipart/form-data' class='form-horizontal'>
 				<input type=hidden name='id_pelanggan' value='$_GET[id]'>
 				<input type=hidden name='id_riwayat' value='".$rw['id']."'>
@@ -317,7 +367,43 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 				<div class='form-group'>
 					<label class='col-sm-2 control-label'>Tindakan</label>
 					<div class='col-sm-4'>
-						<textarea name='tindakan' class='form-control' rows='3'>".htmlspecialchars($rw['tindakan'])."</textarea>
+						<div id='obat-wrap-edit'>";
+			if (count($riwayat_obat) > 0) {
+				foreach ($riwayat_obat as $item) {
+					echo "<div class='row obat-row' style='margin-bottom:8px;'>
+						<div class='col-sm-7' style='padding-left:0;'>
+							<input type='hidden' name='obat_kd[]' class='obat-kd' value='".htmlspecialchars($item['kd_barang'])."'>
+							<input type='text' name='obat_nama[]' class='form-control obat-nama' placeholder='Nama obat (ketik lalu Enter)' value='".htmlspecialchars($item['nm_barang'])."'>
+						</div>
+						<div class='col-sm-5' style='padding-right:0;'>
+							<div class='input-group'>
+								<input type='text' name='aturan_pakai[]' class='form-control' placeholder='Aturan pakai' value='".htmlspecialchars($item['aturan_pakai'])."'>
+								<span class='input-group-btn'>
+									<button type='button' class='btn btn-danger btn-remove-obat'>x</button>
+								</span>
+							</div>
+						</div>
+					</div>";
+				}
+			} else {
+				echo "<div class='row obat-row' style='margin-bottom:8px;'>
+					<div class='col-sm-7' style='padding-left:0;'>
+						<input type='hidden' name='obat_kd[]' class='obat-kd' value=''>
+						<input type='text' name='obat_nama[]' class='form-control obat-nama' placeholder='Nama obat (ketik lalu Enter)'>
+					</div>
+					<div class='col-sm-5' style='padding-right:0;'>
+						<div class='input-group'>
+							<input type='text' name='aturan_pakai[]' class='form-control' placeholder='Aturan pakai' value='".htmlspecialchars($rw['tindakan'])."'>
+							<span class='input-group-btn'>
+								<button type='button' class='btn btn-danger btn-remove-obat'>x</button>
+							</span>
+						</div>
+					</div>
+				</div>";
+			}
+			echo "
+						</div>
+						<button type='button' id='btn-tambah-obat-edit' class='btn btn-default btn-sm'>+Tambah Obat</button>
 					</div>
 				</div>
 				<div class='form-group'>
@@ -421,3 +507,278 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 	}
 }
 ?>
+<script>
+$(document).ready(function() {
+	function resolveObatByName($row) {
+		var $nama = $row.find('.obat-nama');
+		var namaVal = $.trim($nama.val());
+		$row.find('.obat-kd').val('');
+
+		if (namaVal === '') {
+			return;
+		}
+
+		function setResolvedItem(data) {
+			if (!data || !data.length) {
+				return false;
+			}
+			var item = data[0];
+			$row.find('.obat-kd').val(item.kd_barang);
+			$nama.val(item.nm_barang);
+			return true;
+		}
+
+		$.ajax({
+			url: 'modul/mod_trkasir/autonamabarang_enter.php',
+			type: 'post',
+			dataType: 'json',
+			data: {
+				'nm_barang': namaVal
+			}
+		}).done(function(data) {
+			if (setResolvedItem(data)) {
+				return;
+			}
+
+			$.ajax({
+				url: 'modul/mod_trkasir/autonamabarang.php',
+				type: 'post',
+				dataType: 'json',
+				data: {
+					'query': namaVal
+				}
+			}).done(function(listNama) {
+				if (!listNama || !listNama.length) {
+					return;
+				}
+
+				var namaTerpilih = $.trim(listNama[0]);
+				if (namaTerpilih === '') {
+					return;
+				}
+
+				$.ajax({
+					url: 'modul/mod_trkasir/autonamabarang_enter.php',
+					type: 'post',
+					dataType: 'json',
+					data: {
+						'nm_barang': namaTerpilih
+					}
+				}).done(function(exactData) {
+					setResolvedItem(exactData);
+				});
+			});
+		});
+	}
+
+	function bindObatAutocomplete(contextSelector) {
+		function activateFirstTypeaheadItem($input) {
+			var $menu = $input.siblings('ul.typeahead.dropdown-menu:visible, .dropdown-menu.typeahead:visible, ul.typeahead:visible');
+			if (!$menu.length) {
+				$menu = $('ul.typeahead.dropdown-menu:visible, .dropdown-menu.typeahead:visible, ul.typeahead:visible').last();
+			}
+			if (!$menu.length) {
+				return;
+			}
+
+			$menu.find('li.active').removeClass('active');
+			var $first = $menu.find('li:visible:first');
+			if ($first.length) {
+				$first.addClass('active');
+			}
+		}
+
+		function activateFirstJqueryUiItem($input) {
+			if (!($.ui && $.ui.autocomplete) || !$input.data('ui-autocomplete')) {
+				return;
+			}
+
+			var inst = $input.autocomplete('instance');
+			if (!inst || !inst.menu || !inst.menu.element) {
+				return;
+			}
+
+			var $firstItem = inst.menu.element.children(':visible:first');
+			if ($firstItem.length) {
+				inst.menu.focus($.Event('mouseenter'), $firstItem);
+			}
+		}
+
+		function activateFirstSuggestion($input) {
+			setTimeout(function() {
+				activateFirstTypeaheadItem($input);
+				activateFirstJqueryUiItem($input);
+			}, 40);
+		}
+
+		function normalizeItems(data) {
+			if (typeof data === 'string') {
+				try {
+					data = $.parseJSON(data);
+				} catch (e) {
+					data = [];
+				}
+			}
+			if (!$.isArray(data)) {
+				return [];
+			}
+			return data;
+		}
+
+		$(contextSelector).find('.obat-nama').each(function() {
+			var $input = $(this);
+			if ($input.data('obat-autocomplete-ready')) {
+				return;
+			}
+			$input.data('obat-autocomplete-ready', true);
+
+			if ($.isFunction($input.typeahead)) {
+				$input.typeahead({
+					autoSelect: true,
+					source: function(query, process) {
+						return $.post('modul/mod_trkasir/autonamabarang.php', {
+							query: query
+						}, function(data) {
+							return process(normalizeItems(data));
+						});
+					},
+					afterSelect: function(item) {
+						$input.val(item);
+						resolveObatByName($input.closest('.obat-row'));
+					}
+				});
+				$input.on('keyup focus', function() {
+					activateFirstSuggestion($input);
+				});
+			} else if ($.ui && $.ui.autocomplete) {
+				$input.autocomplete({
+					minLength: 1,
+					open: function() {
+						activateFirstSuggestion($input);
+					},
+					source: function(request, response) {
+						$.ajax({
+							url: 'modul/mod_trkasir/autonamabarang.php',
+							type: 'post',
+							data: {
+								query: request.term
+							},
+							success: function(data) {
+								response(normalizeItems(data));
+							},
+							error: function() {
+								response([]);
+							}
+						});
+					},
+					select: function(event, ui) {
+						$input.val(ui.item.value);
+						resolveObatByName($input.closest('.obat-row'));
+						return false;
+					}
+				});
+			}
+
+			$input.on('typeahead:selected typeahead:autocompleted', function() {
+				resolveObatByName($input.closest('.obat-row'));
+			});
+
+			$input.on('keydown', function(e) {
+				if (e.which === 13) {
+					if ($('.ui-autocomplete:visible').length) {
+						activateFirstSuggestion($input);
+						setTimeout(function() {
+							resolveObatByName($input.closest('.obat-row'));
+						}, 80);
+						return;
+					}
+
+					var $menu = $input.siblings('ul.typeahead.dropdown-menu:visible');
+					if ($menu.length) {
+						e.preventDefault();
+						var $active = $menu.find('li.active');
+						if ($active.length) {
+							$input.val($.trim($active.text()));
+						}
+						setTimeout(function() {
+							resolveObatByName($input.closest('.obat-row'));
+						}, 50);
+						return;
+					}
+
+					e.preventDefault();
+					resolveObatByName($input.closest('.obat-row'));
+				}
+			});
+
+			$input.on('blur', function() {
+				resolveObatByName($input.closest('.obat-row'));
+			});
+
+			$input.on('input', function() {
+				$input.closest('.obat-row').find('.obat-kd').val('');
+			});
+		});
+	}
+
+	function addObatRow(wrapperSelector) {
+		var wrap = $(wrapperSelector);
+		if (!wrap.length) {
+			return;
+		}
+
+		var rowHtml = ""
+			+ "<div class='row obat-row' style='margin-bottom:8px;'>"
+			+ "<div class='col-sm-7' style='padding-left:0;'>"
+			+ "<input type='hidden' name='obat_kd[]' class='obat-kd' value=''>"
+			+ "<input type='text' name='obat_nama[]' class='form-control obat-nama' placeholder='Nama obat (ketik lalu Enter)'>"
+			+ "</div>"
+			+ "<div class='col-sm-5' style='padding-right:0;'>"
+			+ "<div class='input-group'>"
+			+ "<input type='text' name='aturan_pakai[]' class='form-control' placeholder='Aturan pakai'>"
+			+ "<span class='input-group-btn'>"
+			+ "<button type='button' class='btn btn-danger btn-remove-obat'>x</button>"
+			+ "</span>"
+			+ "</div>"
+			+ "</div>"
+			+ "</div>";
+
+		wrap.append(rowHtml);
+		bindObatAutocomplete(wrapperSelector);
+	}
+
+	$('#btn-tambah-obat').on('click', function() {
+		addObatRow('#obat-wrap');
+	});
+
+	$('#btn-tambah-obat-edit').on('click', function() {
+		addObatRow('#obat-wrap-edit');
+	});
+
+	$(document).on('click', '.btn-remove-obat', function() {
+		var wrap = $(this).closest('[id^="obat-wrap"]');
+		if (wrap.find('.obat-row').length <= 1) {
+			return;
+		}
+		$(this).closest('.obat-row').remove();
+	});
+
+	bindObatAutocomplete('body');
+});
+</script>
+<style>
+.typeahead.dropdown-menu > li.active > a,
+ul.typeahead.dropdown-menu > li.active > a,
+.dropdown-menu.typeahead > li.active > a {
+	background-color: #2f86b8 !important;
+	color: #fff !important;
+}
+
+.ui-autocomplete .ui-state-active,
+.ui-autocomplete .ui-menu-item-wrapper.ui-state-active,
+.ui-autocomplete .ui-menu-item-wrapper.ui-state-focus {
+	background: #2f86b8 !important;
+	border-color: #2f86b8 !important;
+	color: #fff !important;
+}
+</style>

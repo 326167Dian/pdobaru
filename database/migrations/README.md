@@ -10,6 +10,7 @@ Jalankan file sesuai urutan nama (timestamp di awal nama file):
 2. `20260225_add_indexes_laporan_laba_penjualan.sql`
 3. `20260225_add_indexes_byrkredit_serverside.sql`
 4. `20260225_add_indexes_stok_kritis_analisa.sql`
+5. `20260313_add_table_riwayat_pelanggan_obat.sql`
 
 ## Cara menjalankan
 
@@ -49,6 +50,12 @@ mysql -u USERNAME -p NAMA_DATABASE < database/migrations/20260223_add_indexes_si
 
 - `idx_trkasir_tgl_kd` pada tabel `trkasir(tgl_trkasir, kd_trkasir)`
 - `idx_trkasir_detail_kdtrkasir_kdbarang` pada tabel `trkasir_detail(kd_trkasir, kd_barang)`
+
+`20260313_add_table_riwayat_pelanggan_obat.sql` menambahkan tabel detail obat untuk riwayat pelanggan:
+
+- `riwayat_pelanggan_obat(id_riwayat, kd_barang, nm_barang, aturan_pakai, created_at)`
+- index `idx_rpo_id_riwayat` pada `id_riwayat`
+- index `idx_rpo_kd_barang` pada `kd_barang`
 
 Migrasi bersifat **idempotent** (aman dijalankan ulang). Jika index sudah ada, script akan skip.
 
