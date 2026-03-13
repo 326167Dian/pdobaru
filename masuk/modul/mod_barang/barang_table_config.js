@@ -328,4 +328,10 @@ $(document).ready(function() {
 			}
 		});
 	});
+	
+// 	$('#kd_barang').on('click', function(e){
+// 	   // var kd_barang = $('#kd_barang').val();
+// 	   // console.log(kd_barang);
+// 	   document.getElementById('kd_barang').value = "";
+// 	})
 });

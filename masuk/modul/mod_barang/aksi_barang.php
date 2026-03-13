@@ -9,83 +9,36 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 	include "../../../configurasi/koneksi.php";
 	include "../../../configurasi/fungsi_thumb.php";
 	include "../../../configurasi/library.php";
-
-	function normalize_barang_html($html)
-	{
-		$html = trim((string)$html);
-		if ($html === '') {
-			return '';
-		}
-
-		if (function_exists('tidy_repair_string')) {
-			$config = [
-				'show-body-only' => true,
-				'clean' => true,
-				'output-html' => true,
-				'wrap' => 0,
-				'char-encoding' => 'utf8',
-			];
-			$html = tidy_repair_string($html, $config, 'utf8');
-		}
-
-		if (class_exists('DOMDocument')) {
-			$internalErrors = libxml_use_internal_errors(true);
-			$dom = new DOMDocument('1.0', 'UTF-8');
-
-			$flags = 0;
-			if (defined('LIBXML_HTML_NOIMPLIED')) {
-				$flags |= LIBXML_HTML_NOIMPLIED;
-			}
-			if (defined('LIBXML_HTML_NODEFDTD')) {
-				$flags |= LIBXML_HTML_NODEFDTD;
-			}
-
-			$loaded = $dom->loadHTML('<?xml encoding="utf-8" ?><div id="barang-root">' . $html . '</div>', $flags);
-			if ($loaded) {
-				foreach (['script', 'iframe', 'object'] as $tag) {
-					$nodes = $dom->getElementsByTagName($tag);
-					while ($nodes->length > 0) {
-						$node = $nodes->item(0);
-						$node->parentNode->removeChild($node);
-					}
-				}
-
-				$root = $dom->getElementById('barang-root');
-				if ($root) {
-					$normalized = '';
-					foreach ($root->childNodes as $childNode) {
-						$normalized .= $dom->saveHTML($childNode);
-					}
-					$normalized = trim($normalized);
-					libxml_clear_errors();
-					libxml_use_internal_errors($internalErrors);
-
-					if ($normalized !== '') {
-						return $normalized;
-					}
-				}
-			}
-
-			libxml_clear_errors();
-			libxml_use_internal_errors($internalErrors);
-		}
-
-		return nl2br(htmlspecialchars($html, ENT_QUOTES, 'UTF-8'));
-	}
+	include "../../../configurasi/fungsi_indotgl.php";
 
 	$module = $_GET['module'];
 	$act = $_GET['act'];
 
 	// Input admin
 	if ($module == 'barang' and $act == 'input_barang') {
-
-		$cekganda1 = $db->prepare("SELECT kd_barang FROM barang WHERE kd_barang = ?");
-		$cekganda1->execute([$_POST['kd_barang']]);
-		$ada1 = $cekganda1->rowCount();
-		if ($ada1 > 0) {
-			echo "<script type='text/javascript'>alert('Kode Barang sudah ada!');history.go(-1);</script>";
-		} else {
-
+//         $kdbarang = $_POST['kd_barang'];
+        
+// 		$cekganda1 = $db->prepare("SELECT kd_barang FROM barang WHERE kd_barang = ?");
+// 		$cekganda1->execute([$_POST['kd_barang']]);
+// 		$ada1 = $cekganda1->rowCount();
+// 		if ($ada1 > 0) {
+// 			echo "<script type='text/javascript'>alert('Kode Barang sudah ada!');history.go(-1);</script>";
+// 		} else {
+            $kdbarang = trim($_POST['kd_barang']);
+            
+            $yearmonth = date('y', time()).date('m',time());
+            if( (strlen($kdbarang) == 7 && substr($kdbarang,0,4) == $yearmonth) || $kdbarang == "" ){
+                $kdbarang = get_kode();
+            } else {
+                $cekganda1 = $db->prepare("SELECT kd_barang FROM barang WHERE kd_barang = ?");
+        		$cekganda1->execute([$kdbarang]);
+        		$ada1 = $cekganda1->rowCount();
+        		if ($ada1 > 0) {
+        			echo "<script type='text/javascript'>alert('Kode Barang sudah ada!');history.go(-1);</script>";
+        		    die();
+        		}
+            }
+            
 			$cekganda = $db->prepare("SELECT nm_barang FROM barang WHERE nm_barang = ?");
 			$cekganda->execute([$_POST['nm_barang']]);
 			$ada = $cekganda->rowCount();
@@ -101,17 +54,15 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 				} else {
 
 					$tanggal = date('Y-m-d H:i:s');
-					$updated_by = isset($_SESSION['namalengkap']) && !empty($_SESSION['namalengkap']) ? $_SESSION['namalengkap'] : $_SESSION['username'];
-					$indikasi = normalize_barang_html($_POST['indikasi'] ?? '');
-					$zataktif = normalize_barang_html($_POST['zataktif'] ?? '');
+				$updated_by = isset($_SESSION['namalengkap']) && !empty($_SESSION['namalengkap']) ? $_SESSION['namalengkap'] : $_SESSION['username'];
 
-					$db->prepare("INSERT INTO barang(kd_barang, nm_barang, stok_buffer, sat_barang, sat_grosir, jenisobat, konversi, hrgsat_barang, hrgsat_grosir, hrgjual_barang, hrgjual_barang1, hrgjual_barang2, indikasi, ket_barang, zataktif, tgl, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")->execute([$_POST['kd_barang'], $_POST['nm_barang'], $_POST['stok_buffer'], $_POST['sat_barang'], $_POST['sat_grosir'], $_POST['jenisobat'], $_POST['konversi'], $_POST['hrgsat_barang'], $_POST['hrgsat_grosir'], $_POST['hrgjual_barang'], $_POST['hrgjual_barang1'], $_POST['hrgjual_barang2'], $indikasi, $_POST['ket_barang'], $zataktif, $tanggal, $updated_by]);
+				$db->prepare("INSERT INTO barang(kd_barang, nm_barang, stok_buffer, sat_barang, sat_grosir, jenisobat, konversi, hrgsat_barang, hrgsat_grosir, hrgjual_barang, hrgjual_barang1, hrgjual_barang2, indikasi, ket_barang, zataktif, tgl, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")->execute([$kdbarang, $_POST['nm_barang'], $_POST['stok_buffer'], $_POST['sat_barang'], $_POST['sat_grosir'], $_POST['jenisobat'], $_POST['konversi'], $_POST['hrgsat_barang'], $_POST['hrgsat_grosir'], $_POST['hrgjual_barang'], $_POST['hrgjual_barang1'], $_POST['hrgjual_barang2'], $_POST['indikasi'], $_POST['ket_barang'], $_POST['zataktif'], $tanggal, $updated_by]);
 
 					//echo "<script type='text/javascript'>alert('Data berhasil ditambahkan !');window.location='../../media_admin.php?module=".$module."'</script>";
 					header('location:../../media_admin.php?module=' . $module);
 				}
 			}
-		}
+// 		}
 	}
 	//update barang
 	elseif ($module == 'barang' and $act == 'update_barang') {
@@ -120,8 +71,6 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 		$updated_by = isset($_SESSION['namalengkap']) && !empty($_SESSION['namalengkap']) ? $_SESSION['namalengkap'] : $_SESSION['username'];
 
 		try {
-			$indikasi = normalize_barang_html($_POST['indikasi'] ?? '');
-			$zataktif = normalize_barang_html($_POST['zataktif'] ?? '');
 			$stmt = $db->prepare("UPDATE barang SET
                                     kd_barang = ?,
 									nm_barang = ?,									
@@ -142,7 +91,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 									tgl = ?,
 									updated_by = ?
 									WHERE id_barang = ?");
-			$stmt->execute([$_POST['kd_barang'], $_POST['nm_barang'], $_POST['stok_buffer'], $_POST['sat_barang'], $_POST['sat_grosir'], $_POST['jenisobat'], $_POST['konversi'], $_POST['hrgsat_barang'], $_POST['hrgsat_grosir'], $_POST['hrgjual_barang'], $_POST['hrgjual_barang1'], $_POST['hrgjual_barang2'], $indikasi, $_POST['ket_barang'], $_POST['dosis'], $zataktif, $tanggal, $updated_by, $_POST['id']]);
+			$stmt->execute([$_POST['kd_barang'], $_POST['nm_barang'], $_POST['stok_buffer'], $_POST['sat_barang'], $_POST['sat_grosir'], $_POST['jenisobat'], $_POST['konversi'], $_POST['hrgsat_barang'], $_POST['hrgsat_grosir'], $_POST['hrgjual_barang'], $_POST['hrgjual_barang1'], $_POST['hrgjual_barang2'], $_POST['indikasi'], $_POST['ket_barang'], $_POST['dosis'], $_POST['zataktif'], $tanggal, $updated_by, $_POST['id']]);
 									
 			//echo "<script type='text/javascript'>alert('Data berhasil diubah !');window.location='../../media_admin.php?module=".$module."'</script>";
 			$returnStart = isset($_POST['return_start']) ? (int)$_POST['return_start'] : 0;
@@ -168,7 +117,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 			http_response_code(400);
 			exit('ID barang tidak ditemukan');
 		}
-		$indikasi = normalize_barang_html($_POST['indikasi'] ?? '');
+		$indikasi = isset($_POST['indikasi']) ? $_POST['indikasi'] : '';
 		$stmt = $db->prepare("UPDATE barang SET indikasi = ? WHERE id_barang = ?");
 		$stmt->execute([$indikasi, $_POST['id_barang']]);
 		echo 'OK';
@@ -179,7 +128,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 			http_response_code(400);
 			exit('ID barang tidak ditemukan');
 		}
-		$zataktif = normalize_barang_html($_POST['zataktif'] ?? '');
+		$zataktif = isset($_POST['zataktif']) ? $_POST['zataktif'] : '';
 		$stmt = $db->prepare("UPDATE barang SET zataktif = ? WHERE id_barang = ?");
 		$stmt->execute([$zataktif, $_POST['id_barang']]);
 		echo 'OK';

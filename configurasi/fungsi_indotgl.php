@@ -1,4 +1,6 @@
 <?php
+include 'koneksi.php';
+
 	function tgl_indo($tgl){
 			$tanggal = substr($tgl,8,2);
 			$bulan = getBulan(substr($tgl,5,2));
@@ -46,4 +48,44 @@
 						break;
 				}
 			} 
+	
+	function generate_kode(){
+        global $db;
+        $kode = rand(100000, 999999);
+        return $kode;
+    }
+    
+    function get_kode(){
+        global $db;
+        
+        // $kode = "";
+        // while($kode == ""){
+        //     $kd_barang = generate_kode();
+        //     $stmt = $db->prepare("SELECT kd_barang FROM barang WHERE kd_barang = ?");
+        //     $stmt->execute([$kd_barang]);
+        //     $cek = $stmt->rowCount();
+            
+        //     if ($cek > 0) {
+        //         $kode = "";
+        //     } else {
+        //         $kode = $kd_barang;
+        //     }    
+        // }
+        
+        $year  = date("y", time());
+        $month = date("m", time());
+        
+        $kd_barang = $year.$month;
+        $stmt = $db->prepare("SELECT kd_barang, RIGHT(kd_barang, 3) AS kode_int FROM barang WHERE LEFT(kd_barang, 4) LIKE ? ORDER BY kd_barang DESC LIMIT 1");
+        $stmt->execute(['%'.$kd_barang.'%']);
+        $cek = $stmt->rowCount();
+            
+        if ($cek > 0) {
+            $r = $stmt->fetch(PDO::FETCH_ASSOC);
+            $kode = $kd_barang.str_pad($r['kode_int'] + 1, 3, '0', STR_PAD_LEFT);
+        } else {
+            $kode = $kd_barang.'001';
+        }
+        return $kode;
+    }
 ?>

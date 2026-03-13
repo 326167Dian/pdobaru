@@ -1,6 +1,8 @@
 <?php
 session_start();
 include "../../../configurasi/koneksi.php";
+include "../../../configurasi/fungsi_indotgl.php";
+
 if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 	echo "<link href=../css/style.css rel=stylesheet type=text/css>";
 	echo "<div class='error msg'>Untuk mengakses Modul anda harus login.</div>";
@@ -123,8 +125,10 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 
 			break;
 
-		case "tambah":
-
+		case "tambah":  
+		    
+		    $kode_brg = get_kode();
+		    
 			echo "
 		  <div class='box box-primary box-solid'>
 				<div class='box-header with-border'>
@@ -142,7 +146,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 							  <div class='form-group'>
 									<label class='col-sm-4 control-label'>Kode Barang</label>        		
 									 <div class='col-sm-8'>
-										<input type=text name='kd_barang' class='form-control' autocomplete='off'>
+										<input type=text name='kd_barang' id='kd_barang' class='form-control' autocomplete='off' placeholder='$kode_brg'>
 									 </div>
 							  </div>
 							  
@@ -284,7 +288,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 				
 			</div>";
 
-
+                
 			break;
 
 		case "edit":
@@ -309,7 +313,7 @@ if (empty($_SESSION['username']) and empty($_SESSION['passuser'])) {
 							  <div class='form-group'>
 									<label class='col-sm-4 control-label'>Kode Barang</label>        		
 									 <div class='col-sm-8'>
-										<input type=text name='kd_barang' class='form-control' required='required' value='$r[kd_barang]' autocomplete='off'>
+										<input type=text name='kd_barang' class='form-control' required='required' value='$r[kd_barang]' autocomplete='off' readonly>
 									 </div>
 							  </div>
 							  
