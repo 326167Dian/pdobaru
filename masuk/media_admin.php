@@ -189,15 +189,17 @@ if ($_SESSION['login'] == 0) {
 								</a>
 							</li>
 
+							<?php if ($_SESSION['mpengguna'] == "Y") { ?><li><a href="?module=admin"><i class="glyphicon glyphicon-user"></i> Operator</a></li><?php } ?>
+							<?php if ($_SESSION['mheader'] == "Y") { ?><li><a href="?module=setheader"><i class="glyphicon glyphicon-align-center"></i> Data Apotek</a></li><?php } ?>
+							<?php if ($_SESSION['mpelanggan'] == "Y") { ?><li><a href="?module=pelanggan"><i class="fa fa-users"></i> Pelanggan</a></li><?php } ?>
+
+							<!--
 							<li class="treeview">
 								<a href="#">
 									<i class="glyphicon glyphicon-list"></i> <span>Data Master</span> <i class="fa fa-angle-left pull-right"></i>
 								</a>
 								<ul class="treeview-menu">
-									<?php if ($_SESSION['mpengguna'] == "Y") { ?><li><a href="?module=admin"><i class="glyphicon glyphicon-user"></i> Operator</a></li><?php } ?>
-									<?php if ($_SESSION['mheader'] == "Y") { ?><li><a href="?module=setheader"><i class="glyphicon glyphicon-align-center"></i> Header Struk</a></li><?php } ?>
 									<?php if ($_SESSION['mjenisbayar'] == "Y") { ?><li><a href="?module=carabayar"><i class="glyphicon glyphicon-barcode"></i> Jenis Pembayaran</a></li><?php } ?>
-									<?php if ($_SESSION['mpelanggan'] == "Y") { ?><li><a href="?module=pelanggan"><i class="fa fa-users"></i> Pelanggan</a></li><?php } ?>
 									<?php if ($_SESSION['msupplier'] == "Y") { ?><li><a href="?module=supplier"><i class="fa fa-truck"></i> Supplier</a></li><?php } ?>
 									<?php if ($_SESSION['msatuan'] == "Y") { ?><li><a href="?module=satuan"><i class="glyphicon glyphicon-flag"></i> Satuan</a></li><?php } ?>
 									<?php if ($_SESSION['mjenisobat'] == "Y") { ?><li><a href="?module=jenisobat"><i class="glyphicon glyphicon-tags"></i> Jenis Obat & Rak Obat</a></li><?php } ?>
@@ -205,6 +207,8 @@ if ($_SESSION['login'] == 0) {
 									<?php if ($_SESSION['komisi'] == "Y") { ?><li><a href="?module=komisi"><i class="glyphicon glyphicon-usd"></i> Komisi Pegawai</a></li><?php } ?>
 								</ul>
 							</li>
+							-->
+							<!--
 							<li class="treeview">
 								<a href="#">
 									<i class="glyphicon glyphicon-shopping-cart"></i> <span>Inventory</span> <i class="fa fa-angle-left pull-right"></i>
@@ -220,6 +224,8 @@ if ($_SESSION['login'] == 0) {
 								    <?php if ($_SESSION['jurnalkas'] == "Y") { ?><li><a href="?module=jurnalkas"><i class='glyphicon glyphicon-usd'></i> Jurnal Kas</a></li><?php } ?>
                                 </ul>
 							</li>
+							-->
+							<!--
 							<li class="treeview">
 								<a href="#">
 									<i class="glyphicon glyphicon-compressed"></i> <span>Transaksi</span><i class="fa fa-angle-left pull-right"></i>
@@ -236,9 +242,11 @@ if ($_SESSION['login'] == 0) {
 									<?php if ($_SESSION['catatan'] == "Y") { ?><li><a href="?module=catatan"><i class='glyphicon glyphicon-pencil'></i> Catatan</a></li><?php } ?>
 								</ul>
 							</li>
+							-->
 
 
 
+							<!--
 							<li class="treeview">
 								<a href="#">
 									<i class="glyphicon glyphicon-file"></i> <span>Laporan</span> <i class="fa fa-angle-left pull-right"></i>
@@ -257,6 +265,7 @@ if ($_SESSION['login'] == 0) {
 									<?php if ($_SESSION['level'] == "pemilik") { ?><li><a href="?module=lapstokopname"><i class='glyphicon glyphicon-print'></i> Stok Opname</a></li><?php } ?>
 								</ul>
 							</li>
+							-->
 
 						</ul>
 					</section>
