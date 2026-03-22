@@ -192,7 +192,7 @@ if ($_SESSION['login'] == 0) {
 							<?php if ($_SESSION['mpengguna'] == "Y") { ?><li><a href="?module=admin"><i class="glyphicon glyphicon-user"></i> Operator</a></li><?php } ?>
 							<?php if ($_SESSION['mheader'] == "Y") { ?><li><a href="?module=setheader"><i class="glyphicon glyphicon-align-center"></i> Data Apotek</a></li><?php } ?>
 							<?php if ($_SESSION['mpelanggan'] == "Y") { ?><li><a href="?module=pelanggan"><i class="fa fa-users"></i> Pelanggan</a></li><?php } ?>
-
+							<?php if ($_SESSION['mbarang'] == "Y") { ?><li><a href="?module=barang"><i class="glyphicon glyphicon-book"></i> Item Barang</a></li><?php } ?>
 							<!--
 							<li class="treeview">
 								<a href="#">
@@ -203,7 +203,7 @@ if ($_SESSION['login'] == 0) {
 									<?php if ($_SESSION['msupplier'] == "Y") { ?><li><a href="?module=supplier"><i class="fa fa-truck"></i> Supplier</a></li><?php } ?>
 									<?php if ($_SESSION['msatuan'] == "Y") { ?><li><a href="?module=satuan"><i class="glyphicon glyphicon-flag"></i> Satuan</a></li><?php } ?>
 									<?php if ($_SESSION['mjenisobat'] == "Y") { ?><li><a href="?module=jenisobat"><i class="glyphicon glyphicon-tags"></i> Jenis Obat & Rak Obat</a></li><?php } ?>
-									<?php if ($_SESSION['mbarang'] == "Y") { ?><li><a href="?module=barang"><i class="glyphicon glyphicon-book"></i> Item Barang</a></li><?php } ?>
+									
 									<?php if ($_SESSION['komisi'] == "Y") { ?><li><a href="?module=komisi"><i class="glyphicon glyphicon-usd"></i> Komisi Pegawai</a></li><?php } ?>
 								</ul>
 							</li>

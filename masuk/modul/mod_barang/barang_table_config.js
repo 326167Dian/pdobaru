@@ -43,7 +43,7 @@ $(document).ready(function() {
 					return (data || '') + "<div style='margin-top:6px;'><button type='button' class='btn btn-xs btn-info btn-edit-indikasi' data-id='" + (row.id_barang || '') + "'>Edit</button></div>";
 				}
 				return data;
-			}
+			}/*
 		},
 		{
 			"data": "aksi",
@@ -52,15 +52,15 @@ $(document).ready(function() {
 			"orderable": false,
 			"searchable": false,
 			"defaultContent": ""
-		}]
+		}*/}]
 	});
 
 	table.on('draw', function() {
-		$('#tes th:last-child, #tes td:last-child').css({
+		/*$('#tes th:last-child, #tes td:last-child').css({
 			'white-space': 'nowrap',
 			'min-width': '95px',
 			'text-align': 'left'
-		});
+		});*/
 	});
 
 	$(window).on('resize', function() {

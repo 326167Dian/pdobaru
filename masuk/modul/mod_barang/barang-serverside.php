@@ -76,7 +76,7 @@ if ($_GET['action'] == "table_data") {
             }
             $nestedData['zataktif']         = $zataktif_display;
             $nestedData['indikasi']         = $value['indikasi'];
-                        $nestedData['aksi']             = "<div class='dropdown' style='white-space:nowrap; display:inline-block;'>
+                        /*$nestedData['aksi']             = "<div class='dropdown' style='white-space:nowrap; display:inline-block;'>
     <button class='btn btn-default dropdown-toggle' type='button' id='dropdownMenuAksi" . $value['id_barang'] . "' data-toggle='dropdown' aria-haspopup='true' aria-expanded='true' style='white-space:nowrap;'>
         action
         <span class='caret'></span>
@@ -88,7 +88,7 @@ if ($_GET['action'] == "table_data") {
                     <li style='margin:0 0 4px 0; background:transparent; text-align:left;'><a href='?module=kartustok&act=view&id=" . $value['kd_barang'] . "' style='display:block; width:70%; margin:0; box-sizing:border-box; padding:4px 8px; background-color:pink; color:#555; white-space:nowrap;'>KARTU STOK</a></li>
                     <li style='margin:0; background:transparent; text-align:left;'><a href=javascript:confirmdelete('" . $aksi . "?module=barang&act=hapus&id=" . $value['id_barang'] . "') style='display:block; width:70%; margin:0; box-sizing:border-box; padding:4px 8px; background-color:red; color:#fff; white-space:nowrap;'>HAPUS</a></li>
     </ul>
-</div>";
+</div>";*/
             $data[] = $nestedData;
             $no++;
         }
